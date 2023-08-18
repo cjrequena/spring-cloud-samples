@@ -1,0 +1,126 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "additionalProperties": false,
+  "definitions": {
+    "FooDTO": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "oneOf": [
+            {
+              "title": "Not included",
+              "type": "null"
+            },
+            {
+              "format": "uuid",
+              "type": "string"
+            }
+          ]
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    }
+  },
+  "properties": {
+    "data": {
+      "oneOf": [
+        {
+          "title": "Not included",
+          "type": "null"
+        },
+        {
+          "$ref": "#/definitions/FooDTO"
+        }
+      ]
+    },
+    "database64": {
+      "oneOf": [
+        {
+          "title": "Not included",
+          "type": "null"
+        },
+        {
+          "type": "string"
+        }
+      ]
+    },
+    "datacontenttype": {
+      "type": "string"
+    },
+    "dataschema": {
+      "oneOf": [
+        {
+          "title": "Not included",
+          "type": "null"
+        },
+        {
+          "type": "string"
+        }
+      ]
+    },
+    "id": {
+      "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+      "type": "string"
+    },
+    "source": {
+      "oneOf": [
+        {
+          "title": "Not included",
+          "type": "null"
+        },
+        {
+          "type": "string"
+        }
+      ]
+    },
+    "specversion": {
+      "type": "string"
+    },
+    "subject": {
+      "oneOf": [
+        {
+          "title": "Not included",
+          "type": "null"
+        },
+        {
+          "type": "string"
+        }
+      ]
+    },
+    "time": {
+      "oneOf": [
+        {
+          "title": "Not included",
+          "type": "null"
+        },
+        {
+          "type": "number"
+        }
+      ]
+    },
+    "type": {
+      "oneOf": [
+        {
+          "title": "Not included",
+          "type": "null"
+        },
+        {
+          "type": "string"
+        }
+      ]
+    }
+  },
+  "required": [
+    "id",
+    "specversion",
+    "datacontenttype"
+  ],
+  "title": "Foo Event",
+  "type": "object"
+}
