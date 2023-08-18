@@ -1,10 +1,26 @@
+# spring-cloud-openfeign-sample
+
+## Prerequisites 
+- [Install Consul](https://developer.hashicorp.com/consul/downloads)  
+- [Install Docker](https://docs.docker.com/engine/install/)
+
+## Run consul agent
+```bash
+$ consul agent --dev
+```
+
+## Run docker compose
+```bash
+$ docker-compose up -d
+```
+
+
+---
 seq 1 10 | xargs -n1 -P10 \
 curl -X POST localhost:8080/account-service/api/accounts/deposit \
 -H 'Content-Type: application/json' \
 -H 'Accept-Version: application/vnd.sample-service.v1' \
 -d '{"account_id": "b137611f-7494-4a50-b40a-dd25e76dc9ff","amount": "100"}'
-
-
 
 seq 1 10 | xargs -n1 -P10 \
 curl -X POST localhost:9080/order-service/api/orders/ \

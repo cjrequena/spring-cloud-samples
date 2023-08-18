@@ -11,8 +11,6 @@
     <artifactId>account-service</artifactId>
     <packaging>jar</packaging>
     <properties>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
         <main-class>com.cjrequena.sample.AccountServiceApplication</main-class>
     </properties>
     <dependencies>
@@ -151,7 +149,7 @@
         </dependency>
         <dependency>
             <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-ui</artifactId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
             <version>${springdoc.version}</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/jakarta.json/jakarta.json-api -->

@@ -11,8 +11,6 @@
     <artifactId>config-server</artifactId>
     <packaging>jar</packaging>
     <properties>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
         <main-class>com.cjrequena.sample.ConfigServerMainApplication</main-class>
     </properties>
     <dependencies>

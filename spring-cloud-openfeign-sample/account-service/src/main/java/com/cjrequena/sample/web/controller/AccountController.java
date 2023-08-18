@@ -9,6 +9,7 @@ import com.cjrequena.sample.exception.api.NotFoundApiException;
 import com.cjrequena.sample.exception.service.AccountNotFoundServiceException;
 import com.cjrequena.sample.exception.service.OptimisticConcurrencyServiceException;
 import com.cjrequena.sample.service.AccountService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
 
 import static com.cjrequena.sample.web.controller.AccountController.ACCEPT_VERSION;
 import static com.cjrequena.sample.web.controller.AccountController.ENDPOINT;
