@@ -37,6 +37,7 @@
     <modules>
         <module>spring-cloud-openfeign-sample</module>
         <module>spring-cloud-stream-kafka-sample</module>
+        <module>spring-cloud-webflux-webclient-sample</module>
     </modules>
     <dependencyManagement>
         <dependencies>
