@@ -11,10 +11,13 @@
     <artifactId>spring-cloud-webflux-webclient-sample</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>spring-cloud-openfeign-sample</name>
-    <description>spring-cloud-openfeign-sample</description>
+    <name>spring-cloud-webflux-webclient-sample</name>
+    <description>spring-cloud-webflux-webclient-sample</description>
     <properties>
     </properties>
     <modules>
+        <module>config-server</module>
+        <module>account-service</module>
+        <module>order-service</module>
     </modules>
 </project>
