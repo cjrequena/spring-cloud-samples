@@ -18,7 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
-
 import java.net.URI;
 import java.util.List;
 import java.util.UUID;
@@ -81,7 +80,8 @@ public class AccountApi {
     path = "/accounts/{id}",
     produces = {APPLICATION_JSON_VALUE}
   )
-  public ResponseEntity<Void> update(@PathVariable(value = "id") UUID id, @Valid @RequestBody AccountDTO dto, @RequestHeader("version") Long version) throws NotFoundApiException, ConflictApiException {
+  public ResponseEntity<Void> update(@PathVariable(value = "id") UUID id, @Valid @RequestBody AccountDTO dto, @RequestHeader("version") Long version)
+    throws NotFoundApiException, ConflictApiException {
     try {
       dto.setId(id);
       dto.setVersion(version);

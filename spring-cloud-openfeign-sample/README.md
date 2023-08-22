@@ -1,19 +1,21 @@
 # spring-cloud-openfeign-sample
 
-## Prerequisites 
-- [Install Consul](https://developer.hashicorp.com/consul/downloads)  
+## Prerequisites
+
+- [Install Consul](https://developer.hashicorp.com/consul/downloads)
 - [Install Docker](https://docs.docker.com/engine/install/)
 
 ## Run consul agent
+
 ```bash
 $ consul agent --dev
 ```
 
 ## Run docker compose
+
 ```bash
 $ docker-compose up -d
 ```
-
 
 ---
 seq 1 10 | xargs -n1 -P10 \

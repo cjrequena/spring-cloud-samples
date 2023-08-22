@@ -1,16 +1,15 @@
 # EVENT SCHEMA REPOSITORY
 
-
 ## Overview
 
 This is an example of a event schema repository to synchronize the schemas stored in gitlab with the schema registry.
 
-To upload the schemas we will make use of a gitops tool the "Schema Registry GitOps": (https://github.com/domnikl/schema-registry-gitops)
+To upload the schemas we will make use of a gitops tool the "Schema Registry
+GitOps": (https://github.com/domnikl/schema-registry-gitops)
 
 This is an Infrastructure as Code tool that applies a desired state configured through simple YAML and
 Avro/Protobuf/JSON Schema files to a schema registry that allows you to maintain a version control history of your
 schemas and validate, review, merge and evolve schemas in your CI/CD pipeline.
-
 
 ![Yaml (+Avro, Protobuf, JSON) -> CI/CD -> Schema Registry](schema-registry-gitops.svg)
 

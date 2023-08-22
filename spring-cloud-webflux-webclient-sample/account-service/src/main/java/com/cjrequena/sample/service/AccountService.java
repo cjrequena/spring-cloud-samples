@@ -2,6 +2,8 @@ package com.cjrequena.sample.service;
 
 import com.cjrequena.sample.db.entity.AccountEntity;
 import com.cjrequena.sample.db.repository.AccountRepository;
+import com.cjrequena.sample.dto.DepositAccountDTO;
+import com.cjrequena.sample.dto.WithdrawAccountDTO;
 import com.cjrequena.sample.exception.service.AccountNotFoundServiceException;
 import com.cjrequena.sample.exception.service.OptimisticConcurrencyServiceException;
 import com.cjrequena.sample.mapper.AccountMapper;
@@ -76,6 +78,22 @@ public class AccountService {
       .findById(id)
       .switchIfEmpty(Mono.error(new AccountNotFoundServiceException("The account :: " + id + " :: was not Found")))
       .flatMap(entity -> this.accountRepository.deleteById(entity.getId()));
+  }
+
+  public Mono<AccountEntity> deposit(DepositAccountDTO depositAccountDTO) {
+    return this.retrieveById(depositAccountDTO.getAccountId())
+      .flatMap(_entity -> {
+        _entity.setBalance(_entity.getBalance().add(depositAccountDTO.getAmount()));
+        return this.update(_entity);
+      });
+  }
+
+  public Mono<AccountEntity> withdraw(WithdrawAccountDTO withdrawAccountDTO) {
+    return this.retrieveById(withdrawAccountDTO.getAccountId())
+      .flatMap(_entity -> {
+        _entity.setBalance(_entity.getBalance().subtract(withdrawAccountDTO.getAmount()));
+        return this.update(_entity);
+      });
   }
 
 }

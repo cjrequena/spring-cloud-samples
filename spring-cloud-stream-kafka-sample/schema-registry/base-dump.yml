@@ -1,9 +1,9 @@
 compatibility: BACKWARD
 subjects:
-- name: foo-event-value
-  file: null
-  type: JSON
-  schema: "{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"additionalProperties\"\
+  - name: foo-event-value
+    file: null
+    type: JSON
+    schema: "{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"additionalProperties\"\
     :false,\"definitions\":{\"FooDTO\":{\"additionalProperties\":false,\"properties\"\
     :{\"id\":{\"oneOf\":[{\"title\":\"Not included\",\"type\":\"null\"},{\"format\"\
     :\"uuid\",\"type\":\"string\"}]},\"name\":{\"type\":\"string\"}},\"required\"\
@@ -20,12 +20,12 @@ subjects:
     :\"number\"}]},\"type\":{\"oneOf\":[{\"title\":\"Not included\",\"type\":\"null\"\
     },{\"type\":\"string\"}]}},\"required\":[\"id\",\"specversion\",\"datacontenttype\"\
     ],\"title\":\"Foo Event\",\"type\":\"object\"}"
-  compatibility: NONE
-  references: []
-- name: spring-cloud-stream-kafka-sample-01
-  file: null
-  type: JSON
-  schema: "{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"additionalProperties\"\
+    compatibility: NONE
+    references: [ ]
+  - name: spring-cloud-stream-kafka-sample-01
+    file: null
+    type: JSON
+    schema: "{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"additionalProperties\"\
     :false,\"definitions\":{\"FooDTO\":{\"additionalProperties\":false,\"properties\"\
     :{\"id\":{\"oneOf\":[{\"title\":\"Not included\",\"type\":\"null\"},{\"format\"\
     :\"uuid\",\"type\":\"string\"}]},\"name\":{\"type\":\"string\"}},\"required\"\
@@ -42,12 +42,12 @@ subjects:
     :\"number\"}]},\"type\":{\"oneOf\":[{\"title\":\"Not included\",\"type\":\"null\"\
     },{\"type\":\"string\"}]}},\"required\":[\"id\",\"specversion\",\"datacontenttype\"\
     ],\"title\":\"Foo Event\",\"type\":\"object\"}"
-  compatibility: NONE
-  references: []
-- name: spring-cloud-stream-kafka-sample-01-value
-  file: null
-  type: JSON
-  schema: "{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"additionalProperties\"\
+    compatibility: NONE
+    references: [ ]
+  - name: spring-cloud-stream-kafka-sample-01-value
+    file: null
+    type: JSON
+    schema: "{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"additionalProperties\"\
     :false,\"definitions\":{\"FooDTO\":{\"additionalProperties\":false,\"properties\"\
     :{\"id\":{\"oneOf\":[{\"title\":\"Not included\",\"type\":\"null\"},{\"format\"\
     :\"uuid\",\"type\":\"string\"}]},\"name\":{\"type\":\"string\"}},\"required\"\
@@ -64,5 +64,5 @@ subjects:
     :\"number\"}]},\"type\":{\"oneOf\":[{\"title\":\"Not included\",\"type\":\"null\"\
     },{\"type\":\"string\"}]}},\"required\":[\"id\",\"specversion\",\"datacontenttype\"\
     ],\"title\":\"Foo Event\",\"type\":\"object\"}"
-  compatibility: NONE
-  references: []
+    compatibility: NONE
+    references: [ ]

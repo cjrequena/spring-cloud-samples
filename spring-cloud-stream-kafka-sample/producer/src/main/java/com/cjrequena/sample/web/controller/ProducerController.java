@@ -66,11 +66,13 @@ public class ProducerController {
         )
       ),
     },
-    requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(required = true, content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = FooDTO.class)))
+    requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(required = true,
+      content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = FooDTO.class)))
   )
   @ApiResponses(
     value = {
-      @ApiResponse(responseCode = "202", description = "Accepted - The request has been accepted for processing, but the processing has not been completed. The request might or might not eventually be acted upon, as it might be disallowed when processing actually takes place.."),
+      @ApiResponse(responseCode = "202",
+        description = "Accepted - The request has been accepted for processing, but the processing has not been completed. The request might or might not eventually be acted upon, as it might be disallowed when processing actually takes place.."),
       @ApiResponse(responseCode = "400", description = "Bad Request - The data given in the POST failed validation. Inspect the response body for details."),
       @ApiResponse(responseCode = "401", description = "Unauthorized - The supplied credentials, if any, are not sufficient to access the resource."),
       @ApiResponse(responseCode = "408", description = "Request Timeout"),

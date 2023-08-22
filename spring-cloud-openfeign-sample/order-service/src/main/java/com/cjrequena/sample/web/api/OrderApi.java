@@ -23,7 +23,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
-
 import java.net.URI;
 import java.util.List;
 
@@ -55,10 +54,10 @@ public class OrderApi {
       return ResponseEntity.created(resourcePath).headers(headers).build();
     } catch (InsufficientBalanceServiceException ex) {
       throw new PaymentRequiredApiException(ex.getMessage());
-    } catch (FeignServiceException ex){
+    } catch (FeignServiceException ex) {
       ErrorDTO errorDTO = ex.getErrorDTO();
       log.error("{}", errorDTO);
-      if(errorDTO.getStatus()==HttpStatus.FAILED_DEPENDENCY.value()){
+      if (errorDTO.getStatus() == HttpStatus.FAILED_DEPENDENCY.value()) {
         throw new FailedDependencyApiException(ex.getMessage());
       }
       throw new BadRequestApiException(ex.getMessage());

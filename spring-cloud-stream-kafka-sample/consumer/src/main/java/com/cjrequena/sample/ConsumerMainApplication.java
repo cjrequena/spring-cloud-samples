@@ -18,7 +18,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class ConsumerMainApplication implements CommandLineRunner {
 
-
   private static Class<ConsumerMainApplication> mainApplicationClass = ConsumerMainApplication.class;
 
   /**
