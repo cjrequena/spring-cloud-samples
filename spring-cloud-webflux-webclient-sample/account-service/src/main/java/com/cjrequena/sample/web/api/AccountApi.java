@@ -1,7 +1,6 @@
 package com.cjrequena.sample.web.api;
 
 import com.cjrequena.sample.common.Constants;
-import com.cjrequena.sample.db.entity.AccountEntity;
 import com.cjrequena.sample.dto.AccountDTO;
 import com.cjrequena.sample.exception.api.NotFoundApiException;
 import com.cjrequena.sample.exception.service.AccountNotFoundServiceException;
@@ -41,12 +40,13 @@ public class AccountApi {
     produces = {APPLICATION_JSON_VALUE}
   )
   public Mono<ResponseEntity<Object>> create(@Valid @RequestBody AccountDTO dto) {
-    return accountService.create(accountMapper.toEntity(dto))
-      .map(_entity -> {
+    return accountService.create(dto)
+      .map(_dto -> {
         HttpHeaders headers = new HttpHeaders();
         headers.set(CACHE_CONTROL, "no store, private, max-age=0");
-        headers.set("id", _entity.getId().toString());
-        final URI location = URI.create(ENDPOINT.concat("/accounts/id/").concat(_entity.getId().toString()));
+        headers.set("Accept-Version", ACCEPT_VERSION);
+        headers.set("id", _dto.getId().toString());
+        final URI location = URI.create(ENDPOINT.concat("/accounts/id/").concat(_dto.getId().toString()));
         return ResponseEntity.created(location).headers(headers).build();
       }).onErrorMap(ex -> {
         if (ex instanceof AccountNotFoundServiceException) {
@@ -63,12 +63,11 @@ public class AccountApi {
   public Mono<ResponseEntity<AccountDTO>> retrieveById(@PathVariable(value = "id") UUID id) {
     return this.accountService
       .retrieveById(id)
-      .map(this.accountMapper::toDTO)
-      .map(dto -> {
+      .map(_dto -> {
         HttpHeaders headers = new HttpHeaders();
         headers.set(CACHE_CONTROL, "no store, private, max-age=0");
-        headers.set("id", dto.getId().toString());
-        return ResponseEntity.ok().headers(headers).body(dto);
+        headers.set("id", _dto.getId().toString());
+        return ResponseEntity.ok().headers(headers).body(_dto);
       })
       .onErrorResume(ex -> {
           if (ex instanceof AccountNotFoundServiceException) {
@@ -86,10 +85,8 @@ public class AccountApi {
   public Mono<ResponseEntity<Flux<AccountDTO>>> retrieve() {
     HttpHeaders headers = new HttpHeaders();
     headers.set(CACHE_CONTROL, "no store, private, max-age=0");
-    final Flux<AccountDTO> fooDTOV1Flux = this.accountService
-      .retrieve()
-      .map(this.accountMapper::toDTO);
-    return Mono.just(ResponseEntity.ok().headers(headers).body(fooDTOV1Flux));
+    final Flux<AccountDTO> dtos$ = this.accountService.retrieve();
+    return Mono.just(ResponseEntity.ok().headers(headers).body(dtos$));
   }
 
   @PutMapping(
@@ -97,10 +94,9 @@ public class AccountApi {
     produces = {APPLICATION_JSON_VALUE}
   )
   public Mono<ResponseEntity<Object>> update(@PathVariable(value = "id") UUID id, @Valid @RequestBody AccountDTO dto, @RequestHeader("version") Long version) {
-    AccountEntity entity = accountMapper.toEntity(dto);
-    entity.setId(id);
-    entity.setVersion(version);
-    return this.accountService.update(entity)
+    dto.setId(id);
+    dto.setVersion(version);
+    return this.accountService.update(dto)
       .map(_entity -> {
         HttpHeaders headers = new HttpHeaders();
         headers.set(CACHE_CONTROL, "no store, private, max-age=0");

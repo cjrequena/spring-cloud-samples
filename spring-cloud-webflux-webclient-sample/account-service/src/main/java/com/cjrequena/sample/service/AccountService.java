@@ -2,6 +2,7 @@ package com.cjrequena.sample.service;
 
 import com.cjrequena.sample.db.entity.AccountEntity;
 import com.cjrequena.sample.db.repository.AccountRepository;
+import com.cjrequena.sample.dto.AccountDTO;
 import com.cjrequena.sample.dto.DepositAccountDTO;
 import com.cjrequena.sample.dto.WithdrawAccountDTO;
 import com.cjrequena.sample.exception.service.AccountNotFoundServiceException;
@@ -32,32 +33,35 @@ public class AccountService {
   private final AccountMapper accountMapper;
   private final AccountRepository accountRepository;
 
-  public Mono<AccountEntity> create(AccountEntity entity) {
+  public Mono<AccountDTO> create(AccountDTO dto) {
+    AccountEntity entity = this.accountMapper.toEntity(dto);
     entity.setId(UUID.randomUUID());
-    return accountRepository.save(entity);
+    Mono<AccountDTO> dto$ = this.accountRepository.save(entity).map(this.accountMapper::toDTO);
+    return dto$;
   }
 
-  public Mono<AccountEntity> retrieveById(UUID id) {
+  public Mono<AccountDTO> retrieveById(UUID id) {
     return accountRepository
       .findById(id)
-      .switchIfEmpty(Mono.error(new AccountNotFoundServiceException("The account :: " + id + " :: was not Found")));
+      .switchIfEmpty(Mono.error(new AccountNotFoundServiceException("The account :: " + id + " :: was not Found")))
+      .map(this.accountMapper::toDTO);
   }
 
-  public Flux<AccountEntity> retrieve() {
-    return this.accountRepository.findAll();
+  public Flux<AccountDTO> retrieve() {
+    Flux<AccountDTO> dtos$ = this.accountRepository.findAll().map(this.accountMapper::toDTO);
+    return dtos$;
   }
 
-  public Mono<AccountEntity> update(AccountEntity entity) {
-
+  public Mono<AccountEntity> update(AccountDTO dto) {
     return accountRepository
-      .findById(entity.getId())
-      .switchIfEmpty(Mono.error(new AccountNotFoundServiceException("The account :: " + entity.getId() + " :: was not Found")))
+      .findById(dto.getId())
+      .switchIfEmpty(Mono.error(new AccountNotFoundServiceException("The account :: " + dto.getId() + " :: was not Found")))
       .map(Optional::of)
       .flatMap(optionalAccount -> {
         if (optionalAccount.isPresent()) {
           AccountEntity _entity = optionalAccount.get();
-          if (_entity.getVersion().equals(entity.getVersion())) {
-            return accountRepository.save(entity);
+          if (_entity.getVersion().equals(dto.getVersion())) {
+            return accountRepository.save(this.accountMapper.toEntity(dto));
           } else {
             log.trace(
               "Optimistic concurrency control error in account :: {} :: actual version doesn't match expected version {}",
