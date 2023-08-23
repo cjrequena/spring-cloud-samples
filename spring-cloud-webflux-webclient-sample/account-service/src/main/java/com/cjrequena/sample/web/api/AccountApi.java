@@ -30,7 +30,7 @@ import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class AccountApi {
 
-  public static final String ENDPOINT = "/account-service/api/";
+  public static final String ENDPOINT = "/account-service/api";
   public static final String ACCEPT_VERSION = "Accept-Version=" + Constants.VND_SAMPLE_SERVICE_V1;
   private final AccountService accountService;
   private final AccountMapper accountMapper;
