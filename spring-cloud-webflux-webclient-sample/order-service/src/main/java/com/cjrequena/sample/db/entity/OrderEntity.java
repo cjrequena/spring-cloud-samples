@@ -12,26 +12,26 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
 
-/**
- *
- * <p></p>
- * <p></p>
- * @author cjrequena
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Document("account")
-public class AccountEntity {
+@Document("order")
+public class OrderEntity {
+
   @Id
-  private UUID id;
+  UUID id;
 
-  private String owner;
+  @Field(value = "account_id")
+  UUID accountId;
 
-  private BigDecimal balance;
+  BigDecimal total;
 
   @Field(value = "creation_date")
   private LocalDate creationDate;
+
+  String status;
+
+  String description;
 
   @Version
   private Long version;
