@@ -60,9 +60,9 @@ public class AccountApi {
     path = "/accounts/{id}",
     produces = {APPLICATION_JSON_VALUE}
   )
-  public Mono<ResponseEntity<AccountDTO>> retrieveById(@PathVariable(value = "id") UUID id) {
+  public Mono<ResponseEntity<AccountDTO>> retrieveById(@PathVariable(value = "id") String id) {
     return this.accountService
-      .retrieveById(id)
+      .retrieveById(UUID.fromString(id))
       .map(_dto -> {
         HttpHeaders headers = new HttpHeaders();
         headers.set(CACHE_CONTROL, "no store, private, max-age=0");

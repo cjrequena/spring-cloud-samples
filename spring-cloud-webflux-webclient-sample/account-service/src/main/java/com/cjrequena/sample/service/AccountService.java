@@ -6,6 +6,7 @@ import com.cjrequena.sample.dto.AccountDTO;
 import com.cjrequena.sample.dto.DepositAccountDTO;
 import com.cjrequena.sample.dto.WithdrawAccountDTO;
 import com.cjrequena.sample.exception.service.AccountNotFoundServiceException;
+import com.cjrequena.sample.exception.service.InsufficientBalanceServiceException;
 import com.cjrequena.sample.exception.service.OptimisticConcurrencyServiceException;
 import com.cjrequena.sample.mapper.AccountMapper;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -89,14 +91,26 @@ public class AccountService {
       .flatMap(_entity -> {
         _entity.setBalance(_entity.getBalance().add(depositAccountDTO.getAmount()));
         return this.update(_entity);
+      }).onErrorResume(ex -> {
+        log.error(ex.getMessage());
+        return Mono.error(ex);
       });
   }
 
   public Mono<AccountEntity> withdraw(WithdrawAccountDTO withdrawAccountDTO) {
     return this.retrieveById(withdrawAccountDTO.getAccountId())
       .flatMap(_entity -> {
-        _entity.setBalance(_entity.getBalance().subtract(withdrawAccountDTO.getAmount()));
-        return this.update(_entity);
+        BigDecimal amount = _entity.getBalance().subtract(withdrawAccountDTO.getAmount());
+        if (amount.compareTo(BigDecimal.ZERO) == -1) {
+          return Mono.error(new InsufficientBalanceServiceException("Insufficient balance on account with id " + _entity.getId()));
+        } else {
+          _entity.setBalance(amount);
+          return this.update(_entity);
+        }
+      })
+      .onErrorResume(ex -> {
+        log.error(ex.getMessage());
+        return Mono.error(ex);
       });
   }
 

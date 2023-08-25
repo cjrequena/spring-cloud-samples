@@ -1,6 +1,7 @@
 package com.cjrequena.sample.exception;
 
 import com.cjrequena.sample.exception.api.ApiException;
+import com.cjrequena.sample.exception.service.InsufficientBalanceServiceException;
 import com.cjrequena.sample.exception.service.ServiceException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.OptimisticLockingFailureException;
@@ -40,19 +41,6 @@ public class CustomExceptionHandler {
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorDTO);
   }
 
-  @ExceptionHandler({OptimisticLockingFailureException.class})
-  @ResponseStatus(value = HttpStatus.CONFLICT)
-  @ResponseBody
-  public ResponseEntity<Object> handleOptimisticLockingFailureException(OptimisticLockingFailureException ex) {
-    log.debug(EXCEPTION_LOG, ex.getMessage(), ex);
-    ErrorDTO errorDTO = new ErrorDTO();
-    errorDTO.setDate(LocalDateTime.now().format(DateTimeFormatter.ofPattern(DATE_TIME_FORMAT)));
-    errorDTO.setStatus(HttpStatus.CONFLICT.value());
-    errorDTO.setErrorCode(ex.getClass().getSimpleName());
-    errorDTO.setMessage("Optimistic concurrency control error");
-    return ResponseEntity.status(HttpStatus.CONFLICT).body(errorDTO);
-  }
-
   @ExceptionHandler({ServiceException.class})
   @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
   @ResponseBody
@@ -76,6 +64,32 @@ public class CustomExceptionHandler {
     errorDTO.setErrorCode(ex.getClass().getSimpleName());
     errorDTO.setMessage(ex.getMessage());
     return ResponseEntity.status(ex.getHttpStatus()).body(errorDTO);
+  }
+
+
+  @ExceptionHandler({OptimisticLockingFailureException.class})
+  @ResponseStatus(value = HttpStatus.CONFLICT)
+  @ResponseBody
+  public ResponseEntity<Object> handleOptimisticLockingFailureException(OptimisticLockingFailureException ex) {
+    log.debug(EXCEPTION_LOG, ex.getMessage(), ex);
+    ErrorDTO errorDTO = new ErrorDTO();
+    errorDTO.setDate(LocalDateTime.now().format(DateTimeFormatter.ofPattern(DATE_TIME_FORMAT)));
+    errorDTO.setStatus(HttpStatus.CONFLICT.value());
+    errorDTO.setErrorCode(ex.getClass().getSimpleName());
+    errorDTO.setMessage("Optimistic concurrency control error");
+    return ResponseEntity.status(HttpStatus.CONFLICT).body(errorDTO);
+  }
+
+  @ExceptionHandler({InsufficientBalanceServiceException.class})
+  @ResponseBody
+  public ResponseEntity<Object> handleInsufficientBalanceServiceException(InsufficientBalanceServiceException ex) {
+    log.error(EXCEPTION_LOG, ex.getMessage(), ex);
+    ErrorDTO errorDTO = new ErrorDTO();
+    errorDTO.setDate(LocalDateTime.now().format(DateTimeFormatter.ofPattern(DATE_TIME_FORMAT)));
+    errorDTO.setStatus(HttpStatus.CONFLICT.value());
+    errorDTO.setErrorCode(ex.getClass().getSimpleName());
+    errorDTO.setMessage(ex.getMessage());
+    return ResponseEntity.status(HttpStatus.CONFLICT).body(errorDTO);
   }
 
 }

@@ -2,8 +2,10 @@ package com.cjrequena.sample.db.repository;
 
 import com.cjrequena.sample.db.entity.OrderEntity;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Flux;
 
 import java.util.UUID;
 
@@ -16,6 +18,9 @@ import java.util.UUID;
 @Repository
 @Transactional
 public interface OrderRepository extends ReactiveMongoRepository<OrderEntity, UUID> {
+
+
+   Flux<OrderEntity> findByStatusOrderByCreationDateDesc(@Param("status") String status);
 
 //  @Override
 //  @Transactional(readOnly = true)

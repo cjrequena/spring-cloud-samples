@@ -1,7 +1,9 @@
 package com.cjrequena.sample.exception;
 
 import com.cjrequena.sample.exception.api.ApiException;
+import com.cjrequena.sample.exception.service.InsufficientBalanceServiceException;
 import com.cjrequena.sample.exception.service.ServiceException;
+import com.cjrequena.sample.exception.service.WebClientServiceException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,6 +11,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.reactive.function.client.WebClientException;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -62,6 +65,42 @@ public class CustomExceptionHandler {
     errorDTO.setErrorCode(ex.getClass().getSimpleName());
     errorDTO.setMessage(ex.getMessage());
     return ResponseEntity.status(ex.getHttpStatus()).body(errorDTO);
+  }
+
+  @ExceptionHandler({WebClientException.class})
+  @ResponseBody
+  public ResponseEntity<Object> handleWebClientServiceException(WebClientException ex) {
+    log.error(EXCEPTION_LOG, ex.getMessage(), ex);
+    ErrorDTO errorDTO = new ErrorDTO();
+    errorDTO.setDate(LocalDateTime.now().format(DateTimeFormatter.ofPattern(DATE_TIME_FORMAT)));
+    errorDTO.setStatus(HttpStatus.CONFLICT.value());
+    errorDTO.setErrorCode(ex.getClass().getSimpleName());
+    errorDTO.setMessage(ex.getMessage());
+    return ResponseEntity.status(HttpStatus.CONFLICT).body(errorDTO);
+  }
+
+  @ExceptionHandler({WebClientServiceException.class})
+  @ResponseBody
+  public ResponseEntity<Object> handleWebClientServiceException(WebClientServiceException ex) {
+    log.error(EXCEPTION_LOG, ex.getMessage(), ex);
+    ErrorDTO errorDTO = new ErrorDTO();
+    errorDTO.setDate(LocalDateTime.now().format(DateTimeFormatter.ofPattern(DATE_TIME_FORMAT)));
+    errorDTO.setStatus(HttpStatus.CONFLICT.value());
+    errorDTO.setErrorCode(ex.getClass().getSimpleName());
+    errorDTO.setMessage(ex.getMessage());
+    return ResponseEntity.status(HttpStatus.CONFLICT).body(errorDTO);
+  }
+
+  @ExceptionHandler({InsufficientBalanceServiceException.class})
+  @ResponseBody
+  public ResponseEntity<Object> handleInsufficientBalanceServiceException(InsufficientBalanceServiceException ex) {
+    log.error(EXCEPTION_LOG, ex.getMessage(), ex);
+    ErrorDTO errorDTO = new ErrorDTO();
+    errorDTO.setDate(LocalDateTime.now().format(DateTimeFormatter.ofPattern(DATE_TIME_FORMAT)));
+    errorDTO.setStatus(HttpStatus.CONFLICT.value());
+    errorDTO.setErrorCode(ex.getClass().getSimpleName());
+    errorDTO.setMessage(ex.getMessage());
+    return ResponseEntity.status(HttpStatus.CONFLICT).body(errorDTO);
   }
 
 }

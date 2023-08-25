@@ -3,9 +3,6 @@ package com.cjrequena.sample.web.controller;
 import com.cjrequena.sample.common.Constants;
 import com.cjrequena.sample.dto.DepositAccountDTO;
 import com.cjrequena.sample.dto.WithdrawAccountDTO;
-import com.cjrequena.sample.exception.api.BadRequestApiException;
-import com.cjrequena.sample.exception.api.ConflictApiException;
-import com.cjrequena.sample.exception.api.NotFoundApiException;
 import com.cjrequena.sample.service.AccountService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,9 +41,7 @@ public class AccountController {
   private final AccountService accountService;
 
   @PostMapping(path = "/accounts/deposit", produces = {APPLICATION_JSON_VALUE})
-  public Mono<ResponseEntity<Void>> deposit(@RequestBody DepositAccountDTO dto)
-    throws NotFoundApiException, BadRequestApiException, ConflictApiException, NotFoundApiException, BadRequestApiException {
-
+  public Mono<ResponseEntity<Void>> deposit(@RequestBody DepositAccountDTO dto) {
     return this.accountService.deposit(dto)
       .map(_entity -> {
         HttpHeaders responseHeaders = new HttpHeaders();
@@ -54,37 +49,16 @@ public class AccountController {
         return new ResponseEntity<>(responseHeaders, HttpStatus.NO_CONTENT);
       });
 
-    //    try {
-    //      this.accountService.deposit(dto);
-    //      HttpHeaders responseHeaders = new HttpHeaders();
-    //      responseHeaders.set(CACHE_CONTROL, "no store, private, max-age=0");
-    //      return new ResponseEntity<>(responseHeaders, HttpStatus.NO_CONTENT);
-    //    } catch (AccountNotFoundServiceException ex) {
-    //      throw new NotFoundApiException(ex.getMessage());
-    //    } catch (OptimisticConcurrencyServiceException ex) {
-    //      throw new BadRequestApiException(ex.getMessage());
-    //    }
   }
 
   @PostMapping(path = "/accounts/withdraw", produces = {APPLICATION_JSON_VALUE})
   public Mono<ResponseEntity<Void>> withdraw(@RequestBody WithdrawAccountDTO dto) {
-
-    return this.accountService.withdraw(dto)
+    return this.accountService
+      .withdraw(dto)
       .map(_entity -> {
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.set(CACHE_CONTROL, "no store, private, max-age=0");
         return new ResponseEntity<>(responseHeaders, HttpStatus.NO_CONTENT);
       });
-
-    //    try {
-    //      this.accountService.withdraw(dto);
-    //      HttpHeaders responseHeaders = new HttpHeaders();
-    //      responseHeaders.set(CACHE_CONTROL, "no store, private, max-age=0");
-    //      return new ResponseEntity<>(responseHeaders, HttpStatus.NO_CONTENT);
-    //    } catch (AccountNotFoundServiceException ex) {
-    //      throw new NotFoundApiException(ex.getMessage());
-    //    } catch (OptimisticConcurrencyServiceException ex) {
-    //      throw new BadRequestApiException(ex.getMessage());
-    //    }
   }
 }

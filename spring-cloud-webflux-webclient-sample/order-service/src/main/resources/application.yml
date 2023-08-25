@@ -128,4 +128,4 @@ resilience4j.bulkhead:
     account-service:
       baseConfig: default
 
-account-service.url: localhost:8080
+account-service.url: http://localhost:8080
