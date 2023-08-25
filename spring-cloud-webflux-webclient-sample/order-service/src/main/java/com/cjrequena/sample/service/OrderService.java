@@ -9,6 +9,7 @@ import com.cjrequena.sample.dto.WithdrawAccountDTO;
 import com.cjrequena.sample.exception.service.InsufficientBalanceServiceException;
 import com.cjrequena.sample.exception.service.OptimisticConcurrencyServiceException;
 import com.cjrequena.sample.exception.service.OrderNotFoundServiceException;
+import com.cjrequena.sample.exception.service.ServiceException;
 import com.cjrequena.sample.mapper.OrderMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -34,7 +36,7 @@ import java.util.UUID;
 @Log4j2
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-@Transactional
+@Transactional(propagation = Propagation.REQUIRED, rollbackFor = ServiceException.class)
 public class OrderService {
 
   private final OrderMapper orderMapper;
