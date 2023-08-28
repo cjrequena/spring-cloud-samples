@@ -33,11 +33,10 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class AccountService  {
 
-  private final CircuitBreakerFactory circuitBreakerFactory;
-  private final WebClient.Builder webClientBuilder;
   @Qualifier("accountServiceWebClient")
   private final WebClient accountServiceWebClient;
-  //private WebClient lbAccountServiceWebClient;
+  @Qualifier("lbAccountServiceWebClient")
+  private final WebClient lbAccountServiceWebClient;
 
   @CircuitBreaker(name = "default", fallbackMethod = "retrieveFallbackMethod")
   @Bulkhead(name = "default")
