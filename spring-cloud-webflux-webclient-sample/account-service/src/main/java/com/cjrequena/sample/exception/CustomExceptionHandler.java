@@ -2,6 +2,7 @@ package com.cjrequena.sample.exception;
 
 import com.cjrequena.sample.exception.api.ApiException;
 import com.cjrequena.sample.exception.service.InsufficientBalanceServiceException;
+import com.cjrequena.sample.exception.service.OptimisticConcurrencyServiceException;
 import com.cjrequena.sample.exception.service.ServiceException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.OptimisticLockingFailureException;
@@ -77,6 +78,19 @@ public class CustomExceptionHandler {
     errorDTO.setStatus(HttpStatus.CONFLICT.value());
     errorDTO.setErrorCode(ex.getClass().getSimpleName());
     errorDTO.setMessage("Optimistic concurrency control error");
+    return ResponseEntity.status(HttpStatus.CONFLICT).body(errorDTO);
+  }
+
+  @ExceptionHandler({OptimisticConcurrencyServiceException.class})
+  @ResponseStatus(value = HttpStatus.CONFLICT)
+  @ResponseBody
+  public ResponseEntity<Object> handleOptimisticConcurrencyServiceException(OptimisticConcurrencyServiceException ex) {
+    log.debug(EXCEPTION_LOG, ex.getMessage(), ex);
+    ErrorDTO errorDTO = new ErrorDTO();
+    errorDTO.setDate(LocalDateTime.now().format(DateTimeFormatter.ofPattern(DATE_TIME_FORMAT)));
+    errorDTO.setStatus(HttpStatus.CONFLICT.value());
+    errorDTO.setErrorCode(ex.getClass().getSimpleName());
+    errorDTO.setMessage(ex.getMessage());
     return ResponseEntity.status(HttpStatus.CONFLICT).body(errorDTO);
   }
 
