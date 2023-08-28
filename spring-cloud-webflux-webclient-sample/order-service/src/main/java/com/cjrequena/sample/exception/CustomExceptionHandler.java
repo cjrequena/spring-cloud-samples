@@ -2,9 +2,11 @@ package com.cjrequena.sample.exception;
 
 import com.cjrequena.sample.exception.api.ApiException;
 import com.cjrequena.sample.exception.service.InsufficientBalanceServiceException;
+import com.cjrequena.sample.exception.service.OptimisticConcurrencyServiceException;
 import com.cjrequena.sample.exception.service.ServiceException;
 import com.cjrequena.sample.exception.service.WebClientServiceException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -67,10 +69,11 @@ public class CustomExceptionHandler {
     return ResponseEntity.status(ex.getHttpStatus()).body(errorDTO);
   }
 
-  @ExceptionHandler({WebClientException.class})
+  @ExceptionHandler({OptimisticLockingFailureException.class})
+  @ResponseStatus(value = HttpStatus.CONFLICT)
   @ResponseBody
-  public ResponseEntity<Object> handleWebClientServiceException(WebClientException ex) {
-    log.error(EXCEPTION_LOG, ex.getMessage(), ex);
+  public ResponseEntity<Object> handleOptimisticLockingFailureException(OptimisticLockingFailureException ex) {
+    log.debug(EXCEPTION_LOG, ex.getMessage(), ex);
     ErrorDTO errorDTO = new ErrorDTO();
     errorDTO.setDate(LocalDateTime.now().format(DateTimeFormatter.ofPattern(DATE_TIME_FORMAT)));
     errorDTO.setStatus(HttpStatus.CONFLICT.value());
@@ -79,10 +82,11 @@ public class CustomExceptionHandler {
     return ResponseEntity.status(HttpStatus.CONFLICT).body(errorDTO);
   }
 
-  @ExceptionHandler({WebClientServiceException.class})
+  @ExceptionHandler({OptimisticConcurrencyServiceException.class})
+  @ResponseStatus(value = HttpStatus.CONFLICT)
   @ResponseBody
-  public ResponseEntity<Object> handleWebClientServiceException(WebClientServiceException ex) {
-    log.error(EXCEPTION_LOG, ex.getMessage(), ex);
+  public ResponseEntity<Object> handleOptimisticConcurrencyServiceException(OptimisticConcurrencyServiceException ex) {
+    log.debug(EXCEPTION_LOG, ex.getMessage(), ex);
     ErrorDTO errorDTO = new ErrorDTO();
     errorDTO.setDate(LocalDateTime.now().format(DateTimeFormatter.ofPattern(DATE_TIME_FORMAT)));
     errorDTO.setStatus(HttpStatus.CONFLICT.value());

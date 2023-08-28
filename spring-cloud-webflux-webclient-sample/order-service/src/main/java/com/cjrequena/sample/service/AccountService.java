@@ -89,7 +89,7 @@ public class AccountService  {
 
   public Mono<ResponseEntity<Void>> depositFallbackMethod(DepositAccountDTO dto, Throwable ex) throws Throwable {
     log.debug("depositFallbackMethod");
-    throw new WebClientServiceException(ex.getMessage(), ex);
+    throw ex;
   }
 
   @CircuitBreaker(name = "default", fallbackMethod = "withdrawFallbackMethod")
@@ -104,7 +104,7 @@ public class AccountService  {
       .body(Mono.just(dto), WithdrawAccountDTO.class)
       //.exchangeToMono(response -> Mono.just(response.mutate().build()));
       .retrieve()
-      .onStatus(httpStatus -> HttpStatus.CONFLICT.equals(httpStatus), clientResponse -> Mono.error(new WebClientServiceException(HttpStatus.CONFLICT.getReasonPhrase())))
+      //.onStatus(httpStatus -> HttpStatus.CONFLICT.equals(httpStatus), clientResponse -> Mono.error(new WebClientServiceException(HttpStatus.CONFLICT.getReasonPhrase())))
       .toBodilessEntity()
       .onErrorResume(ex ->{
         log.error(ex.getMessage());
@@ -114,6 +114,6 @@ public class AccountService  {
 
   public Mono<ResponseEntity<Void>> withdrawFallbackMethod(WithdrawAccountDTO dto, Throwable ex) throws Throwable {
     log.debug("withdrawFallbackMethod");
-    throw new WebClientServiceException(ex.getMessage(), ex);
+    throw ex;
   }
 }
