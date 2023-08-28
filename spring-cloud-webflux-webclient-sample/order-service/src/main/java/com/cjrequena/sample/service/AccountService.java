@@ -105,11 +105,7 @@ public class AccountService  {
       //.exchangeToMono(response -> Mono.just(response.mutate().build()));
       .retrieve()
       //.onStatus(httpStatus -> HttpStatus.CONFLICT.equals(httpStatus), clientResponse -> Mono.error(new WebClientServiceException(HttpStatus.CONFLICT.getReasonPhrase())))
-      .toBodilessEntity()
-      .onErrorResume(ex ->{
-        log.error(ex.getMessage());
-        return Mono.error(ex);
-      });
+      .toBodilessEntity();
   }
 
   public Mono<ResponseEntity<Void>> withdrawFallbackMethod(WithdrawAccountDTO dto, Throwable ex) throws Throwable {
