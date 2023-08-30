@@ -102,7 +102,7 @@ public class AccountService {
       .flatMap(_entity -> {
         BigDecimal amount = _entity.getBalance().subtract(withdrawAccountDTO.getAmount());
         if (amount.compareTo(BigDecimal.ZERO) == -1) {
-          return Mono.error(new InsufficientBalanceServiceException("Insufficient balance on account with id " + _entity.getId()));
+          return Mono.error(new InsufficientBalanceServiceException("Insufficient balance on account with id " + withdrawAccountDTO.getAccountId() + " unable to process the withdraw of " + withdrawAccountDTO.getAmount()));
         } else {
           _entity.setBalance(amount);
           return this.update(_entity);

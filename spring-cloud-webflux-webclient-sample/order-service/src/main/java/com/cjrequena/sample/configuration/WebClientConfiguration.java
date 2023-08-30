@@ -55,13 +55,15 @@ public class WebClientConfiguration {
       .defaultHeaders(httpHeaders -> {
         httpHeaders.add(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
       })
+      .filter(errorHandler())
       .build();
   }
 
   private static ExchangeFilterFunction errorHandler() {
     return ExchangeFilterFunction.ofResponseProcessor(clientResponse -> {
       if (clientResponse.statusCode().isError()) {
-        return clientResponse.bodyToMono(ErrorDTO.class)
+        return clientResponse
+          .bodyToMono(ErrorDTO.class)
           .flatMap(errorDTO -> {
             if (errorDTO.getErrorCode().equals(InsufficientBalanceServiceException.class.getSimpleName())) {
               return Mono.error(new InsufficientBalanceServiceException(errorDTO.getMessage()));

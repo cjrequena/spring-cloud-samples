@@ -47,7 +47,7 @@ public class OrderService {
 
     return accountService
       .retrieve(dto.getAccountId())
-      .doOnNext(log::info)
+      .doOnNext(log::trace)
       .flatMap(response -> {
         AccountDTO accountDTO = response.getBody();
         BigDecimal amount = accountDTO.getBalance().subtract(dto.getTotal());
@@ -111,33 +111,40 @@ public class OrderService {
     this.orderRepository
       .findByStatusOrderByCreationDateDesc(EStatus.PENDING.getValue())
       .doOnNext(orderEntity -> {
-
         log.debug("id {} account_id {} status {} creation_date {}", orderEntity.getId(), orderEntity.getAccountId(), orderEntity.getStatus(), orderEntity.getCreationDate());
-
         WithdrawAccountDTO withdrawAccountDTO = new WithdrawAccountDTO();
         withdrawAccountDTO.setAccountId(orderEntity.getAccountId());
         withdrawAccountDTO.setAmount(orderEntity.getTotal());
-
         this.accountService
           .withdraw(withdrawAccountDTO)
           .doOnNext(response -> {
             if (response.getStatusCode().equals(HttpStatus.NO_CONTENT)) {
               orderEntity.setStatus(EStatus.COMPLETED.getValue());
               this.update(this.orderMapper.toDTO(orderEntity))
-                .doOnNext(log::info)
+                .doOnNext(log::trace)
                 .subscribe();
             }
           })
-          .onErrorResume(ex -> {
-            log.error(ex);
-            orderEntity.setStatus(EStatus.REJECTED.getValue());
-            orderEntity.setDescription(ex.getLocalizedMessage());
-            this.update(this.orderMapper.toDTO(orderEntity))
-              .doOnNext(log::info)
-              .subscribe();
-            return Mono.error(ex);
-          }).subscribe();
-
-      }).subscribe();
+          .doOnError(ex -> {
+            log.error(ex.getMessage());
+            if (ex instanceof InsufficientBalanceServiceException) {
+              orderEntity.setStatus(EStatus.REJECTED.getValue());
+              orderEntity.setDescription(ex.getLocalizedMessage());
+              this.update(this.orderMapper.toDTO(orderEntity))
+                .doOnNext(log::trace)
+                .subscribe();
+            }
+          })
+          .onErrorResume(Mono::error)
+          .subscribe();
+      })
+      .doOnError(ex ->{
+        log.error(ex.getMessage());
+      })
+      .doOnComplete(()->{
+        log.info("Processed pending orders");
+      })
+      .onErrorResume(Mono::error)
+      .subscribe();
   }
 }
