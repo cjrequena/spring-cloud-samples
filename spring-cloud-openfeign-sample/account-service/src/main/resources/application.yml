@@ -8,7 +8,7 @@ spring.main.allow-bean-definition-overriding: true # Enable bean override
 spring.cloud.consul:
   host: ${SPRING_CLOUD_CONSUL_HOST:localhost}
   port: ${SPRING_CLOUD_CONSUL_PORT:8500}
-  enabled: ${SPRING_CLOUD_CONSUL_ENABLED:true}
+  enabled: ${SPRING_CLOUD_CONSUL_ENABLED:false}
   discovery:
     # Service name
     serviceName: ${spring.application.name}
@@ -44,7 +44,7 @@ spring.cloud.consul:
 spring.config.import: "optional:configserver:${CONFIG_SERVER:http://localhost:8888}/"
 spring.cloud.config:
   # Flag to say that remote configuration is enabled. (default false).
-  enabled: ${SPRING_CLOUD_CONFIG_ENABLED:true}
+  enabled: ${SPRING_CLOUD_CONFIG_ENABLED:false}
   # Flag to indicate that failure to connect to the server is fatal (default false).
   failFast: ${SPRING_CLOUD_CONFIG_FAIL_FAST:true}
 
@@ -110,3 +110,21 @@ spring.jpa.properties.hibernate.default_schema: s_account
 spring.flyway.enabled: true
 spring.flyway.locations: classpath:/db/migration
 spring.flyway.schemas: s_account
+
+# LOGGING
+# https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#appendix.application-properties.core
+#logging.config: classpath:log4j2.xml # Location of the logging configuration file. For instance, `classpath:logback.xml` for Logback.
+logging.level: # Log levels severity mapping. For instance, `logging.level.org.springframework: DEBUG`.
+  org.springframework: INFO
+  org.flywaydb: INFO
+  com.cjrequena.sample: DEBUG
+logging.pattern:
+  console:  "%highlight{%-5p|%d{ISO8601}{GMT}|application=${spring.application.name}|traceID=%X{traceId},spanID=%X{spanId}|%c{1}|%m%ex%n}{
+      FATAL=red blink,
+      ERROR=red,
+      WARN=yellow bold,
+      INFO=white,
+      DEBUG=green bold,
+      TRACE=blue
+    }"
+  file: "%-5p|%d{ISO8601}{GMT}|application=${spring.application.name}|traceID=%X{traceId},spanID=%X{spanId}|%c{1}|%m%ex%n"

@@ -31,7 +31,7 @@ public class CustomExceptionHandler {
   @ExceptionHandler({Exception.class})
   @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
   public ResponseEntity<Object> unhandledExceptions(Exception ex) {
-    log.error(EXCEPTION_LOG, ex.getMessage(), ex);
+    log.error(EXCEPTION_LOG, ex.getMessage());
     ErrorDTO errorDTO = new ErrorDTO();
     errorDTO.setDate(LocalDateTime.now().format(DateTimeFormatter.ofPattern(DATE_TIME_FORMAT)));
     errorDTO.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
@@ -44,7 +44,7 @@ public class CustomExceptionHandler {
   @ResponseStatus(value = HttpStatus.CONFLICT)
   @ResponseBody
   public ResponseEntity<Object> handleOptimisticLockingFailureException(ObjectOptimisticLockingFailureException ex) {
-    log.debug(EXCEPTION_LOG, ex.getMessage(), ex);
+    log.error(EXCEPTION_LOG, ex.getMessage());
     ErrorDTO errorDTO = new ErrorDTO();
     errorDTO.setDate(LocalDateTime.now().format(DateTimeFormatter.ofPattern(DATE_TIME_FORMAT)));
     errorDTO.setStatus(HttpStatus.CONFLICT.value());
@@ -57,7 +57,7 @@ public class CustomExceptionHandler {
   @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
   @ResponseBody
   public ResponseEntity<Object> handleServiceException(ServiceException ex) {
-    log.error(EXCEPTION_LOG, ex.getMessage(), ex);
+    log.error(EXCEPTION_LOG, ex.getMessage());
     ErrorDTO errorDTO = new ErrorDTO();
     errorDTO.setDate(LocalDateTime.now().format(DateTimeFormatter.ofPattern(DATE_TIME_FORMAT)));
     errorDTO.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
@@ -69,7 +69,7 @@ public class CustomExceptionHandler {
   @ExceptionHandler({ApiException.class})
   @ResponseBody
   public ResponseEntity<Object> handleApiException(ApiException ex) {
-    log.error(EXCEPTION_LOG, ex.getMessage(), ex);
+    log.error(EXCEPTION_LOG, ex.getMessage());
     ErrorDTO errorDTO = new ErrorDTO();
     errorDTO.setDate(LocalDateTime.now().format(DateTimeFormatter.ofPattern(DATE_TIME_FORMAT)));
     errorDTO.setStatus(ex.getHttpStatus().value());
