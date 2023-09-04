@@ -29,7 +29,7 @@ import java.util.UUID;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Slf4j
-@Service("accountServiceFeignClient")
+@Service("accountService")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class AccountService  {
 
