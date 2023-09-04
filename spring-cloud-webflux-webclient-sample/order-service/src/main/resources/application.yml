@@ -130,3 +130,21 @@ resilience4j.bulkhead:
 
 account-service.url: http://localhost:8080
 #account-service.url: http://account-service
+
+# LOGGING
+# https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#appendix.application-properties.core
+#logging.config: classpath:log4j2.xml # Location of the logging configuration file. For instance, `classpath:logback.xml` for Logback.
+logging.level: # Log levels severity mapping. For instance, `logging.level.org.springframework: DEBUG`.
+  org.springframework: INFO
+  org.flywaydb: INFO
+  com.cjrequena.sample: DEBUG
+logging.pattern:
+  console:  "%highlight{%-5p|%d{ISO8601}{GMT}|application=${spring.application.name}|traceID=%X{traceId},spanID=%X{spanId}|%c{1}|%m%ex%n}{
+      FATAL=red blink,
+      ERROR=red,
+      WARN=yellow bold,
+      INFO=white,
+      DEBUG=green bold,
+      TRACE=blue
+    }"
+  file: "%-5p|%d{ISO8601}{GMT}|application=${spring.application.name}|traceID=%X{traceId},spanID=%X{spanId}|%c{1}|%m%ex%n"
