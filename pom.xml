@@ -34,12 +34,12 @@
         <!-- https://mvnrepository.com/artifact/jakarta.json/jakarta.json-api/2.1.1 -->
         <jakarta.json-api.version>2.1.1</jakarta.json-api.version>
     </properties>
-<!--    <modules>-->
+    <modules>
 <!--        <module>spring-cloud-openfeign-sample</module>-->
 <!--        <module>spring-cloud-webflux-webclient-sample</module>-->
 <!--        <module>spring-cloud-stream-kafka-sample</module>-->
-<!--        <module>spring-cloud-stream-kinesis-sample</module>-->
-<!--    </modules>-->
+        <module>spring-cloud-stream-kinesis-sample</module>
+    </modules>
     <dependencyManagement>
         <dependencies>
             <dependency>
