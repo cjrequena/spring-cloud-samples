@@ -69,13 +69,16 @@ spring.cloud.stream.bindings:
     binder: kinesis # The binder used by this binding. See Multiple Binders on the Classpath for details.
     destination: spring-cloud-stream-kinesis-sample-01 # The target destination of a channel on the bound middleware (e.g., the RabbitMQ exchange or Kafka topic).
     content-type: application/json # The content type of the channel.
+    #content-type: text/plain
+
 #
 spring.cloud.sleuth.json.enabled: false
 #
-cloud.aws.credentials.access-key: {YOUR-ACCESS-KEY}
-cloud.aws.credentials.secret-key: {YOUR-SECRET-KEY}
-cloud.aws.region.static: us-east-1
-cloud.aws.stack.auto: false
+#cloud.aws.credentials.access-key: {YOUR-ACCESS-KEY}
+#cloud.aws.credentials.secret-key: {YOUR-SECRET-KEY}
+#cloud.aws.region.static: us-east-1
+#cloud.aws.stack.auto: false
+
 
 # OPENAPI :: SPRINGDOC :: SWAGGER
 springdoc:

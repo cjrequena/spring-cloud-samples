@@ -75,11 +75,12 @@ spring.cloud.stream.bindings:
     content-type: application/json # The content type of the channel.
     consumer:
       useNativeDecoding: true
-  consumer2-in-0:
-    binder: kinesis # The binder used by this binding. See Multiple Binders on the Classpath for details.
-    destination: spring-cloud-stream-kinesis-sample-01 # The target destination of a channel on the bound middleware (e.g., the RabbitMQ exchange or Kafka topic).
-    group: group-1 # The consumer group of the channel. Applies only to inbound bindings. See Consumer Groups.
-    content-type: application/json # The content type of the channel.
+#  consumer2-in-0:
+#    binder: kinesis # The binder used by this binding. See Multiple Binders on the Classpath for details.
+#    destination: spring-cloud-stream-kinesis-sample-01 # The target destination of a channel on the bound middleware (e.g., the RabbitMQ exchange or Kafka topic).
+#    group: group-1 # The consumer group of the channel. Applies only to inbound bindings. See Consumer Groups.
+#    content-type: application/json # The content type of the channel.
+#    #content-type: text/plain
 #
 spring.cloud.sleuth.json.enabled: false
 #
