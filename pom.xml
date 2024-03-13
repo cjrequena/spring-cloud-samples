@@ -35,10 +35,10 @@
         <jakarta.json-api.version>2.1.1</jakarta.json-api.version>
     </properties>
     <modules>
-<!--        <module>spring-cloud-openfeign-sample</module>-->
+        <module>spring-cloud-openfeign-sample</module>
 <!--        <module>spring-cloud-webflux-webclient-sample</module>-->
 <!--        <module>spring-cloud-stream-kafka-sample</module>-->
-        <module>spring-cloud-stream-kinesis-sample</module>
+<!--        <module>spring-cloud-stream-kinesis-sample</module>-->
     </modules>
     <dependencyManagement>
         <dependencies>
