@@ -4,7 +4,6 @@ import com.cjrequena.sample.exception.api.ApiException;
 import com.cjrequena.sample.exception.service.InsufficientBalanceServiceException;
 import com.cjrequena.sample.exception.service.OptimisticConcurrencyServiceException;
 import com.cjrequena.sample.exception.service.ServiceException;
-import com.cjrequena.sample.exception.service.WebClientServiceException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
@@ -13,7 +12,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.reactive.function.client.WebClientException;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
