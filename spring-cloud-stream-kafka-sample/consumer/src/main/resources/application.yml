@@ -48,6 +48,24 @@ spring.cloud.stream:
   defaultBinder: kafka # The default binder to use, if multiple binders are configured. See Multiple Binders on the Classpath.
   default:
     content-type: application/json
+# ----------------------------------------------------------------------------------------------------------------------
+spring.cloud.stream.kafka.binder:
+  brokers: "localhost:9092" # A list of brokers to which the Kafka binder will connect.
+  consumer-properties:
+    key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    value.deserializer: io.confluent.kafka.serializers.json.KafkaJsonSchemaDeserializer
+    schema.registry.url: http://localhost:8081
+    id.compatibility.strict: true
+    json.fail.invalid.schema: false
+    json.fail.unknown.properties: true
+# ----------------------------------------------------------------------------------------------------------------------
+spring.cloud.stream.kafka.bindings:
+  consumer1-in-0:
+    consumer:
+      configuration:
+        json.value.type: com.cjrequena.sample.event.FooEvent
+        auto.offset.reset: earliest
+# ----------------------------------------------------------------------------------------------------------------------
 spring.cloud.stream.bindings:
   consumer1-in-0:
     binder: kafka # The binder used by this binding. See Multiple Binders on the Classpath for details.
@@ -61,23 +79,6 @@ spring.cloud.stream.bindings:
     destination: spring-cloud-stream-kafka-sample-01 # The target destination of a channel on the bound middleware (e.g., the RabbitMQ exchange or Kafka topic).
     group: group-1 # The consumer group of the channel. Applies only to inbound bindings. See Consumer Groups.
     content-type: application/json # The content type of the channel.
-spring.cloud.stream.kafka.binder:
-  brokers: "localhost:9092" # A list of brokers to which the Kafka binder will connect.
-  consumer-properties:
-    key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
-    value.deserializer: io.confluent.kafka.serializers.json.KafkaJsonSchemaDeserializer
-    schema.registry.url: http://localhost:8081
-    #json.value.type: com.fasterxml.jackson.databind.JsonNode
-    #json.value.type: com.cjrequena.sample.event.FooEvent
-    id.compatibility.strict: true
-    json.fail.invalid.schema: false
-    json.fail.unknown.properties: true
-spring.cloud.stream.kafka.bindings:
-  consumer1-in-0:
-    consumer:
-      configuration:
-        json.value.type: com.cjrequena.sample.event.FooEvent
-        auto.offset.reset: earliest
 
 spring.cloud.sleuth:
   json:

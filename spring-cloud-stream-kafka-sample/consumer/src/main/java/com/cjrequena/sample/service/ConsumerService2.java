@@ -13,7 +13,7 @@ import java.util.function.Consumer;
 @Service("consumer2")
 public class ConsumerService2 implements Consumer<Flux<Message<FooEvent>>> {
 
-  public Mono execute(Message<FooEvent> message) {
+  public Mono<Void> execute(Message<FooEvent> message) {
     log.info("New event notification: {}", message.getPayload());
     return Mono.empty();
   }

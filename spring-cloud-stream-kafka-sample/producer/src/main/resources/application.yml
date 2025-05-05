@@ -64,6 +64,24 @@ spring.cloud.stream:
   defaultBinder: kafka # The default binder to use, if multiple binders are configured. See Multiple Binders on the Classpath.
   default:
     content-type: application/json
+# ----------------------------------------------------------------------------------------------------------------------
+spring.cloud.stream.kafka.binder:
+  brokers: "localhost:9092" # A list of brokers to which the Kafka binder will connect.
+  producer-properties:
+    schema.registry.url: http://localhost:8081
+    key.serializer: org.apache.kafka.common.serialization.StringSerializer
+    value.serializer: io.confluent.kafka.serializers.json.KafkaJsonSchemaSerializer
+    auto.register.schemas: false
+  headers: # The list of custom headers that will be transported by the binder. Default: empty.
+    - x-test-header
+# ----------------------------------------------------------------------------------------------------------------------
+spring.cloud.stream.kafka.bindings:
+  producer-out-0:
+    producer:
+      configuration:
+        use.latest.version: false
+        use.schema.id: 1
+# ----------------------------------------------------------------------------------------------------------------------
 spring.cloud.stream.bindings:
   producer-out-0:
     binder: kafka # The binder used by this binding. See Multiple Binders on the Classpath for details.
@@ -72,23 +90,6 @@ spring.cloud.stream.bindings:
     producer:
       headerMode: headers
       useNativeEncoding: true # When set to true, the outbound message is serialized directly by client library, which must be configured correspondingly (e.g. setting an appropriate Kafka producer value serializer).
-spring.cloud.stream.kafka.binder:
-  brokers: "localhost:9092" # A list of brokers to which the Kafka binder will connect.
-  producer-properties:
-    schema.registry.url: http://localhost:8081
-    key.serializer: org.apache.kafka.common.serialization.StringSerializer
-    value.serializer: io.confluent.kafka.serializers.json.KafkaJsonSchemaSerializer
-    auto.register.schemas: false
-    #use.latest.version: false
-    #use.schema.id: 1
-  headers: # The list of custom headers that will be transported by the binder. Default: empty.
-    - x-test-header
-spring.cloud.stream.kafka.bindings:
-  producer-out-0:
-    producer:
-      configuration:
-        use.latest.version: false
-        use.schema.id: 1
 #
 spring.cloud.sleuth:
   json:

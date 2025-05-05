@@ -27,10 +27,13 @@ spring.cloud.stream.bindings.useNativeEncoding: false
 - Remove from consumer-properties
 
 ```yml
-  key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
-  value.deserializer: io.confluent.kafka.serializers.json.KafkaJsonSchemaDeserializer
-  schema.registry.url: http://localhost:8081
-  json.value.type: com.fasterxml.jackson.databind.JsonNode
+  consumer-properties:
+    key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    value.deserializer: io.confluent.kafka.serializers.json.KafkaJsonSchemaDeserializer
+    schema.registry.url: http://localhost:8081
+    id.compatibility.strict: true
+    json.fail.invalid.schema: false
+    json.fail.unknown.properties: true
 ``` 
   
 
