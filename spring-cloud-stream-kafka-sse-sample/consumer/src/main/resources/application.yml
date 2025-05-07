@@ -3,7 +3,7 @@ server.compression.enabled: true
 server.compression.mime-types: text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json
 server.compression.min-response-size: 1024
 server.http2.enabled: true
-server.port: ${SERVER_PORT:9080}
+server.port: ${SERVER_PORT:8080}
 
 spring.application.name: '@project.artifactId@'
 spring.application.version: '@project.version@'
@@ -12,6 +12,7 @@ spring.main.allow-bean-definition-overriding: true # Enable bean override
 
 ---
 spring.config.activate.on-profile: local
+
 # ----------------------------------------
 # ACTUATOR PROPERTIES
 # ----------------------------------------
@@ -34,63 +35,48 @@ management.info.env.enabled: true # Whether to enable environment info.
 management.info.git.enabled: true # Whether to enable git info.
 management.info.git.mode: full # Mode to use to expose git information.
 
-# METRICS :: DATADOG
-management.datadog.metrics.export.enabled: false
-management.datadog.metrics.export.api-key: "YOUR_API_KEY"
-management.datadog.metrics.export.uri: https://api.datadoghq.eu
-management.datadog.metrics.export.step: 30s
-#--
-management.statsd.metrics.export.enabled: false
-management.statsd.metrics.export.host: localhost
-management.statsd.metrics.export.port: 8125
-management.statsd.metrics.export.protocol: udp
-management.statsd.metrics.export.flavor: datadog
-#--
-management.metrics.tags:
-  application: ${spring.application.name}
-  env: ${spring.profiles.active}
-  environment: ${spring.profiles.active}
-
 # LOGGING
 logging.config: classpath:log4j2.xml # Location of the logging configuration file. For instance, `classpath:logback.xml` for Logback.
 logging.level: # Log levels severity mapping. For instance, `logging.level.org.springframework: DEBUG`.
   org.springframework: INFO
-  org.springframework.cloud.sleuth: TRACE
-  org.flywaydb: INFO
   com.cjrequena.sample: DEBUG
 
 # https://docs.spring.io/spring-cloud-stream/docs/current/reference/html/
+#spring.cloud.function.definition: consumer1, consumer2
+spring.cloud.function.definition: consumer1
 spring.cloud.stream:
   defaultBinder: kafka # The default binder to use, if multiple binders are configured. See Multiple Binders on the Classpath.
   default:
     content-type: application/json
 # ----------------------------------------------------------------------------------------------------------------------
 spring.cloud.stream.bindings:
-  producer-out-0:
-    binder: kafka # The binder used by this binding. See Multiple Binders on the Classpath for details.
-    destination: spring-cloud-stream-kafka-sample-01 # The target destination of a channel on the bound middleware (e.g., the RabbitMQ exchange or Kafka topic).
-    content-type: application/json # The content type of the channel.
-    producer:
-      headerMode: headers
-      useNativeEncoding: true
+  consumer1-in-0:
+    binder: kafka
+    destination: spring-cloud-stream-kafka-sample-01
+    group: group-1
+    content-type: application/json
+  consumer2-in-0:
+    binder: kafka
+    destination: spring-cloud-stream-kafka-sample-01
+    group: group-1
+    content-type: application/json
 # ----------------------------------------------------------------------------------------------------------------------
 spring.cloud.stream.kafka:
   binder:
-    brokers: "localhost:9092" # A list of brokers to which the Kafka binder will connect.
-    producer-properties:
-      schema.registry.url: http://localhost:8081
-      key.serializer: org.apache.kafka.common.serialization.StringSerializer
-      value.serializer: io.confluent.kafka.serializers.json.KafkaJsonSchemaSerializer
-      auto.register.schemas: false
-    headers: # The list of custom headers that will be transported by the binder. Default: empty.
-      - x-test-header
+    brokers: localhost:9092
   bindings:
-    producer-out-0:
-      producer:
+    consumer1-in-0:
+      consumer:
         configuration:
-          use.latest.version: false
-          use.schema.id: 1
-
+          key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+          value.serializer: org.springframework.kafka.support.serializer.JsonSerializer
+          #value.deserializer: io.confluent.kafka.serializers.json.KafkaJsonSchemaDeserializer
+    consumer2-in-0:
+      consumer:
+        configuration:
+          key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+          value.serializer: org.springframework.kafka.support.serializer.JsonSerializer
+          #value.deserializer: io.confluent.kafka.serializers.json.KafkaJsonSchemaDeserializer
 # ----------------------------------------------------------------------------------------------------------------------
 spring.cloud.sleuth:
   json:
@@ -113,4 +99,3 @@ server.compression:
   enabled: true
   mime-types: application/json,application/stream+json,application/x-ndjson
   min-response-size: 1024
-

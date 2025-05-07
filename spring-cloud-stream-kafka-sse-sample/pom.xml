@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>com.cjrequena.sample</groupId>
+        <artifactId>spring-cloud-samples</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.cjrequena.sample</groupId>
+    <artifactId>spring-cloud-stream-kafka-sse-sample</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>spring-cloud-stream-kafka-sample</name>
+    <description>spring-cloud-stream-kafka-sample</description>
+    <properties>
+        <!-- https://mvnrepository.com/artifact/io.confluent/kafka-json-schema-serializer -->
+        <io.confluent.kafka-json-schema-serializer.version>7.9.0</io.confluent.kafka-json-schema-serializer.version>
+        <!-- https://mvnrepository.com/artifact/io.confluent/kafka-json-serializer -->
+        <io.confluent.kafka-json-serializer.version>7.9.0</io.confluent.kafka-json-serializer.version>
+    </properties>
+    <modules>
+        <module>producer</module>
+        <module>consumer</module>
+    </modules>
+</project>
