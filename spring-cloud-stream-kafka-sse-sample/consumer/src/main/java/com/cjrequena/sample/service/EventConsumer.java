@@ -42,5 +42,4 @@ public abstract class EventConsumer<T> implements Function<Flux<Message<String>>
 
   protected abstract Message<T> deserializeMessage(Message<String> message) throws JsonProcessingException;
 
-  protected abstract Flux<T> getMessageStream();
 }

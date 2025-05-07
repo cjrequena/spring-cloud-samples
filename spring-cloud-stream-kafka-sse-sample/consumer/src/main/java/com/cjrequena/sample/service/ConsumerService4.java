@@ -6,12 +6,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.stream.config.BindingServiceProperties;
 import org.springframework.context.ApplicationContext;
+import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
+
+import java.time.Duration;
+import java.util.UUID;
 
 @Slf4j
 @Component("consumer4")
@@ -46,4 +50,30 @@ public class ConsumerService4 extends EventConsumer<FooEvent> {
   public Flux<FooEvent> getMessageStream() {
     return sink.asFlux();
   }
+
+  public Flux<ServerSentEvent<String>> getMessageStreamV2() {
+    return sink
+      .asFlux()
+      .map(this::buildServerSentEvent)
+      .doOnNext(event -> log.debug("SSE emitted:{}", event));
+  }
+
+  private ServerSentEvent<String> buildServerSentEvent(FooEvent event) {
+    try {
+      return ServerSentEvent.<String>builder()
+        .id(UUID.randomUUID().toString())
+        .event(event.getType())
+        .data(objectMapper.writeValueAsString(event.getData()))
+        .build();
+    } catch (Exception e) {
+      log.error("Error serializing data", e);
+      return ServerSentEvent.<String>builder()
+        .id(UUID.randomUUID().toString())
+        .event("error")
+        .data("Error serializing data")
+        .retry(Duration.ofMillis(1000))
+        .build();
+    }
+  }
+
 }
