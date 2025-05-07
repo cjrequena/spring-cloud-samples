@@ -74,7 +74,8 @@ spring.cloud.stream.bindings:
       headerMode: headers
       useNativeEncoding: true
 # ----------------------------------------------------------------------------------------------------------------------
-spring.cloud.stream.kafka.binder:
+spring.cloud.stream.kafka:
+  binder:
     brokers: "localhost:9092" # A list of brokers to which the Kafka binder will connect.
     producer-properties:
       key.serializer: org.apache.kafka.common.serialization.StringSerializer
