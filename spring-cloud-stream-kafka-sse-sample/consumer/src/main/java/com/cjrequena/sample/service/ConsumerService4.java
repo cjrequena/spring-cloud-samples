@@ -86,9 +86,9 @@ public class ConsumerService4 extends EventConsumer<FooEvent> {
     }
   }
 
-  private Sinks.Many<FooEvent> getSink(String name) {
-    if (Objects.nonNull(name)) {
-      return sinks.computeIfAbsent(name, key -> Sinks.many().replay().limit(Duration.ofSeconds(1)));
+  private Sinks.Many<FooEvent> getSink(String key) {
+    if (Objects.nonNull(key)) {
+      return sinks.computeIfAbsent(key, k -> Sinks.many().replay().limit(Duration.ofSeconds(1)));
     } else {
       return this.defaultSink;
     }
