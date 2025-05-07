@@ -77,17 +77,19 @@ spring.cloud.stream.bindings:
 spring.cloud.stream.kafka:
   binder:
     brokers: "localhost:9092" # A list of brokers to which the Kafka binder will connect.
-    producer-properties:
-      schema.registry.url: http://localhost:8081
-      key.serializer: org.apache.kafka.common.serialization.StringSerializer
-      value.serializer: io.confluent.kafka.serializers.json.KafkaJsonSchemaSerializer
-      auto.register.schemas: false
+#    producer-properties:
+#      schema.registry.url: http://localhost:8081
+#      auto.register.schemas: false
     headers: # The list of custom headers that will be transported by the binder. Default: empty.
       - x-test-header
   bindings:
     producer-out-0:
       producer:
         configuration:
+          schema.registry.url: http://localhost:8081
+          key.serializer: org.apache.kafka.common.serialization.StringSerializer
+          value.serializer: io.confluent.kafka.serializers.json.KafkaJsonSchemaSerializer
+          auto.register.schemas: false
           use.latest.version: false
           use.schema.id: 1
 
