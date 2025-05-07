@@ -43,7 +43,7 @@ logging.level: # Log levels severity mapping. For instance, `logging.level.org.s
 
 # https://docs.spring.io/spring-cloud-stream/docs/current/reference/html/
 #spring.cloud.function.definition: consumer1, consumer2
-spring.cloud.function.definition: consumer3
+spring.cloud.function.definition: consumer4
 spring.cloud.stream:
   defaultBinder: kafka # The default binder to use, if multiple binders are configured. See Multiple Binders on the Classpath.
   default:
@@ -61,6 +61,11 @@ spring.cloud.stream.bindings:
     group: group-1
     content-type: application/json
   consumer3-in-0:
+    binder: kafka
+    destination: spring-cloud-stream-kafka-sample-01
+    group: group-1
+    content-type: application/json
+  consumer4-in-0:
     binder: kafka
     destination: spring-cloud-stream-kafka-sample-01
     group: group-1
@@ -87,6 +92,12 @@ spring.cloud.stream.kafka:
         configuration:
           key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
           value.serializer: org.springframework.kafka.support.serializer.JsonSerializer
+          #value.deserializer: io.confluent.kafka.serializers.json.KafkaJsonSchemaDeserializer
+    consumer4-in-0:
+      consumer:
+        configuration:
+          key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+          value.serializer: org.springframework.kafka.support.serializer.StringSerializer
           #value.deserializer: io.confluent.kafka.serializers.json.KafkaJsonSchemaDeserializer
 # ----------------------------------------------------------------------------------------------------------------------
 spring.cloud.sleuth:
