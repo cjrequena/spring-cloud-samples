@@ -26,7 +26,7 @@ public class ConsumerService3 implements Function<Flux<Message<FooEvent>>, Mono<
       .then(); // Ensure completion is returned as Mono<Void>
   }
 
-  public Flux<FooEvent> getMessageStream() {
+  public Flux<FooEvent> subscribe() {
     return sink.asFlux();
   }
 }

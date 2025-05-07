@@ -30,16 +30,16 @@ public class SseAPI {
     @GetMapping(
       path = "/subscribe",
       produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<FooEvent> stream() {
-        //return consumerService3.getMessageStream().map(data -> ServerSentEvent.builder(data).build());
-        return consumerService4.getMessageStream().map(data -> ServerSentEvent.builder(data).build().data());
+    public Flux<FooEvent> subscribe() {
+        //return consumerService3.subscribe().map(data -> ServerSentEvent.builder(data).build());
+        return consumerService4.subscribe().map(data -> ServerSentEvent.builder(data).build().data());
     }
 
     @GetMapping(
       path = "/subscribeV2",
       produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<ServerSentEvent<String>> streamV2() {
-        //return consumerService3.getMessageStream().map(data -> ServerSentEvent.builder(data).build());
-        return consumerService4.getMessageStreamV2().map(data -> ServerSentEvent.builder(data).build().data());
+    public Flux<ServerSentEvent<String>> subscribeV2() {
+        //return consumerService3.subscribe().map(data -> ServerSentEvent.builder(data).build());
+        return consumerService4.subscribeV2().map(data -> ServerSentEvent.builder(data).build().data());
     }
 }
