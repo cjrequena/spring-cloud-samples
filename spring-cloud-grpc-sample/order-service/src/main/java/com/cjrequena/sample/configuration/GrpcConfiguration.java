@@ -16,7 +16,7 @@ public class GrpcConfiguration {
       .build();
   }
 
-  @Bean
+  @Bean("accountServiceBlockingStub")
   public AccountServiceGrpc.AccountServiceBlockingStub accountServiceBlockingStub(ManagedChannel channel) {
     return AccountServiceGrpc.newBlockingStub(channel);
   }

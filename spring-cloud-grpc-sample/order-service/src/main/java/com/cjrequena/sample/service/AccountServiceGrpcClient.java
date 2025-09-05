@@ -16,8 +16,8 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
+import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,15 +28,16 @@ import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.UUID;
 
-@Slf4j
+@Log4j2
 @Service("accountServiceGrpcClient")
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
+//@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class AccountServiceGrpcClient {
 
-  //@GrpcClient("account-service")
-  private final AccountServiceBlockingStub accountServiceBlockingStub;
+  @GrpcClient("account-service")
+  private AccountServiceBlockingStub accountServiceBlockingStub;
 
-  private final AccountMapper accountMapper;
+  @Autowired
+  private AccountMapper accountMapper;
 
   @CircuitBreaker(name = "default", fallbackMethod = "retrieveFallbackMethod")
   @Bulkhead(name = "default")
