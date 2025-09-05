@@ -1,5 +1,5 @@
 server.servlet.context-path: / # Context path of the application.
-server.port: ${SERVER_PORT:8080} # Server HTTP port.
+server.port: ${SERVER_PORT:9080} # Server HTTP port.
 spring.application.name: '@project.artifactId@'
 spring.application.version: '@project.version@'
 spring.profiles.active: ${SPRING_PROFILES_ACTIVE:local}
@@ -91,7 +91,6 @@ spring.datasource.postgres.idle-timeout: 300000
 spring.datasource.postgres.max-lifetime: 1200000
 spring.datasource.postgres.auto-commit: false
 
-
 # JPA specific configs
 spring.jpa.open-in-view: false
 #spring.jpa.database-platform: org.hibernate.dialect.PostgreSQL95Dialect
@@ -104,12 +103,68 @@ spring.jpa.properties.hibernate.hibernate.dialect: true
 spring.jpa.properties.hibernate.id.new_generator_mappings: false
 spring.jpa.properties.hibernate.search.autoregister_listeners: false
 spring.jpa.properties.hibernate.bytecode.use_reflection_optimizer: false
-spring.jpa.properties.hibernate.default_schema: s_account
+spring.jpa.properties.hibernate.default_schema: s_order
 
 
+# Flyway
 spring.flyway.enabled: true
 spring.flyway.locations: classpath:/db/migration
-spring.flyway.schemas: s_account
+spring.flyway.schemas: s_order
+
+
+# Feign -- https://docs.spring.io/spring-cloud-openfeign/docs/current/reference/html/appendix.html
+feign.client.config.default:
+  connectTimeout: 5000
+  readTimeout: 5000
+feign.compression.request.enabled: false
+feign.compression.response.enabled: false
+feign.okhttp.enabled: true
+
+# https://resilience4j.readme.io/docs/circuitbreaker
+resilience4j.circuitbreaker:
+  configs:
+    default:
+      registerHealthIndicator: true
+      failureRateThreshold: 50
+      slowCallRateThreshold: 100
+      slowCallDurationThreshold: 60000ms
+      permittedNumberOfCallsInHalfOpenState: 10
+      maxWaitDurationInHalfOpenState: 0
+      slidingWindowType: "COUNT_BASED"
+      slidingWindowSize: 100
+      minimumNumberOfCalls: 100
+      waitDurationInOpenState: 6000ms
+      automaticTransitionFromOpenToHalfOpenEnabled: false
+      max-wait-duration-in-half-open-state: 1ms
+      recordExceptions:
+      ignoreExceptions:
+  instances:
+    account-service:
+      baseConfig: default
+# https://resilience4j.readme.io/docs/retry
+resilience4j.retry:
+  configs:
+    default:
+      maxRetryAttempts: 3
+      waitDuration: 100
+      retryExceptions:
+        - org.springframework.web.client.HttpServerErrorException
+        - java.util.concurrent.TimeoutException
+        - java.io.IOException
+  instances:
+    account-service:
+      baseConfig: default
+# https://resilience4j.readme.io/docs/bulkhead
+resilience4j.bulkhead:
+  configs:
+    default:
+      maxWaitDuration: 10ms
+      maxConcurrentCalls: 10
+  instances:
+    account-service:
+      baseConfig: default
+
+account-service.url: localhost:8080
 
 # LOGGING
 # https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#appendix.application-properties.core
@@ -128,3 +183,9 @@ logging.pattern:
       TRACE=blue
     }"
   file: "%-5p|%d{ISO8601}{GMT}|application=${spring.application.name}|traceID=%X{traceId},spanID=%X{spanId}|%c{1}|%m%ex%n"
+
+grpc:
+  client:
+    account-service:
+      address: static://localhost:18080
+      negotiationType: plaintext

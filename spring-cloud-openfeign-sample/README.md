@@ -8,13 +8,13 @@
 ## Run consul agent
 
 ```bash
-$ consul agent --dev
+consul agent --dev
 ```
 
 ## Run docker compose
 
 ```bash
-$ docker-compose up -d
+docker-compose up -d
 ```
 
 ---

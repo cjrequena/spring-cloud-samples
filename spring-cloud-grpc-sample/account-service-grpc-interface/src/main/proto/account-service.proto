@@ -1,0 +1,125 @@
+syntax = "proto3";
+
+package com.cjrequena.sample.service;
+
+option java_package = "com.cjrequena.sample.proto";
+option java_outer_classname = "AccountProto";
+option java_multiple_files = true;
+
+// Account message based on AccountDTO
+message Account {
+  string id = 1;
+  string owner = 2;
+  string balance = 3;
+  int64 created_at = 4; // Unix timestamp
+  int64 updated_at = 5; // Unix timestamp
+  int64 version = 6;
+}
+
+// Request messages
+message CreateAccountRequest {
+  Account account = 1;
+}
+
+message GetAccountRequest {
+  string id = 1; // UUID as string
+}
+
+message GetAllAccountsRequest {
+  // Empty for now, could add pagination later
+}
+
+message UpdateAccountRequest {
+  Account account = 1;
+}
+
+message DeleteAccountRequest {
+  string id = 1; // UUID as string
+}
+
+message DepositRequest {
+  string account_id = 1; // UUID as string
+  string amount = 2; // Using string for BigDecimal precision
+}
+
+message WithdrawRequest {
+  string account_id = 1; // UUID as string
+  string amount = 2; // Using string for BigDecimal precision
+}
+
+// Response messages
+message CreateAccountResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message GetAccountResponse {
+  Account account = 1;
+}
+
+message GetAllAccountsResponse {
+  repeated Account accounts = 1;
+}
+
+message UpdateAccountResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message DeleteAccountResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message DepositResponse {
+  bool success = 1;
+  string message = 2;
+  Account updated_account = 3;
+}
+
+message WithdrawResponse {
+  bool success = 1;
+  string message = 2;
+  Account updated_account = 3;
+}
+
+// JSON Patch operations (for future implementation)
+message JsonPatchOperation {
+  string op = 1; // add, remove, replace, move, copy, test
+  string path = 2;
+  string value = 3;
+  string from = 4; // for move/copy operations
+}
+
+message PatchAccountRequest {
+  string id = 1;
+  repeated JsonPatchOperation operations = 2;
+}
+
+message PatchAccountResponse {
+  Account account = 1;
+}
+
+// Error message for exceptions
+message ErrorResponse {
+  string error_code = 1;
+  string error_message = 2;
+  string error_type = 3; // ACCOUNT_NOT_FOUND, OPTIMISTIC_CONCURRENCY, etc.
+}
+
+// Account Service Definition
+service AccountService {
+  // Basic CRUD operations
+  rpc CreateAccount(CreateAccountRequest) returns (CreateAccountResponse);
+  rpc GetAccount(GetAccountRequest) returns (GetAccountResponse);
+  rpc GetAllAccounts(GetAllAccountsRequest) returns (GetAllAccountsResponse);
+  rpc UpdateAccount(UpdateAccountRequest) returns (UpdateAccountResponse);
+  rpc DeleteAccount(DeleteAccountRequest) returns (DeleteAccountResponse);
+
+  // Banking operations
+  rpc Deposit(DepositRequest) returns (DepositResponse);
+  rpc Withdraw(WithdrawRequest) returns (WithdrawResponse);
+
+  // Patch operations (for future implementation)
+  rpc PatchAccount(PatchAccountRequest) returns (PatchAccountResponse);
+}
