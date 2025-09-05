@@ -9,8 +9,8 @@ import com.cjrequena.sample.exception.service.AccountNotFoundException;
 import com.cjrequena.sample.exception.service.GrpcException;
 import com.cjrequena.sample.mapper.AccountMapper;
 import com.cjrequena.sample.proto.AccountServiceGrpc.AccountServiceBlockingStub;
-import com.cjrequena.sample.proto.GetAccountRequest;
-import com.cjrequena.sample.proto.GetAccountResponse;
+import com.cjrequena.sample.proto.RetrieveAccountByIdRequest;
+import com.cjrequena.sample.proto.RetrieveAccountByIdResponse;
 import io.github.resilience4j.bulkhead.annotation.Bulkhead;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
@@ -41,13 +41,13 @@ public class AccountServiceGrpcClient {
   @CircuitBreaker(name = "default", fallbackMethod = "retrieveFallbackMethod")
   @Bulkhead(name = "default")
   @Retry(name = "default")
-  public AccountDTO retrieve(UUID id) throws AccountNotFoundException {
+  public AccountDTO retrieveById(UUID id) throws AccountNotFoundException {
     try {
       return Optional.ofNullable(id)
         .map(UUID::toString)
-        .map(val -> GetAccountRequest.newBuilder().setId(val).build())
-        .map(accountServiceBlockingStub::getAccount)
-        .map(GetAccountResponse::getAccount)
+        .map(val -> RetrieveAccountByIdRequest.newBuilder().setId(val).build())
+        .map(accountServiceBlockingStub::retrieveAccountById)
+        .map(RetrieveAccountByIdResponse::getAccount)
         .map(accountMapper::toDTO)
         .orElseThrow(() -> new IllegalArgumentException("ID must not be null"));
     } catch (StatusRuntimeException ex) {

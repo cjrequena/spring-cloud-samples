@@ -62,11 +62,11 @@ public class AccountService extends AccountServiceGrpc.AccountServiceImplBase {
   }
 
   @Override
-  public void getAccount(GetAccountRequest request, StreamObserver<GetAccountResponse> responseObserver) {
+  public void retrieveAccountById(RetrieveAccountByIdRequest request, StreamObserver<RetrieveAccountByIdResponse> responseObserver) {
     UUID accountId = UUID.fromString(request.getId());
     this.accountRepository.findById(accountId)
       .map(accountMapper::toAccount)
-      .map(account -> GetAccountResponse.newBuilder().setAccount(account).build())
+      .map(account -> RetrieveAccountByIdResponse.newBuilder().setAccount(account).build())
       .ifPresentOrElse(
         response -> {
           responseObserver.onNext(response);
@@ -82,8 +82,8 @@ public class AccountService extends AccountServiceGrpc.AccountServiceImplBase {
   }
 
   @Override
-  public void getAllAccounts(GetAllAccountsRequest request, StreamObserver<GetAllAccountsResponse> responseObserver) {
-    super.getAllAccounts(request, responseObserver);
+  public void retrieveAccounts(RetrieveAccountsRequest request, StreamObserver<RetrieveAccountsResponse> responseObserver) {
+    super.retrieveAccounts(request, responseObserver);
   }
 
   @Override
@@ -106,10 +106,6 @@ public class AccountService extends AccountServiceGrpc.AccountServiceImplBase {
     super.withdraw(request, responseObserver);
   }
 
-  @Override
-  public void patchAccount(PatchAccountRequest request, StreamObserver<PatchAccountResponse> responseObserver) {
-    super.patchAccount(request, responseObserver);
-  }
 
   // -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   private StatusRuntimeException buildErrorResponse(Throwable err) {

@@ -21,11 +21,11 @@ message CreateAccountRequest {
   Account account = 1;
 }
 
-message GetAccountRequest {
+message RetrieveAccountByIdRequest {
   string id = 1; // UUID as string
 }
 
-message GetAllAccountsRequest {
+message RetrieveAccountsRequest {
   // Empty for now, could add pagination later
 }
 
@@ -53,11 +53,11 @@ message CreateAccountResponse {
   string message = 2;
 }
 
-message GetAccountResponse {
+message RetrieveAccountByIdResponse {
   Account account = 1;
 }
 
-message GetAllAccountsResponse {
+message RetrieveAccountsResponse {
   repeated Account accounts = 1;
 }
 
@@ -83,36 +83,12 @@ message WithdrawResponse {
   Account updated_account = 3;
 }
 
-// JSON Patch operations (for future implementation)
-message JsonPatchOperation {
-  string op = 1; // add, remove, replace, move, copy, test
-  string path = 2;
-  string value = 3;
-  string from = 4; // for move/copy operations
-}
-
-message PatchAccountRequest {
-  string id = 1;
-  repeated JsonPatchOperation operations = 2;
-}
-
-message PatchAccountResponse {
-  Account account = 1;
-}
-
-// Error message for exceptions
-message ErrorResponse {
-  string error_code = 1;
-  string error_message = 2;
-  string error_type = 3; // ACCOUNT_NOT_FOUND, OPTIMISTIC_CONCURRENCY, etc.
-}
-
 // Account Service Definition
 service AccountService {
   // Basic CRUD operations
   rpc CreateAccount(CreateAccountRequest) returns (CreateAccountResponse);
-  rpc GetAccount(GetAccountRequest) returns (GetAccountResponse);
-  rpc GetAllAccounts(GetAllAccountsRequest) returns (GetAllAccountsResponse);
+  rpc RetrieveAccountById(RetrieveAccountByIdRequest) returns (RetrieveAccountByIdResponse);
+  rpc RetrieveAccounts(RetrieveAccountsRequest) returns (RetrieveAccountsResponse);
   rpc UpdateAccount(UpdateAccountRequest) returns (UpdateAccountResponse);
   rpc DeleteAccount(DeleteAccountRequest) returns (DeleteAccountResponse);
 
@@ -120,6 +96,4 @@ service AccountService {
   rpc Deposit(DepositRequest) returns (DepositResponse);
   rpc Withdraw(WithdrawRequest) returns (WithdrawResponse);
 
-  // Patch operations (for future implementation)
-  rpc PatchAccount(PatchAccountRequest) returns (PatchAccountResponse);
 }

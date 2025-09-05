@@ -34,7 +34,7 @@ public class OrderService {
   private final AccountServiceGrpcClient accountServiceGrpcClient;
 
   public void create(OrderDTO dto) throws InsufficientBalanceException {
-    AccountDTO accountDTO = this.accountServiceGrpcClient.retrieve(dto.getAccountId());
+    AccountDTO accountDTO = this.accountServiceGrpcClient.retrieveById(dto.getAccountId());
     BigDecimal amount = accountDTO.getBalance().subtract(dto.getTotal());
     if (amount.compareTo(BigDecimal.ZERO) < 0) {
       throw new InsufficientBalanceException("Insufficient balance on account with id " + accountDTO.getId());
