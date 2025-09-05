@@ -19,6 +19,7 @@ import io.grpc.StatusRuntimeException;
 import lombok.extern.log4j.Log4j2;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -33,6 +34,8 @@ import java.util.UUID;
 //@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class AccountServiceGrpcClient {
 
+//  @Autowired
+//  @Qualifier("accountServiceBlockingStub")
   @GrpcClient("account-service")
   private AccountServiceBlockingStub accountServiceBlockingStub;
 

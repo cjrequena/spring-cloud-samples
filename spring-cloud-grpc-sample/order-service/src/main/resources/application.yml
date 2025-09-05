@@ -187,6 +187,6 @@ logging.pattern:
 grpc:
   client:
     account-service:
-      #address: static://localhost:18080
+      #address: 'static://localhost:18080'
       address: 'discovery:///account-service'
       negotiationType: plaintext
