@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -83,7 +84,29 @@ public class AccountService extends AccountServiceGrpc.AccountServiceImplBase {
 
   @Override
   public void retrieveAccounts(RetrieveAccountsRequest request, StreamObserver<RetrieveAccountsResponse> responseObserver) {
-    super.retrieveAccounts(request, responseObserver);
+    try {
+      log.debug("Retrieving accounts with request: {}", request);
+      final List<Account> accounts = this.accountRepository.findAll()
+        .stream()
+        .map(accountMapper::toAccount)
+        .toList();
+      RetrieveAccountsResponse response = RetrieveAccountsResponse
+        .newBuilder()
+        .addAllAccounts(accounts)
+        .build();
+      responseObserver.onNext(response);
+      responseObserver.onCompleted();
+      log.debug("Successfully retrieved {} accounts", accounts.size());
+    } catch (IllegalArgumentException ex){
+      log.warn("Invalid request parameters: {}", ex.getMessage());
+      // TODO buildErrorResponse
+      // responseObserver.onError(builtResponseError);
+    }catch (Exception ex) {
+      log.error("Error retrieving accounts", ex);
+      // TODO buildErrorResponse
+      // responseObserver.onError(builtResponseError);
+    }
+
   }
 
   @Override
@@ -106,11 +129,10 @@ public class AccountService extends AccountServiceGrpc.AccountServiceImplBase {
     super.withdraw(request, responseObserver);
   }
 
-
   // -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   private StatusRuntimeException buildErrorResponse(Throwable err) {
     var code = switch (err) {
-            case AccountNotFoundException ignored -> Code.NOT_FOUND;
+      case AccountNotFoundException ignored -> Code.NOT_FOUND;
       //      case ExperienceSingleSearchEmptyResultException ignored -> Code.NOT_FOUND;
       //      case ExperienceNotFoundException ignored -> Code.NOT_FOUND;
       //      case NullExperienceSourceException ignored -> Code.NOT_FOUND;
