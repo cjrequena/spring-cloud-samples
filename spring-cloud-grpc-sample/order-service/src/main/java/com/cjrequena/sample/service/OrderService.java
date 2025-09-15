@@ -108,9 +108,11 @@ public class OrderService {
       try {
         this.accountServiceGrpcClient.withdraw(withdrawAccountDTO);
         orderEntity.setStatus(EStatus.COMPLETED.getValue());
-      } catch (GrpcException ex) {
+      } catch (Exception ex) {
         orderEntity.setStatus(EStatus.REJECTED.getValue());
         orderEntity.setDescription(ex.getMessage());
+      } catch (Throwable e) {
+        throw new RuntimeException(e);
       }
       this.orderRepository.save(orderEntity);
     }

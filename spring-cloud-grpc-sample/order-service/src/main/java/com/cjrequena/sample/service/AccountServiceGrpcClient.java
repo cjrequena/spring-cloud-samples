@@ -9,8 +9,7 @@ import com.cjrequena.sample.exception.service.AccountNotFoundException;
 import com.cjrequena.sample.exception.service.GrpcException;
 import com.cjrequena.sample.mapper.AccountMapper;
 import com.cjrequena.sample.proto.AccountServiceGrpc.AccountServiceBlockingStub;
-import com.cjrequena.sample.proto.RetrieveAccountByIdRequest;
-import com.cjrequena.sample.proto.RetrieveAccountByIdResponse;
+import com.cjrequena.sample.proto.*;
 import io.github.resilience4j.bulkhead.annotation.Bulkhead;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
@@ -20,11 +19,11 @@ import lombok.extern.log4j.Log4j2;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -73,29 +72,82 @@ public class AccountServiceGrpcClient {
     throw ex;
   }
 
-  @CircuitBreaker(name = "default", fallbackMethod = "depositFallbackMethod")
+  @CircuitBreaker(name = "default", fallbackMethod = "depositFallback")
   @Bulkhead(name = "default")
   @Retry(name = "default")
-  public ResponseEntity<Void> deposit(DepositAccountDTO dto) {
-    //    return this.accountServiceFeignClient.deposit(dto);
-    return null;
+  public void deposit(DepositAccountDTO dto) {
+    Objects.requireNonNull(dto, "DepositAccountDTO cannot be null");
+    Objects.requireNonNull(dto.getAccountId(), "AccountId cannot be null");
+    Objects.requireNonNull(dto.getAmount(), "Amount cannot be null");
+
+    DepositRequest request = DepositRequest.newBuilder()
+      .setAccountId(dto.getAccountId().toString())
+      .setAmount(dto.getAmount().toString())
+      .build();
+
+    try {
+      final DepositResponse response = accountServiceBlockingStub.deposit(request);
+      log.info("Deposit successful for accountId={}, amount={}", dto.getAccountId(), dto.getAmount());
+    } catch (Exception ex) {
+      log.error("Deposit failed for accountId={}, amount={}, error={}",
+        dto.getAccountId(), dto.getAmount(), ex.getMessage(), ex);
+      throw ex;
+    }
   }
 
-  public ResponseEntity<Void> depositFallbackMethod(DepositAccountDTO dto, Throwable ex) throws GrpcException {
-    log.debug("depositFallbackMethod");
-    throw new GrpcException(ex.getMessage(), ex);
+  @SuppressWarnings("unused")
+  private void depositFallback(DepositAccountDTO dto, Throwable ex) throws Throwable {
+    log.warn("Fallback triggered for deposit. accountId={}, amount={}, reason={}",
+      dto != null ? dto.getAccountId() : "N/A",
+      dto != null ? dto.getAmount() : "N/A",
+      ex.getMessage(), ex);
+
+    // Depending on your business needs:
+    // - Save to a retry queue
+    // - Publish an event
+    // - Notify monitoring system
+    // For now, rethrow the exception
+    throw ex;
   }
 
-  @CircuitBreaker(name = "default", fallbackMethod = "withdrawFallbackMethod")
+
+  @CircuitBreaker(name = "default", fallbackMethod = "withdrawFallback")
   @Bulkhead(name = "default")
   @Retry(name = "default")
-  public ResponseEntity<Void> withdraw(WithdrawAccountDTO dto) throws GrpcException {
-    //return this.accountServiceFeignClient.withdraw(dto);
-    return null;
+  public void withdraw(WithdrawAccountDTO dto) throws Throwable  {
+    Objects.requireNonNull(dto, "WithdrawAccountDTO cannot be null");
+    Objects.requireNonNull(dto.getAccountId(), "AccountId cannot be null");
+    Objects.requireNonNull(dto.getAmount(), "Amount cannot be null");
+
+    WithdrawRequest request = WithdrawRequest.newBuilder()
+      .setAccountId(dto.getAccountId().toString())
+      .setAmount(dto.getAmount().toString())
+      .build();
+
+    try {
+      accountServiceBlockingStub.withdraw(request);
+      log.info("Withdraw successful for accountId={}, amount={}",
+        dto.getAccountId(), dto.getAmount());
+    } catch (Exception ex) {
+      log.error("Withdraw failed for accountId={}, amount={}, error={}",
+        dto.getAccountId(), dto.getAmount(), ex.getMessage(), ex);
+      throw new GrpcException("Withdraw request failed", ex);
+    }
   }
 
-  public ResponseEntity<Void> withdrawFallbackMethod(WithdrawAccountDTO dto, Throwable ex) throws GrpcException {
-    log.debug("withdrawFallbackMethod");
-    throw new GrpcException(ex.getMessage(), ex);
+  @SuppressWarnings("unused")
+  private void withdrawFallback(WithdrawAccountDTO dto, Throwable ex) throws Throwable  {
+    log.warn("Fallback triggered for withdraw. accountId={}, amount={}, reason={}",
+      dto != null ? dto.getAccountId() : "N/A",
+      dto != null ? dto.getAmount() : "N/A",
+      ex.getMessage(), ex);
+
+    // Business options:
+    // - Persist the request for retry later
+    // - Publish to a dead-letter queue
+    // - Trigger alerting/monitoring
+    // For now, wrap and rethrow
+    throw ex;
   }
+
 }

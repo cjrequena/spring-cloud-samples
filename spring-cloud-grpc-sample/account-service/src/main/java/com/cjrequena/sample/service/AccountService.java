@@ -108,7 +108,6 @@ public class AccountService extends AccountServiceGrpc.AccountServiceImplBase {
       // TODO buildErrorResponse
       // responseObserver.onError(builtResponseError);
     }
-
   }
 
   @Override
@@ -244,8 +243,6 @@ public class AccountService extends AccountServiceGrpc.AccountServiceImplBase {
     var code = switch (err) {
       case AccountNotFoundException ignored -> Code.NOT_FOUND;
       case OptimisticConcurrencyException ignored -> Code.ABORTED;
-      //      case ExperienceNotFoundException ignored -> Code.NOT_FOUND;
-      //      case NullExperienceSourceException ignored -> Code.NOT_FOUND;
       //      case UnimplementedFilterException ignored -> Code.UNIMPLEMENTED;
       //      case ValidationException ignored -> Code.INVALID_ARGUMENT;
       case NumberFormatException ignored -> Code.INVALID_ARGUMENT;
