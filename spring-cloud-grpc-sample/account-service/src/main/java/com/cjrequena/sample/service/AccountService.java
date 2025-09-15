@@ -3,6 +3,7 @@ package com.cjrequena.sample.service;
 import com.cjrequena.sample.db.entity.AccountEntity;
 import com.cjrequena.sample.db.repository.AccountRepository;
 import com.cjrequena.sample.exception.service.AccountNotFoundException;
+import com.cjrequena.sample.exception.service.OptimisticConcurrencyException;
 import com.cjrequena.sample.exception.service.ServiceException;
 import com.cjrequena.sample.mapper.AccountMapper;
 import com.cjrequena.sample.proto.*;
@@ -97,11 +98,11 @@ public class AccountService extends AccountServiceGrpc.AccountServiceImplBase {
       responseObserver.onNext(response);
       responseObserver.onCompleted();
       log.debug("Successfully retrieved {} accounts", accounts.size());
-    } catch (IllegalArgumentException ex){
+    } catch (IllegalArgumentException ex) {
       log.warn("Invalid request parameters: {}", ex.getMessage());
       // TODO buildErrorResponse
       // responseObserver.onError(builtResponseError);
-    }catch (Exception ex) {
+    } catch (Exception ex) {
       log.error("Error retrieving accounts", ex);
       // TODO buildErrorResponse
       // responseObserver.onError(builtResponseError);
@@ -111,7 +112,45 @@ public class AccountService extends AccountServiceGrpc.AccountServiceImplBase {
 
   @Override
   public void updateAccount(UpdateAccountRequest request, StreamObserver<UpdateAccountResponse> responseObserver) {
-    super.updateAccount(request, responseObserver);
+
+    log.debug("Updating account with request: {}", request);
+    Account account = request.getAccount();
+    UUID accountId = UUID.fromString(account.getId());
+    final long version = account.getVersion();
+
+    this.accountRepository
+      .findWithLockingById(accountId)
+      .ifPresentOrElse(accountEntity -> {
+          final long expectedVersion = accountEntity.getVersion();
+          if (expectedVersion == version) {
+            this.accountRepository.save(this.accountMapper.toEntity(account));
+            UpdateAccountResponse response = UpdateAccountResponse
+              .newBuilder()
+              .setSuccess(true)
+              .setMessage("Account updated successfully")
+              .build();
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+            log.debug("Successfully updated account {}", account);
+          } else {
+            log.trace(
+              "Optimistic concurrency control error in account :: {} :: actual version doesn't match expected version {}",
+              accountId,
+              expectedVersion);
+            StatusRuntimeException ex = this.buildErrorResponse(
+              new OptimisticConcurrencyException(
+                "Optimistic concurrency control error in account :: " + accountId + " :: actual version doesn't match expected version "
+                  + expectedVersion));
+            responseObserver.onError(ex);
+          }
+        },
+        () -> {
+          StatusRuntimeException ex = this.buildErrorResponse(
+            new AccountNotFoundException("The account :: " + accountId + " :: was not Found")
+          );
+          responseObserver.onError(ex);
+        }
+      );
   }
 
   @Override
@@ -133,7 +172,7 @@ public class AccountService extends AccountServiceGrpc.AccountServiceImplBase {
   private StatusRuntimeException buildErrorResponse(Throwable err) {
     var code = switch (err) {
       case AccountNotFoundException ignored -> Code.NOT_FOUND;
-      //      case ExperienceSingleSearchEmptyResultException ignored -> Code.NOT_FOUND;
+      case OptimisticConcurrencyException ignored -> Code.ABORTED;
       //      case ExperienceNotFoundException ignored -> Code.NOT_FOUND;
       //      case NullExperienceSourceException ignored -> Code.NOT_FOUND;
       //      case UnimplementedFilterException ignored -> Code.UNIMPLEMENTED;
