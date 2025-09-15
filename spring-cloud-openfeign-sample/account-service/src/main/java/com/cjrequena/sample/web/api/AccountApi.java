@@ -80,11 +80,10 @@ public class AccountApi {
     path = "/accounts/{id}",
     produces = {APPLICATION_JSON_VALUE}
   )
-  public ResponseEntity<Void> update(@PathVariable(value = "id") UUID id, @Valid @RequestBody AccountDTO dto, @RequestHeader("version") Long version)
+  public ResponseEntity<Void> update(@PathVariable(value = "id") UUID id, @Valid @RequestBody AccountDTO dto)
     throws NotFoundApiException, ConflictApiException {
     try {
       dto.setId(id);
-      dto.setVersion(version);
       this.accountService.update(dto);
       HttpHeaders headers = new HttpHeaders();
       headers.set(CACHE_CONTROL, "no store, private, max-age=0");

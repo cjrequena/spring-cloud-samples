@@ -27,10 +27,16 @@ grpcurl --plaintext \
   localhost:18080 com.cjrequena.sample.service.AccountService/UpdateAccount
 ```
 
-
-## Update account calling account-service via gRPC
+## Withdraw account calling account-service via gRPC
 ```bash
 grpcurl --plaintext \
   -d '{"account_id": "b9214d25-8842-4ef0-b5e1-6c1f52cd470f", "amount": "200"}' \
   localhost:18080 com.cjrequena.sample.service.AccountService/Withdraw
+```
+
+## Deposit account calling account-service via gRPC
+```bash
+grpcurl --plaintext \
+  -d '{"account_id": "b9214d25-8842-4ef0-b5e1-6c1f52cd470f", "amount": "200"}' \
+  localhost:18080 com.cjrequena.sample.service.AccountService/Deposit
 ```

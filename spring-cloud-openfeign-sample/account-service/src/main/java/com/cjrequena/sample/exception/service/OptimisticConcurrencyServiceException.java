@@ -6,7 +6,7 @@ package com.cjrequena.sample.exception.service;
  * <p></p>
  * @author cjrequena
  */
-public class OptimisticConcurrencyServiceException extends ServiceException {
+public class OptimisticConcurrencyServiceException extends RuntimeServiceException {
   public OptimisticConcurrencyServiceException(String message) {
     super(message);
   }

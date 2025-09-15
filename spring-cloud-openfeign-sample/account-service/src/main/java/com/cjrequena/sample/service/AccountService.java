@@ -14,6 +14,7 @@ import jakarta.json.JsonPatch;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -60,25 +61,30 @@ public class AccountService {
   }
 
   public void update(AccountDTO dto) throws AccountNotFoundServiceException, OptimisticConcurrencyServiceException {
-    Optional<AccountEntity> optional = this.accountRepository.findWithLockingById(dto.getId());
-    if (optional.isEmpty()) {
-      throw new AccountNotFoundServiceException("The account :: " + dto.getId() + " :: was not Found");
-    }
-    AccountDTO _dto = this.accountMapper.toDTO(optional.get());
-    if (_dto.getVersion().equals(dto.getVersion())) {
-      AccountEntity entity = this.accountMapper.toEntity(dto);
-      this.accountRepository.save(entity);
-      log.debug("Updated account with id {}", entity.getId());
-    } else {
-      log.trace(
-        "Optimistic concurrency control error in account :: {} :: actual version doesn't match expected version {}",
-        _dto.getId(),
-        _dto.getVersion());
-      throw new OptimisticConcurrencyServiceException(
-        "Optimistic concurrency control error in account :: " + _dto.getId() + " :: actual version doesn't match expected version "
-          + _dto.getVersion());
-    }
+    UUID accountId = dto.getId();
+    this.accountRepository
+      .findWithLockingById(accountId)
+      .ifPresentOrElse(entity -> {
+          final long expectedVersion = entity.getVersion();
+          try {
+            this.accountMapper.updateEntityFromAccount(dto, entity);
+            this.accountRepository.save(entity);
+          } catch (ObjectOptimisticLockingFailureException ex) {
+            String errorMessage = String.format(
+              "Optimistic concurrency control error in account :: %s :: actual version doesn't match expected version %s",
+              accountId, expectedVersion
+            );
+            log.trace(errorMessage, ex);
+            throw new OptimisticConcurrencyServiceException(errorMessage);
+          }
+        },
+        () -> {
+          String errorMessage = String.format("The account :: %s :: was not found", accountId);
+          log.trace(errorMessage);
+          throw new AccountNotFoundServiceException(errorMessage);
+        });
   }
+
 
   public AccountDTO patch(UUID id, JsonPatch patchDocument) {
     return null;

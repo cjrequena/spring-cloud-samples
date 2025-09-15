@@ -113,7 +113,6 @@ public class AccountService extends AccountServiceGrpc.AccountServiceImplBase {
 
   @Override
   public void updateAccount(UpdateAccountRequest request, StreamObserver<UpdateAccountResponse> responseObserver) {
-    log.debug("Updating account with request: {}", request);
     Account account = request.getAccount();
     UUID accountId = UUID.fromString(account.getId());
     this.accountRepository
@@ -122,7 +121,7 @@ public class AccountService extends AccountServiceGrpc.AccountServiceImplBase {
           final long expectedVersion = accountEntity.getVersion();
           try {
             this.accountMapper.updateEntityFromAccount(account, accountEntity);
-            this.accountRepository.update(accountEntity);
+            this.accountRepository.save(accountEntity);
             UpdateAccountResponse response = UpdateAccountResponse
               .newBuilder()
               .setSuccess(true)
@@ -131,21 +130,19 @@ public class AccountService extends AccountServiceGrpc.AccountServiceImplBase {
             responseObserver.onNext(response);
             responseObserver.onCompleted();
           } catch (ObjectOptimisticLockingFailureException ex) {
-            log.trace(
-              "Optimistic concurrency control error in account :: {} :: actual version doesn't match expected version {}",
-              accountId,
-              expectedVersion);
-            StatusRuntimeException err = this.buildErrorResponse(
-              new OptimisticConcurrencyException(
-                "Optimistic concurrency control error in account :: " + accountId + " :: actual version doesn't match expected version "
-                  + expectedVersion));
+            String errorMessage = String.format(
+              "Optimistic concurrency control error in account :: %s :: actual version doesn't match expected version %s",
+              accountId, expectedVersion
+            );
+            log.trace(errorMessage);
+            StatusRuntimeException err = this.buildErrorResponse(new OptimisticConcurrencyException(errorMessage));
             responseObserver.onError(ex);
           }
         },
         () -> {
-          StatusRuntimeException ex = this.buildErrorResponse(
-            new AccountNotFoundException("The account :: " + accountId + " :: was not Found")
-          );
+          String errorMessage = String.format("The account :: %s :: was not found", accountId);
+          log.trace(errorMessage);
+          StatusRuntimeException ex = this.buildErrorResponse(new AccountNotFoundException(errorMessage));
           responseObserver.onError(ex);
         }
       );
@@ -166,15 +163,47 @@ public class AccountService extends AccountServiceGrpc.AccountServiceImplBase {
 
   @Override
   public void deposit(DepositRequest request, StreamObserver<DepositResponse> responseObserver) {
-    super.deposit(request, responseObserver);
+    UUID accountId = UUID.fromString(request.getAccountId());
+    BigDecimal amount = BigDecimal.valueOf(Long.parseLong(request.getAmount()));
+    this.accountRepository
+      .findWithLockingById(accountId)
+      .ifPresentOrElse(accountEntity -> {
+          final long expectedVersion = accountEntity.getVersion();
+          try {
+            BigDecimal currentBalance = accountEntity.getBalance();
+            BigDecimal newBalance = currentBalance.add(amount);
+            accountEntity.setBalance(newBalance);
+            this.accountRepository.save(accountEntity);
+            DepositResponse response = DepositResponse
+              .newBuilder()
+              .setSuccess(true)
+              .setMessage("Account deposited successfully")
+              .build();
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+          } catch (ObjectOptimisticLockingFailureException ex) {
+            String errorMessage = String.format(
+              "Optimistic concurrency control error in account :: %s :: actual version doesn't match expected version %s",
+              accountId, expectedVersion
+            );
+            log.trace(errorMessage);
+            StatusRuntimeException err = this.buildErrorResponse(new OptimisticConcurrencyException(errorMessage));
+            responseObserver.onError(ex);
+          }
+        },
+        () -> {
+          String errorMessage = String.format("The account :: %s :: was not found", accountId);
+          log.trace(errorMessage);
+          StatusRuntimeException ex = this.buildErrorResponse(new AccountNotFoundException(errorMessage));
+          responseObserver.onError(ex);
+        }
+      );
   }
 
   @Override
   public void withdraw(WithdrawRequest request, StreamObserver<WithdrawResponse> responseObserver) {
-    log.debug("Withdrawing account with request: {}", request);
     UUID accountId = UUID.fromString(request.getAccountId());
     BigDecimal amount = BigDecimal.valueOf(Long.parseLong(request.getAmount()));
-
     this.accountRepository
       .findWithLockingById(accountId)
       .ifPresentOrElse(accountEntity -> {
@@ -183,7 +212,7 @@ public class AccountService extends AccountServiceGrpc.AccountServiceImplBase {
             BigDecimal currentBalance = accountEntity.getBalance();
             BigDecimal newBalance = currentBalance.subtract(amount);
             accountEntity.setBalance(newBalance);
-            this.accountRepository.update(accountEntity);
+            this.accountRepository.save(accountEntity);
             WithdrawResponse response = WithdrawResponse
               .newBuilder()
               .setSuccess(true)
@@ -192,21 +221,19 @@ public class AccountService extends AccountServiceGrpc.AccountServiceImplBase {
             responseObserver.onNext(response);
             responseObserver.onCompleted();
           } catch (ObjectOptimisticLockingFailureException ex) {
-            log.trace(
-              "Optimistic concurrency control error in account :: {} :: actual version doesn't match expected version {}",
-              accountId,
-              expectedVersion);
-            StatusRuntimeException err = this.buildErrorResponse(
-              new OptimisticConcurrencyException(
-                "Optimistic concurrency control error in account :: " + accountId + " :: actual version doesn't match expected version "
-                  + expectedVersion));
+            String errorMessage = String.format(
+              "Optimistic concurrency control error in account :: %s :: actual version doesn't match expected version %s",
+              accountId, expectedVersion
+            );
+            log.trace(errorMessage);
+            StatusRuntimeException err = this.buildErrorResponse(new OptimisticConcurrencyException(errorMessage));
             responseObserver.onError(ex);
           }
         },
         () -> {
-          StatusRuntimeException ex = this.buildErrorResponse(
-            new AccountNotFoundException("The account :: " + accountId + " :: was not Found")
-          );
+          String errorMessage = String.format("The account :: %s :: was not found", accountId);
+          log.trace(errorMessage);
+          StatusRuntimeException ex = this.buildErrorResponse(new AccountNotFoundException(errorMessage));
           responseObserver.onError(ex);
         }
       );
