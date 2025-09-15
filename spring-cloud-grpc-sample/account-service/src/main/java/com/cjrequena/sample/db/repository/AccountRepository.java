@@ -44,11 +44,11 @@ public interface AccountRepository extends CrudRepository<AccountEntity, UUID> {
   void create(@Param("entity") AccountEntity entity);
 
   @Modifying
-  @Query(value = "UPDATE S_ACCOUNT.T_ACCOUNT "
-    + " SET OWNER = :#{#entity.owner}, "
-    + " BALANCE = :#{#entity.balance} "
-    + " VERSION= VERSION + 1"
-    + " WHERE ID = :#{#entity.id} AND VERSION = :#{#entity.version}",
+  @Query(value = "UPDATE S_ACCOUNT.T_ACCOUNT " +
+    "SET OWNER = :#{#entity.owner}, " +
+    "    BALANCE = :#{#entity.balance}, " +
+    "    VERSION = VERSION + 1 " +
+    "WHERE ID = :#{#entity.id} AND VERSION = :#{#entity.version}",
     nativeQuery = true)
-  void update(@Param("entity") AccountEntity entity);
+  int update(@Param("entity") AccountEntity entity);
 }

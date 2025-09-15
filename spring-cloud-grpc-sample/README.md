@@ -23,6 +23,14 @@ grpcurl --plaintext \
 ## Update account calling account-service via gRPC
 ```bash
 grpcurl --plaintext \
-  -d '{"account": {"id":"37c0c17c-d9c0-4a92-848f-2a9179221400", "owner": "Alice", "balance": "500.00", "version": 1}}' \
+  -d '{"account": {"id":"b9214d25-8842-4ef0-b5e1-6c1f52cd470f", "owner": "Carlos", "balance": "350.00"}}' \
   localhost:18080 com.cjrequena.sample.service.AccountService/UpdateAccount
+```
+
+
+## Update account calling account-service via gRPC
+```bash
+grpcurl --plaintext \
+  -d '{"account_id": "b9214d25-8842-4ef0-b5e1-6c1f52cd470f", "amount": "200"}' \
+  localhost:18080 com.cjrequena.sample.service.AccountService/Withdraw
 ```
