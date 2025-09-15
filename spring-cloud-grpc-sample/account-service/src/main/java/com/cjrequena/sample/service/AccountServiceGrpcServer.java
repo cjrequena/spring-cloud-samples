@@ -37,7 +37,7 @@ import java.util.UUID;
 @Service
 @Transactional(propagation = Propagation.REQUIRED, rollbackFor = ServiceException.class)
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class AccountService extends AccountServiceGrpc.AccountServiceImplBase {
+public class AccountServiceGrpcServer extends AccountServiceGrpc.AccountServiceImplBase {
 
   private final AccountMapper accountMapper;
   private final AccountRepository accountRepository;
