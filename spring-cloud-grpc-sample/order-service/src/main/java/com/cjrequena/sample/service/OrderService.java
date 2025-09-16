@@ -3,7 +3,6 @@ package com.cjrequena.sample.service;
 import com.cjrequena.sample.common.EStatus;
 import com.cjrequena.sample.db.entity.OrderEntity;
 import com.cjrequena.sample.db.repository.OrderRepository;
-import com.cjrequena.sample.dto.AccountDTO;
 import com.cjrequena.sample.dto.OrderDTO;
 import com.cjrequena.sample.dto.WithdrawAccountDTO;
 import com.cjrequena.sample.exception.service.InsufficientBalanceException;
@@ -11,6 +10,7 @@ import com.cjrequena.sample.exception.service.OptimisticConcurrencyException;
 import com.cjrequena.sample.exception.service.OrderNotFoundException;
 import com.cjrequena.sample.exception.service.ServiceException;
 import com.cjrequena.sample.mapper.OrderMapper;
+import com.cjrequena.sample.proto.Account;
 import jakarta.json.JsonMergePatch;
 import jakarta.json.JsonPatch;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -37,10 +38,12 @@ public class OrderService {
   private final AccountServiceGrpcClient accountServiceGrpcClient;
 
   public void create(OrderDTO dto) throws InsufficientBalanceException {
-    AccountDTO accountDTO = this.accountServiceGrpcClient.retrieveById(dto.getAccountId());
-    BigDecimal amount = accountDTO.getBalance().subtract(dto.getTotal());
+    Account account = this.accountServiceGrpcClient.retrieveById(dto.getAccountId());
+    BigDecimal accountBalance = new BigDecimal(account.getBalance()).setScale(2, RoundingMode.HALF_UP);
+
+    BigDecimal amount = accountBalance.subtract(dto.getTotal());
     if (amount.compareTo(BigDecimal.ZERO) < 0) {
-      throw new InsufficientBalanceException("Insufficient balance on account with id " + accountDTO.getId());
+      throw new InsufficientBalanceException("Insufficient balance on account with id " + account.getId());
     }
     OrderEntity entity = this.orderMapper.toEntity(dto);
     this.orderRepository.create(entity);

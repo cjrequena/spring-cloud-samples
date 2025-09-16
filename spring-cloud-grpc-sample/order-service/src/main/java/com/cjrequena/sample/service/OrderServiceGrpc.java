@@ -3,7 +3,6 @@ package com.cjrequena.sample.service;
 import com.cjrequena.sample.common.EStatus;
 import com.cjrequena.sample.db.entity.OrderEntity;
 import com.cjrequena.sample.db.repository.OrderRepository;
-import com.cjrequena.sample.dto.AccountDTO;
 import com.cjrequena.sample.exception.GrpcExceptionHandler;
 import com.cjrequena.sample.exception.service.AccountNotFoundException;
 import com.cjrequena.sample.exception.service.AccountServiceUnavailableException;
@@ -52,10 +51,11 @@ public class OrderServiceGrpc extends com.cjrequena.sample.proto.OrderServiceGrp
       Objects.requireNonNull(order.getTotal(), "Order total cannot be null");
       UUID accountId = UUID.fromString(order.getAccountId());
       BigDecimal total = new BigDecimal(order.getTotal()).setScale(2, RoundingMode.HALF_UP);
-      AccountDTO accountDTO = this.accountServiceGrpcClient.retrieveById(accountId);
-      BigDecimal amount = accountDTO.getBalance().subtract(total);
+      Account account = this.accountServiceGrpcClient.retrieveById(accountId);
+      BigDecimal accountBalance = new BigDecimal(account.getBalance()).setScale(2, RoundingMode.HALF_UP);
+      BigDecimal newAccountBalance = accountBalance.subtract(total);
 
-      if (amount.compareTo(BigDecimal.ZERO) < 0) {
+      if (newAccountBalance.compareTo(BigDecimal.ZERO) < 0) {
         String errorMessage = String.format("The account :: %s :: has insufficient balance", accountId);
         StatusRuntimeException ex = this.grpcExceptionHandler.buildErrorResponse(new AccountNotFoundException(errorMessage));
         responseObserver.onError(ex);

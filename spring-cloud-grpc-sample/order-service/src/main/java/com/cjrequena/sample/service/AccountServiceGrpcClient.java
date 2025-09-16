@@ -6,8 +6,8 @@ import com.cjrequena.sample.dto.WithdrawAccountDTO;
 import com.cjrequena.sample.exception.service.AccountNotFoundException;
 import com.cjrequena.sample.exception.service.AccountServiceUnavailableException;
 import com.cjrequena.sample.mapper.AccountMapper;
-import com.cjrequena.sample.proto.AccountServiceGrpc.AccountServiceBlockingStub;
 import com.cjrequena.sample.proto.*;
+import com.cjrequena.sample.proto.AccountServiceGrpc.AccountServiceBlockingStub;
 import io.github.resilience4j.bulkhead.annotation.Bulkhead;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
@@ -38,14 +38,13 @@ public class AccountServiceGrpcClient {
   @CircuitBreaker(name = "default", fallbackMethod = "retrieveFallbackMethod")
   @Bulkhead(name = "default")
   @Retry(name = "default")
-  public AccountDTO retrieveById(UUID id) throws AccountNotFoundException {
+  public Account retrieveById(UUID id) throws AccountNotFoundException {
     try {
       return Optional.ofNullable(id)
         .map(UUID::toString)
         .map(val -> RetrieveAccountByIdRequest.newBuilder().setId(val).build())
         .map(accountServiceBlockingStub::retrieveAccountById)
         .map(RetrieveAccountByIdResponse::getAccount)
-        .map(accountMapper::toDTO)
         .orElseThrow(() -> new IllegalArgumentException("ID must not be null"));
     } catch (StatusRuntimeException ex) {
       if (ex.getStatus().getCode() == Status.Code.NOT_FOUND) {
