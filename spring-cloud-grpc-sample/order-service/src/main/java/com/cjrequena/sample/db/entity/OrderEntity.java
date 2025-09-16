@@ -17,7 +17,7 @@ public class OrderEntity {
 
   @Id
   @Column(name = "id")
-  Integer id;
+  UUID id;
 
   @Column(name = "account_id")
   UUID accountId;

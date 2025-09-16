@@ -24,14 +24,4 @@ public interface OrderMapper {
 
   Order toOrder(OrderEntity entity);
 
-  default Integer mapStringToInteger(String value) {
-    if (value == null || value.trim().isEmpty()) {
-      return null; // let DB auto-generate
-    }
-    return Integer.parseInt(value.trim());
-  }
-
-  default String mapIntegerToString(Integer value) {
-    return value != null ? value.toString() : null;
-  }
 }

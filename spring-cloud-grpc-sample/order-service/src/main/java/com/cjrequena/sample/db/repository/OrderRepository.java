@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  *
@@ -26,8 +27,8 @@ public interface OrderRepository extends CrudRepository<OrderEntity, Integer> {
   @Modifying
   @Transactional
   @Query(value = "INSERT INTO S_ORDER.T_ORDER "
-    + " (ACCOUNT_ID, STATUS, TOTAL, VERSION) "
-    + " VALUES (:#{#entity.accountId}, :#{#entity.status},:#{#entity.total}, 1)"
+    + " (ID, ACCOUNT_ID, STATUS, TOTAL, VERSION) "
+    + " VALUES (:#{#entity.id}, :#{#entity.accountId}, :#{#entity.status},:#{#entity.total}, 1)"
     , nativeQuery = true)
   void create(@Param("entity") OrderEntity entity);
 
@@ -40,7 +41,7 @@ public interface OrderRepository extends CrudRepository<OrderEntity, Integer> {
   List<OrderEntity> findAll();
 
   @Lock(LockModeType.OPTIMISTIC)
-  Optional<OrderEntity> findWithLockingById(Integer id);
+  Optional<OrderEntity> findWithLockingById(UUID id);
 
   @Query(value = "SELECT * FROM S_ORDER.T_ORDER WHERE STATUS = :status ORDER BY CREATED_AT DESC", nativeQuery = true)
   List<OrderEntity> retrieveOrdersByStatus(@Param("status") String status);

@@ -42,6 +42,7 @@ public class OrderServiceGrpc extends com.cjrequena.sample.proto.OrderServiceGrp
     try {
       Order order = Order
         .newBuilder()
+        .setId(UUID.randomUUID().toString())
         .setAccountId(request.getOrder().getAccountId())
         .setTotal(request.getOrder().getTotal())
         .setStatus(EStatus.PENDING.getValue())

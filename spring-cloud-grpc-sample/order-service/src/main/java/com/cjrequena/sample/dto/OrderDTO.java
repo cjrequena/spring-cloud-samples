@@ -39,7 +39,7 @@ public class OrderDTO {
 
   @JsonProperty(value = "id")
   @Schema(accessMode = READ_ONLY)
-  private Integer id;
+  private UUID id;
 
   @NotNull(message = "account_id is a required field")
   @JsonProperty(value = "account_id", required = true)

@@ -44,6 +44,6 @@ grpcurl --plaintext \
 ## Create new order calling account-service via gRPC
 ```bash
 grpcurl --plaintext \
-  -d '{"order": {"account_id": "0aaba5ec-f6d2-4750-9790-9370fb8c14de", "total": "100.00"}}' \
+  -d '{"order": {"account_id": "ec595d79-b207-412f-8d07-3b172f667657", "total": "100.00"}}' \
   localhost:19080 com.cjrequena.sample.service.OrderService/CreateOrder
 ```

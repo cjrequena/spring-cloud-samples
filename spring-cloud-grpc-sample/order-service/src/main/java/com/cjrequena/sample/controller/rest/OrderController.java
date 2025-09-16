@@ -21,6 +21,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
+import java.util.UUID;
 
 import static org.springframework.http.HttpHeaders.CACHE_CONTROL;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -88,7 +89,7 @@ public class OrderController {
     path = "/orders/{id}",
     produces = {APPLICATION_JSON_VALUE}
   )
-  public ResponseEntity<Void> update(@PathVariable(value = "id") Integer id, @Valid @RequestBody OrderDTO dto) throws NotFoundApiException, BadRequestApiException {
+  public ResponseEntity<Void> update(@PathVariable(value = "id") UUID id, @Valid @RequestBody OrderDTO dto) throws NotFoundApiException, BadRequestApiException {
     try {
       dto.setId(id);
       this.orderService.update(dto);
