@@ -23,6 +23,14 @@ import java.util.Optional;
 @Transactional
 public interface OrderRepository extends CrudRepository<OrderEntity, Integer> {
 
+  @Modifying
+  @Transactional
+  @Query(value = "INSERT INTO S_ORDER.T_ORDER "
+    + " (ACCOUNT_ID, STATUS, TOTAL, VERSION) "
+    + " VALUES (:#{#entity.accountId}, :#{#entity.status},:#{#entity.total}, 1)"
+    , nativeQuery = true)
+  void create(@Param("entity") OrderEntity entity);
+
   @Override
   @Transactional(readOnly = true)
   Optional<OrderEntity> findById(Integer id);
@@ -34,16 +42,8 @@ public interface OrderRepository extends CrudRepository<OrderEntity, Integer> {
   @Lock(LockModeType.OPTIMISTIC)
   Optional<OrderEntity> findWithLockingById(Integer id);
 
-  @Query(value = "SELECT * FROM S_ORDER.T_ORDER WHERE STATUS = :status ORDER BY CREATION_DATE DESC", nativeQuery = true)
+  @Query(value = "SELECT * FROM S_ORDER.T_ORDER WHERE STATUS = :status ORDER BY CREATED_AT DESC", nativeQuery = true)
   List<OrderEntity> retrieveOrdersByStatus(@Param("status") String status);
-
-  @Modifying
-  @Transactional
-  @Query(value = "INSERT INTO S_ORDER.T_ORDER "
-    + " (ACCOUNT_ID, STATUS, TOTAL, VERSION) "
-    + " VALUES (:#{#entity.accountId}, :#{#entity.status},:#{#entity.total}, 1)"
-    , nativeQuery = true)
-  void create(@Param("entity") OrderEntity entity);
 
   @Modifying
   @Transactional

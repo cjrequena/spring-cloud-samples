@@ -1,0 +1,99 @@
+package com.cjrequena.sample.service;
+
+import com.cjrequena.sample.common.EStatus;
+import com.cjrequena.sample.db.entity.OrderEntity;
+import com.cjrequena.sample.db.repository.OrderRepository;
+import com.cjrequena.sample.dto.AccountDTO;
+import com.cjrequena.sample.exception.GrpcExceptionHandler;
+import com.cjrequena.sample.exception.service.AccountNotFoundException;
+import com.cjrequena.sample.exception.service.AccountServiceUnavailableException;
+import com.cjrequena.sample.exception.service.ServiceException;
+import com.cjrequena.sample.mapper.OrderMapper;
+import com.cjrequena.sample.proto.*;
+import io.grpc.StatusRuntimeException;
+import io.grpc.stub.StreamObserver;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import net.devh.boot.grpc.server.service.GrpcService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.Objects;
+import java.util.UUID;
+
+@Log4j2
+@GrpcService
+@Service
+@Transactional(propagation = Propagation.REQUIRED, rollbackFor = ServiceException.class)
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
+public class OrderServiceGrpc extends com.cjrequena.sample.proto.OrderServiceGrpc.OrderServiceImplBase {
+
+  private final OrderMapper orderMapper;
+  private final OrderRepository orderRepository;
+  private final AccountServiceGrpcClient accountServiceGrpcClient;
+  private final GrpcExceptionHandler grpcExceptionHandler;
+
+  @Override
+  public void createOrder(CreateOrderRequest request, StreamObserver<CreateOrderResponse> responseObserver) {
+    try {
+      Order order = Order
+        .newBuilder()
+        .setAccountId(request.getOrder().getAccountId())
+        .setTotal(request.getOrder().getTotal())
+        .setStatus(EStatus.PENDING.getValue())
+        .build();
+      Objects.requireNonNull(order, "Order cannot be null");
+      Objects.requireNonNull(order.getAccountId(), "AccountId cannot be null");
+      Objects.requireNonNull(order.getTotal(), "Order total cannot be null");
+      UUID accountId = UUID.fromString(order.getAccountId());
+      BigDecimal total = new BigDecimal(order.getTotal()).setScale(2, RoundingMode.HALF_UP);
+      AccountDTO accountDTO = this.accountServiceGrpcClient.retrieveById(accountId);
+      BigDecimal amount = accountDTO.getBalance().subtract(total);
+
+      if (amount.compareTo(BigDecimal.ZERO) < 0) {
+        String errorMessage = String.format("The account :: %s :: has insufficient balance", accountId);
+        StatusRuntimeException ex = this.grpcExceptionHandler.buildErrorResponse(new AccountNotFoundException(errorMessage));
+        responseObserver.onError(ex);
+      }
+
+      final OrderEntity entity = this.orderMapper.toEntity(order);
+      this.orderRepository.create(entity);
+
+      CreateOrderResponse response = CreateOrderResponse
+        .newBuilder()
+        .setSuccess(true)
+        .setMessage("Order created successfully")
+        .build();
+      responseObserver.onNext(response);
+      responseObserver.onCompleted();
+    } catch (AccountNotFoundException | AccountServiceUnavailableException ex) {
+      StatusRuntimeException err = this.grpcExceptionHandler.buildErrorResponse(ex);
+      responseObserver.onError(err);
+    }
+  }
+
+  @Override
+  public void retrieveOrderById(RetrieveOrderByIdRequest request, StreamObserver<RetrieveOrderByIdResponse> responseObserver) {
+    super.retrieveOrderById(request, responseObserver);
+  }
+
+  @Override
+  public void retrieveOrders(RetrieveOrdersRequest request, StreamObserver<RetrieveOrdersResponse> responseObserver) {
+    super.retrieveOrders(request, responseObserver);
+  }
+
+  @Override
+  public void updateOrder(UpdateOrderRequest request, StreamObserver<UpdateOrderResponse> responseObserver) {
+    super.updateOrder(request, responseObserver);
+  }
+
+  @Override
+  public void deleteOrder(DeleteOrderRequest request, StreamObserver<DeleteOrderResponse> responseObserver) {
+    super.deleteOrder(request, responseObserver);
+  }
+
+}

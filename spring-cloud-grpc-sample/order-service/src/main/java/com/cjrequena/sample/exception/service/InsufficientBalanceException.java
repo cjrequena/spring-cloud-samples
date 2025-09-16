@@ -6,7 +6,7 @@ package com.cjrequena.sample.exception.service;
  * <p></p>
  * @author cjrequena
  */
-public class InsufficientBalanceException extends ServiceException {
+public class InsufficientBalanceException extends RuntimeServiceException {
   public InsufficientBalanceException(String message) {
     super(message);
   }

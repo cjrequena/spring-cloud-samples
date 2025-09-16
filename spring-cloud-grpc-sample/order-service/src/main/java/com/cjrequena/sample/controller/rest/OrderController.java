@@ -2,7 +2,6 @@ package com.cjrequena.sample.controller.rest;
 
 import com.cjrequena.sample.common.Constants;
 import com.cjrequena.sample.dto.OrderDTO;
-import com.cjrequena.sample.exception.ErrorDTO;
 import com.cjrequena.sample.exception.api.BadRequestApiException;
 import com.cjrequena.sample.exception.api.FailedDependencyApiException;
 import com.cjrequena.sample.exception.api.NotFoundApiException;
@@ -53,13 +52,8 @@ public class OrderController {
       throw new PaymentRequiredApiException(ex.getMessage());
     } catch (AccountNotFoundException ex) {
       throw new NotFoundApiException(ex.getMessage());
-    }catch (GrpcException ex) {
-      ErrorDTO errorDTO = ex.getErrorDTO();
-      log.error("{}", errorDTO);
-      if (errorDTO.getStatus() == HttpStatus.FAILED_DEPENDENCY.value()) {
-        throw new FailedDependencyApiException(ex.getMessage());
-      }
-      throw new BadRequestApiException(ex.getMessage());
+    } catch (AccountServiceUnavailableException ex) {
+      throw new FailedDependencyApiException(ex.getMessage());
     }
   }
 

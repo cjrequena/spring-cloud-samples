@@ -12,21 +12,34 @@
     <packaging>jar</packaging>
     <properties>
         <main-class>com.cjrequena.sample.OrderServiceApplication</main-class>
+        <grpc-server-spring-boot-starter.version>3.1.0.RELEASE</grpc-server-spring-boot-starter.version>
         <grpc-client-spring-boot-starter.version>3.1.0.RELEASE</grpc-client-spring-boot-starter.version>
         <grpc.version>1.75.0</grpc.version>
     </properties>
     <dependencies>
-        <!-- account-service-grpc-interface-->
+        <!-- gRPC Core Dependencies -->
         <dependency>
-            <groupId>com.cjrequena.sample</groupId>
-            <artifactId>account-service-grpc-interface</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-netty-shaded</artifactId>
+            <version>${grpc.version}</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/net.devh/grpc-server-spring-boot-starter -->
         <dependency>
             <groupId>net.devh</groupId>
             <artifactId>grpc-client-spring-boot-starter</artifactId>
             <version>${grpc-client-spring-boot-starter.version}</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/net.devh/grpc-server-spring-boot-starter -->
+        <dependency>
+            <groupId>net.devh</groupId>
+            <artifactId>grpc-server-spring-boot-starter</artifactId>
+            <version>${grpc-server-spring-boot-starter.version}</version>
+        </dependency>
+        <!-- account-service-grpc-interface-->
+        <dependency>
+            <groupId>com.cjrequena.sample</groupId>
+            <artifactId>account-service-grpc-interface</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
         <!-- spring boot -->

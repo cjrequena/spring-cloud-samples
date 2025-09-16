@@ -184,9 +184,16 @@ logging.pattern:
     }"
   file: "%-5p|%d{ISO8601}{GMT}|application=${spring.application.name}|traceID=%X{traceId},spanID=%X{spanId}|%c{1}|%m%ex%n"
 
+#------------------------------
+# gRPC configurations
+#------------------------------
 grpc:
+  server:
+    port: 19080
   client:
     account-service:
       #address: 'static://localhost:18080'
       address: 'discovery:///account-service'
       negotiationType: plaintext
+
+

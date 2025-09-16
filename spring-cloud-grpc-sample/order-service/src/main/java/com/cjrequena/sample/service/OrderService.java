@@ -104,7 +104,7 @@ public class OrderService {
     log.debug("Processing pending orders ");
     List<OrderEntity> orderEntities = this.orderRepository.retrieveOrdersByStatus(EStatus.PENDING.getValue());
     for (OrderEntity orderEntity : orderEntities) {
-      log.debug("id {} account_id {} status {} creation_date {}", orderEntity.getId(), orderEntity.getAccountId(), orderEntity.getStatus(), orderEntity.getCreationDate());
+      log.debug("id {} account_id {} status {}", orderEntity.getId(), orderEntity.getAccountId(), orderEntity.getStatus());
       WithdrawAccountDTO withdrawAccountDTO = new WithdrawAccountDTO();
       withdrawAccountDTO.setAccountId(orderEntity.getAccountId());
       withdrawAccountDTO.setAmount(orderEntity.getTotal());

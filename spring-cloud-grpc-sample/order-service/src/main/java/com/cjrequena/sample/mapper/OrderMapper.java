@@ -2,7 +2,9 @@ package com.cjrequena.sample.mapper;
 
 import com.cjrequena.sample.db.entity.OrderEntity;
 import com.cjrequena.sample.dto.OrderDTO;
+import com.cjrequena.sample.proto.Order;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.NullValueCheckStrategy;
 
 @Mapper(
@@ -14,4 +16,22 @@ public interface OrderMapper {
   OrderEntity toEntity(OrderDTO dto);
 
   OrderDTO toDTO(OrderEntity entity);
+
+  @Mapping(source = "id", target = "id")
+  @Mapping(source = "accountId", target = "accountId")
+  @Mapping(source = "total", target = "total")
+  OrderEntity toEntity(Order order);
+
+  Order toOrder(OrderEntity entity);
+
+  default Integer mapStringToInteger(String value) {
+    if (value == null || value.trim().isEmpty()) {
+      return null; // let DB auto-generate
+    }
+    return Integer.parseInt(value.trim());
+  }
+
+  default String mapIntegerToString(Integer value) {
+    return value != null ? value.toString() : null;
+  }
 }

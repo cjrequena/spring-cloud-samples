@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.UUID;
 
@@ -37,7 +38,7 @@ import java.util.UUID;
 @Service
 @Transactional(propagation = Propagation.REQUIRED, rollbackFor = ServiceException.class)
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class AccountServiceGrpcServer extends AccountServiceGrpc.AccountServiceImplBase {
+public class AccountServiceGrpc extends com.cjrequena.sample.proto.AccountServiceGrpc.AccountServiceImplBase {
 
   private final AccountMapper accountMapper;
   private final AccountRepository accountRepository;
@@ -202,7 +203,7 @@ public class AccountServiceGrpcServer extends AccountServiceGrpc.AccountServiceI
   @Override
   public void withdraw(WithdrawRequest request, StreamObserver<WithdrawResponse> responseObserver) {
     UUID accountId = UUID.fromString(request.getAccountId());
-    BigDecimal amount = BigDecimal.valueOf(Long.parseLong(request.getAmount()));
+    BigDecimal amount = new BigDecimal(request.getAmount()).setScale(2, RoundingMode.HALF_UP);;
     this.accountRepository
       .findWithLockingById(accountId)
       .ifPresentOrElse(accountEntity -> {

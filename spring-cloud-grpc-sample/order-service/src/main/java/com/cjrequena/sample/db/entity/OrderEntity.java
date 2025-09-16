@@ -4,10 +4,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.jpa.convert.threeten.Jsr310JpaConverters;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.UUID;
 
 @Data
@@ -27,15 +25,19 @@ public class OrderEntity {
   @Column(name = "total")
   BigDecimal total;
 
-  @Column(name = "creation_date", nullable = false, updatable = false, insertable = false)
-  @Convert(converter = Jsr310JpaConverters.LocalDateConverter.class)
-  private LocalDate creationDate;
-
   @Column(name = "status")
   String status;
 
   @Column(name = "description")
   String description;
+
+//  @Column(name = "created_at", nullable = false, updatable = false, insertable = false)
+//  @Convert(converter = Jsr310JpaConverters.LocalDateConverter.class)
+//  private LocalDate createdAt;
+//
+//  @Column(name = "updated_at", nullable = false, updatable = false, insertable = false)
+//  @Convert(converter = Jsr310JpaConverters.LocalDateConverter.class)
+//  private LocalDate updatedAt;
 
   @Version
   @Column(name = "version")
