@@ -1,6 +1,5 @@
 package com.cjrequena.sample.service;
 
-import com.cjrequena.sample.dto.AccountDTO;
 import com.cjrequena.sample.dto.DepositAccountDTO;
 import com.cjrequena.sample.dto.WithdrawAccountDTO;
 import com.cjrequena.sample.exception.service.AccountNotFoundException;

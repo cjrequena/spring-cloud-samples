@@ -1,4 +1,4 @@
-package com.cjrequena.sample.db.entity;
+package com.cjrequena.sample.persistence.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -8,28 +8,27 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.util.UUID;
 
+/**
+ *
+ * <p></p>
+ * <p></p>
+ * @author cjrequena
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "t_order")
-public class OrderEntity {
-
+@Table(name = "t_account")
+public class AccountEntity {
   @Id
   @Column(name = "id")
-  UUID id;
+  private UUID id;
 
-  @Column(name = "account_id")
-  UUID accountId;
+  @Column(name = "owner")
+  private String owner;
 
-  @Column(name = "total")
-  BigDecimal total;
-
-  @Column(name = "status")
-  String status;
-
-  @Column(name = "description")
-  String description;
+  @Column(name = "balance")
+  private BigDecimal balance;
 
 //  @Column(name = "created_at", nullable = false, updatable = false, insertable = false)
 //  @Convert(converter = Jsr310JpaConverters.LocalDateConverter.class)

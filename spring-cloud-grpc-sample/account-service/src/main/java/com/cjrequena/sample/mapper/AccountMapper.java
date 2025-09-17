@@ -1,6 +1,6 @@
 package com.cjrequena.sample.mapper;
 
-import com.cjrequena.sample.db.entity.AccountEntity;
+import com.cjrequena.sample.persistence.entity.AccountEntity;
 import com.cjrequena.sample.proto.Account;
 import org.mapstruct.*;
 

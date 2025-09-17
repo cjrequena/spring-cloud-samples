@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package com.cjrequena.sample.service;
+package com.cjrequena.sample.grpc.service;
 
 option java_package = "com.cjrequena.sample.proto";
 option java_outer_classname = "OrderProto";

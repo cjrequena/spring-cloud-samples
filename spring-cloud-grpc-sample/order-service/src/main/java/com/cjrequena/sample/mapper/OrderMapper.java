@@ -1,7 +1,7 @@
 package com.cjrequena.sample.mapper;
 
-import com.cjrequena.sample.db.entity.OrderEntity;
 import com.cjrequena.sample.dto.OrderDTO;
+import com.cjrequena.sample.persistence.entity.OrderEntity;
 import com.cjrequena.sample.proto.Order;
 import org.mapstruct.*;
 

@@ -1,8 +1,6 @@
 package com.cjrequena.sample.service;
 
 import com.cjrequena.sample.common.EStatus;
-import com.cjrequena.sample.db.entity.OrderEntity;
-import com.cjrequena.sample.db.repository.OrderRepository;
 import com.cjrequena.sample.dto.OrderDTO;
 import com.cjrequena.sample.dto.WithdrawAccountDTO;
 import com.cjrequena.sample.exception.service.InsufficientBalanceException;
@@ -10,6 +8,8 @@ import com.cjrequena.sample.exception.service.OptimisticConcurrencyException;
 import com.cjrequena.sample.exception.service.OrderNotFoundException;
 import com.cjrequena.sample.exception.service.ServiceException;
 import com.cjrequena.sample.mapper.OrderMapper;
+import com.cjrequena.sample.persistence.entity.OrderEntity;
+import com.cjrequena.sample.persistence.repository.OrderRepository;
 import com.cjrequena.sample.proto.Account;
 import jakarta.json.JsonMergePatch;
 import jakarta.json.JsonPatch;

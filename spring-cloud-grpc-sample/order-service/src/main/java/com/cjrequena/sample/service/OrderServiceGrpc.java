@@ -1,11 +1,11 @@
 package com.cjrequena.sample.service;
 
 import com.cjrequena.sample.common.EStatus;
-import com.cjrequena.sample.db.entity.OrderEntity;
-import com.cjrequena.sample.db.repository.OrderRepository;
 import com.cjrequena.sample.exception.GrpcExceptionHandler;
 import com.cjrequena.sample.exception.service.*;
 import com.cjrequena.sample.mapper.OrderMapper;
+import com.cjrequena.sample.persistence.entity.OrderEntity;
+import com.cjrequena.sample.persistence.repository.OrderRepository;
 import com.cjrequena.sample.proto.*;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;

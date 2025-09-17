@@ -1,12 +1,12 @@
 package com.cjrequena.sample.service;
 
-import com.cjrequena.sample.db.entity.AccountEntity;
-import com.cjrequena.sample.db.repository.AccountRepository;
 import com.cjrequena.sample.exception.GrpcExceptionHandler;
 import com.cjrequena.sample.exception.service.AccountNotFoundException;
 import com.cjrequena.sample.exception.service.OptimisticConcurrencyException;
 import com.cjrequena.sample.exception.service.ServiceException;
 import com.cjrequena.sample.mapper.AccountMapper;
+import com.cjrequena.sample.persistence.entity.AccountEntity;
+import com.cjrequena.sample.persistence.repository.AccountRepository;
 import com.cjrequena.sample.proto.*;
 import com.google.rpc.Code;
 import com.google.rpc.Status;
