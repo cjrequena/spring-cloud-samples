@@ -3,9 +3,7 @@ package com.cjrequena.sample.mapper;
 import com.cjrequena.sample.db.entity.OrderEntity;
 import com.cjrequena.sample.dto.OrderDTO;
 import com.cjrequena.sample.proto.Order;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.NullValueCheckStrategy;
+import org.mapstruct.*;
 
 @Mapper(
   componentModel = "spring",
@@ -13,9 +11,11 @@ import org.mapstruct.NullValueCheckStrategy;
 )
 public interface OrderMapper {
 
-  OrderEntity toEntity(OrderDTO dto);
+  // ========================================
+  // Order Proto <-> Entity Mappings
+  // ========================================
 
-  OrderDTO toDTO(OrderEntity entity);
+  OrderEntity toEntity(OrderDTO dto);
 
   @Mapping(source = "id", target = "id")
   @Mapping(source = "accountId", target = "accountId")
@@ -24,4 +24,15 @@ public interface OrderMapper {
 
   Order toOrder(OrderEntity entity);
 
+  // ========================================
+  // DTO <-> Entity Mappings
+  // ========================================
+  OrderDTO toDTO(OrderEntity entity);
+
+  // ========================================
+  // Update Mappings
+  // ========================================
+  @Mapping(target = "version", source = "version", ignore = true)
+  @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+  void updateEntityFromOrder(Order order, @MappingTarget OrderEntity entity);
 }

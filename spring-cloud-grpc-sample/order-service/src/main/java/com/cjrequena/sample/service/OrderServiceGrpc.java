@@ -4,10 +4,7 @@ import com.cjrequena.sample.common.EStatus;
 import com.cjrequena.sample.db.entity.OrderEntity;
 import com.cjrequena.sample.db.repository.OrderRepository;
 import com.cjrequena.sample.exception.GrpcExceptionHandler;
-import com.cjrequena.sample.exception.service.AccountNotFoundException;
-import com.cjrequena.sample.exception.service.AccountServiceUnavailableException;
-import com.cjrequena.sample.exception.service.OrderNotFoundException;
-import com.cjrequena.sample.exception.service.ServiceException;
+import com.cjrequena.sample.exception.service.*;
 import com.cjrequena.sample.mapper.OrderMapper;
 import com.cjrequena.sample.proto.*;
 import io.grpc.StatusRuntimeException;
@@ -16,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import net.devh.boot.grpc.server.service.GrpcService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -107,7 +105,39 @@ public class OrderServiceGrpc extends com.cjrequena.sample.proto.OrderServiceGrp
 
   @Override
   public void updateOrder(UpdateOrderRequest request, StreamObserver<UpdateOrderResponse> responseObserver) {
-    super.updateOrder(request, responseObserver);
+    Order order = request.getOrder();
+    UUID orderId = UUID.fromString(order.getId());
+    this.orderRepository
+      .findWithLockingById(orderId)
+      .ifPresentOrElse(orderEntity -> {
+          final long expectedVersion = orderEntity.getVersion();
+          try {
+            this.orderMapper.updateEntityFromOrder(order, orderEntity);
+            this.orderRepository.save(orderEntity);
+            UpdateOrderResponse response = UpdateOrderResponse
+              .newBuilder()
+              .setSuccess(true)
+              .setMessage("Order updated successfully")
+              .build();
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+          } catch (ObjectOptimisticLockingFailureException ex) {
+            String errorMessage = String.format(
+              "Optimistic concurrency control error in order :: %s :: actual version doesn't match expected version %s",
+              orderId, expectedVersion
+            );
+            log.trace(errorMessage);
+            StatusRuntimeException err = this.grpcExceptionHandler.buildErrorResponse(new OptimisticConcurrencyException(errorMessage));
+            responseObserver.onError(err);
+          }
+        },
+        () -> {
+          String errorMessage = String.format("The order :: %s :: was not found", orderId);
+          log.trace(errorMessage);
+          StatusRuntimeException err = this.grpcExceptionHandler.buildErrorResponse(new OrderNotFoundException(errorMessage));
+          responseObserver.onError(err);
+        }
+      );
   }
 
   @Override

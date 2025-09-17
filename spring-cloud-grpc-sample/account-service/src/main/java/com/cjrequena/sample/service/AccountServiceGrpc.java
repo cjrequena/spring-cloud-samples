@@ -127,14 +127,14 @@ public class AccountServiceGrpc extends com.cjrequena.sample.proto.AccountServic
             );
             log.trace(errorMessage);
             StatusRuntimeException err = this.buildErrorResponse(new OptimisticConcurrencyException(errorMessage));
-            responseObserver.onError(ex);
+            responseObserver.onError(err);
           }
         },
         () -> {
           String errorMessage = String.format("The account :: %s :: was not found", accountId);
           log.trace(errorMessage);
-          StatusRuntimeException ex = this.buildErrorResponse(new AccountNotFoundException(errorMessage));
-          responseObserver.onError(ex);
+          StatusRuntimeException err = this.buildErrorResponse(new AccountNotFoundException(errorMessage));
+          responseObserver.onError(err);
         }
       );
   }
