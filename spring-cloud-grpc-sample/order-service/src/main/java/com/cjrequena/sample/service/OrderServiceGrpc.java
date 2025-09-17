@@ -142,7 +142,21 @@ public class OrderServiceGrpc extends com.cjrequena.sample.proto.OrderServiceGrp
 
   @Override
   public void deleteOrder(DeleteOrderRequest request, StreamObserver<DeleteOrderResponse> responseObserver) {
-    super.deleteOrder(request, responseObserver);
+    UUID orderId = UUID.fromString(request.getId());
+    this.orderRepository
+      .findById(orderId)
+      .ifPresentOrElse(
+        this.orderRepository::delete,
+        () -> {
+          String errorMessage = String.format("The order :: %s :: was not found", orderId);
+          final StatusRuntimeException err = this.grpcExceptionHandler.buildErrorResponse(new OrderNotFoundException(errorMessage));
+          responseObserver.onError(err);
+        }
+      );
+
+    DeleteOrderResponse response = DeleteOrderResponse.newBuilder().setSuccess(true).setMessage("Order deleted successfully").build();
+    responseObserver.onNext(response);
+    responseObserver.onCompleted();
   }
 
 }

@@ -145,11 +145,14 @@ public class AccountServiceGrpc extends com.cjrequena.sample.proto.AccountServic
     this.accountRepository
       .findById(accountId)
       .ifPresentOrElse(this.accountRepository::delete, () -> {
-        StatusRuntimeException ex = this.buildErrorResponse(
-          new AccountNotFoundException("The account :: " + accountId + " :: was not Found")
-        );
-        responseObserver.onError(ex);
+        String errorMessage = String.format("The account :: %s :: was not found", accountId);
+        final StatusRuntimeException err = this.grpcExceptionHandler.buildErrorResponse(new AccountNotFoundException(errorMessage));
+        responseObserver.onError(err);
       });
+
+    DeleteAccountResponse response = DeleteAccountResponse.newBuilder().setSuccess(true).setMessage("Account deleted successfully").build();
+    responseObserver.onNext(response);
+    responseObserver.onCompleted();
   }
 
   @Override
