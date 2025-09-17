@@ -8,11 +8,15 @@ import com.cjrequena.sample.exception.service.AccountServiceUnavailableException
 import com.cjrequena.sample.mapper.AccountMapper;
 import com.cjrequena.sample.proto.*;
 import com.cjrequena.sample.proto.AccountServiceGrpc.AccountServiceBlockingStub;
+import com.google.protobuf.Any;
+import com.google.protobuf.InvalidProtocolBufferException;
+import com.google.rpc.ErrorInfo;
 import io.github.resilience4j.bulkhead.annotation.Bulkhead;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
+import io.grpc.protobuf.StatusProto;
 import lombok.extern.log4j.Log4j2;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,29 +39,80 @@ public class AccountServiceGrpcClient {
   @Autowired
   private AccountMapper accountMapper;
 
+
   @CircuitBreaker(name = "default", fallbackMethod = "retrieveFallbackMethod")
   @Bulkhead(name = "default")
   @Retry(name = "default")
   public Account retrieveById(UUID id) throws AccountNotFoundException {
     try {
-      return Optional.ofNullable(id)
-        .map(UUID::toString)
-        .map(val -> RetrieveAccountByIdRequest.newBuilder().setId(val).build())
-        .map(accountServiceBlockingStub::retrieveAccountById)
-        .map(RetrieveAccountByIdResponse::getAccount)
-        .orElseThrow(() -> new IllegalArgumentException("ID must not be null"));
-    } catch (StatusRuntimeException ex) {
-      if (ex.getStatus().getCode() == Status.Code.NOT_FOUND) {
-        throw new AccountNotFoundException("Account not found ID: " + id, ex);
-      } else if (ex.getStatus().getCode() == Status.Code.UNAVAILABLE) {
-        throw new AccountServiceUnavailableException("account-service UNAVAILABLE");
+      if (log.isTraceEnabled()) {
+        log.trace("Entering retrieveById with ID={}", id);
       }
+      Account account = Optional.ofNullable(id)
+        .map(UUID::toString)
+        .map(val -> {
+          if (log.isTraceEnabled()) {
+            log.trace("Building RetrieveAccountByIdRequest with ID={}", val);
+          }
+          return RetrieveAccountByIdRequest.newBuilder().setId(val).build();
+        })
+        .map(req -> {
+          if (log.isTraceEnabled()) {
+            log.trace("Calling account-service with request={}", req);
+          }
+          return accountServiceBlockingStub.retrieveAccountById(req);
+        })
+        .map(resp -> {
+          if (log.isTraceEnabled()) {
+            log.trace("Received response from account-service: {}", resp);
+          }
+          return resp.getAccount();
+        })
+        .orElseThrow(() -> new IllegalArgumentException("ID must not be null"));
+
+      if (log.isTraceEnabled()) {
+        log.trace("Exiting retrieveById successfully for ID={}", id);
+      }
+      return account;
+
+    } catch (StatusRuntimeException ex) {
+      com.google.rpc.Status status = StatusProto.fromThrowable(ex);
+
+      if (status != null) {
+        for (Any detail : status.getDetailsList()) {
+          if (detail.is(ErrorInfo.class)) {
+            try {
+              ErrorInfo errorInfo = detail.unpack(ErrorInfo.class);
+              log.warn("ErrorInfo received from service -> domain={}, reason={}, metadata={}",
+                errorInfo.getDomain(),
+                errorInfo.getReason(),
+                errorInfo.getMetadataMap());
+              if (log.isTraceEnabled()) {
+                log.trace("Raw ErrorInfo detail: {}", detail);
+              }
+            } catch (InvalidProtocolBufferException ipbex) {
+              log.warn("Failed to unpack ErrorInfo details", ipbex);
+            }
+          }
+        }
+
+        if (status.getCode() == Status.Code.NOT_FOUND.value()) {
+          log.info("Account not found for ID={}", id);
+          throw new AccountNotFoundException("Account not found ID: " + id, ex);
+        } else if (status.getCode() == Status.Code.UNAVAILABLE.value()) {
+          log.error("Account-service is UNAVAILABLE while retrieving ID={}", id);
+          throw new AccountServiceUnavailableException("account-service UNAVAILABLE");
+        }
+      }
+
+      log.error("Unhandled gRPC error when retrieving ID={}", id, ex);
       throw ex;
     }
   }
 
-  public AccountDTO retrieveFallbackMethod(UUID id, Throwable ex) throws Throwable {
-    log.debug("retrieveFallbackMethod", ex.getCause());
+
+  public Account retrieveFallbackMethod(UUID id, Throwable ex) throws Throwable {
+    log.warn("retrieveFallbackMethod", ex.getCause());
     throw ex;
   }
 
