@@ -41,9 +41,23 @@ grpcurl --plaintext \
   localhost:18080 com.cjrequena.sample.service.AccountService/Deposit
 ```
 
-## Create new order calling account-service via gRPC
+## Create new order calling order-service via gRPC
 ```bash
 grpcurl --plaintext \
   -d '{"order": {"account_id": "ec595d79-b207-412f-8d07-3b172f667657", "total": "100.00"}}' \
   localhost:19080 com.cjrequena.sample.service.OrderService/CreateOrder
+```
+
+
+## Retrieve order by ID calling order-service via gRPC
+```bash
+grpcurl --plaintext \
+  -d '{"id": "37c0c17c-d9c0-4a92-848f-2a9179221400"}' \
+  localhost:19080 com.cjrequena.sample.service.OrderService/RetrieveOrderById
+```
+
+## Retrieve orders calling order-service via gRPC
+```bash
+grpcurl --plaintext \
+  localhost:19080 com.cjrequena.sample.service.OrderService/RetrieveOrders
 ```

@@ -2,6 +2,7 @@ package com.cjrequena.sample.service;
 
 import com.cjrequena.sample.db.entity.AccountEntity;
 import com.cjrequena.sample.db.repository.AccountRepository;
+import com.cjrequena.sample.exception.GrpcExceptionHandler;
 import com.cjrequena.sample.exception.service.AccountNotFoundException;
 import com.cjrequena.sample.exception.service.OptimisticConcurrencyException;
 import com.cjrequena.sample.exception.service.ServiceException;
@@ -42,6 +43,7 @@ public class AccountServiceGrpc extends com.cjrequena.sample.proto.AccountServic
 
   private final AccountMapper accountMapper;
   private final AccountRepository accountRepository;
+  private final GrpcExceptionHandler grpcExceptionHandler;
 
   @Override
   public void createAccount(CreateAccountRequest request, StreamObserver<CreateAccountResponse> responseObserver) {
@@ -78,37 +80,26 @@ public class AccountServiceGrpc extends com.cjrequena.sample.proto.AccountServic
           responseObserver.onCompleted();
         },
         () -> {
-          StatusRuntimeException ex = this.buildErrorResponse(
-            new AccountNotFoundException("The account :: " + accountId + " :: was not Found")
-          );
-          responseObserver.onError(ex);
+          String errorMessage = String.format("The account :: %s :: was not found", accountId);
+          final StatusRuntimeException err = this.grpcExceptionHandler.buildErrorResponse(new AccountNotFoundException(errorMessage));
+          responseObserver.onError(err);
         }
       );
   }
 
   @Override
   public void retrieveAccounts(RetrieveAccountsRequest request, StreamObserver<RetrieveAccountsResponse> responseObserver) {
-    try {
-      log.debug("Retrieving accounts with request: {}", request);
-      final List<Account> accounts = this.accountRepository.findAll()
-        .stream()
-        .map(accountMapper::toAccount)
-        .toList();
-      RetrieveAccountsResponse response = RetrieveAccountsResponse
-        .newBuilder()
-        .addAllAccounts(accounts)
-        .build();
-      responseObserver.onNext(response);
-      responseObserver.onCompleted();
-    } catch (IllegalArgumentException ex) {
-      log.warn("Invalid request parameters: {}", ex.getMessage());
-      // TODO buildErrorResponse
-      // responseObserver.onError(builtResponseError);
-    } catch (Exception ex) {
-      log.error("Error retrieving accounts", ex);
-      // TODO buildErrorResponse
-      // responseObserver.onError(builtResponseError);
-    }
+    log.debug("Retrieving accounts with request: {}", request);
+    final List<Account> accounts = this.accountRepository.findAll()
+      .stream()
+      .map(accountMapper::toAccount)
+      .toList();
+    RetrieveAccountsResponse response = RetrieveAccountsResponse
+      .newBuilder()
+      .addAllAccounts(accounts)
+      .build();
+    responseObserver.onNext(response);
+    responseObserver.onCompleted();
   }
 
   @Override
@@ -203,7 +194,8 @@ public class AccountServiceGrpc extends com.cjrequena.sample.proto.AccountServic
   @Override
   public void withdraw(WithdrawRequest request, StreamObserver<WithdrawResponse> responseObserver) {
     UUID accountId = UUID.fromString(request.getAccountId());
-    BigDecimal amount = new BigDecimal(request.getAmount()).setScale(2, RoundingMode.HALF_UP);;
+    BigDecimal amount = new BigDecimal(request.getAmount()).setScale(2, RoundingMode.HALF_UP);
+    ;
     this.accountRepository
       .findWithLockingById(accountId)
       .ifPresentOrElse(accountEntity -> {

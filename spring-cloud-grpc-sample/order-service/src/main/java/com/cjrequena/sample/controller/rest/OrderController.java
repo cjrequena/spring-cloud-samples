@@ -62,7 +62,7 @@ public class OrderController {
     path = "/orders/{id}",
     produces = {APPLICATION_JSON_VALUE}
   )
-  public ResponseEntity<OrderDTO> retrieveById(@PathVariable(value = "id") Integer id) throws NotFoundApiException {
+  public ResponseEntity<OrderDTO> retrieveById(@PathVariable(value = "id") UUID id) throws NotFoundApiException {
     try {
       HttpHeaders responseHeaders = new HttpHeaders();
       responseHeaders.set(CACHE_CONTROL, "no store, private, max-age=0");
@@ -107,7 +107,7 @@ public class OrderController {
     path = "/orders/{id}",
     produces = {APPLICATION_JSON_VALUE}
   )
-  public ResponseEntity<Void> delete(@PathVariable(value = "id") Integer id) throws NotFoundApiException {
+  public ResponseEntity<Void> delete(@PathVariable(value = "id") UUID id) throws NotFoundApiException {
     try {
       HttpHeaders responseHeaders = new HttpHeaders();
       responseHeaders.set(CACHE_CONTROL, "no store, private, max-age=0");

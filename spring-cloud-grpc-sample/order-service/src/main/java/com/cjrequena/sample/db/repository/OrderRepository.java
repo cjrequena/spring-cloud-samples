@@ -22,7 +22,7 @@ import java.util.UUID;
  */
 @Repository
 @Transactional
-public interface OrderRepository extends CrudRepository<OrderEntity, Integer> {
+public interface OrderRepository extends CrudRepository<OrderEntity, UUID> {
 
   @Modifying
   @Transactional
@@ -34,7 +34,7 @@ public interface OrderRepository extends CrudRepository<OrderEntity, Integer> {
 
   @Override
   @Transactional(readOnly = true)
-  Optional<OrderEntity> findById(Integer id);
+  Optional<OrderEntity> findById(UUID id);
 
   @Override
   @Transactional(readOnly = true)

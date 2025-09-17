@@ -32,7 +32,7 @@ message RetrieveOrdersRequest {
 }
 
 message UpdateOrderRequest {
-  Order account = 1;
+  Order order = 1;
 }
 
 message DeleteOrderRequest {
@@ -46,11 +46,11 @@ message CreateOrderResponse {
 }
 
 message RetrieveOrderByIdResponse {
-  Order account = 1;
+  Order order = 1;
 }
 
 message RetrieveOrdersResponse {
-  repeated Order accounts = 1;
+  repeated Order orders = 1;
 }
 
 message UpdateOrderResponse {

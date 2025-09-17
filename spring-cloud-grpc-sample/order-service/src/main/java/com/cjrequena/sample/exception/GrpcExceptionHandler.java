@@ -1,9 +1,6 @@
 package com.cjrequena.sample.exception;
 
-import com.cjrequena.sample.exception.service.AccountNotFoundException;
-import com.cjrequena.sample.exception.service.AccountServiceUnavailableException;
-import com.cjrequena.sample.exception.service.InsufficientBalanceException;
-import com.cjrequena.sample.exception.service.OptimisticConcurrencyException;
+import com.cjrequena.sample.exception.service.*;
 import com.google.protobuf.Any;
 import com.google.rpc.Code;
 import com.google.rpc.ErrorInfo;
@@ -58,6 +55,15 @@ public class GrpcExceptionHandler {
 
     private ErrorContext mapExceptionToErrorContext(Throwable err) {
         return switch (err) {
+
+            case OrderNotFoundException ignored -> ErrorContext.of(
+              Code.NOT_FOUND,
+              HttpStatus.NOT_FOUND,
+              LogSeverity.INFO,
+              "order_service",
+              "ORDER_NOT_FOUND",
+              "The requested oder was not found"
+            );
 
             case AccountServiceUnavailableException ignored -> ErrorContext.of(
               Code.UNAVAILABLE,

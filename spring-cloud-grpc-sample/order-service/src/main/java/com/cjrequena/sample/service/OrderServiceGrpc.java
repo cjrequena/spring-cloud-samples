@@ -6,6 +6,7 @@ import com.cjrequena.sample.db.repository.OrderRepository;
 import com.cjrequena.sample.exception.GrpcExceptionHandler;
 import com.cjrequena.sample.exception.service.AccountNotFoundException;
 import com.cjrequena.sample.exception.service.AccountServiceUnavailableException;
+import com.cjrequena.sample.exception.service.OrderNotFoundException;
 import com.cjrequena.sample.exception.service.ServiceException;
 import com.cjrequena.sample.mapper.OrderMapper;
 import com.cjrequena.sample.proto.*;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -79,12 +81,28 @@ public class OrderServiceGrpc extends com.cjrequena.sample.proto.OrderServiceGrp
 
   @Override
   public void retrieveOrderById(RetrieveOrderByIdRequest request, StreamObserver<RetrieveOrderByIdResponse> responseObserver) {
-    super.retrieveOrderById(request, responseObserver);
+    UUID orderId = UUID.fromString(request.getId());
+    this.orderRepository.findById(orderId)
+      .map(this.orderMapper::toOrder)
+      .map(order -> RetrieveOrderByIdResponse.newBuilder().setOrder(order).build())
+      .ifPresentOrElse(response -> {
+          responseObserver.onNext(response);
+          responseObserver.onCompleted();
+        },
+        () -> {
+          String errorMessage = String.format("The order :: %s :: was not found", orderId);
+          final StatusRuntimeException err = this.grpcExceptionHandler.buildErrorResponse(new OrderNotFoundException(errorMessage));
+          responseObserver.onError(err);
+        }
+      );
   }
 
   @Override
   public void retrieveOrders(RetrieveOrdersRequest request, StreamObserver<RetrieveOrdersResponse> responseObserver) {
-    super.retrieveOrders(request, responseObserver);
+    final List<Order> orderList = this.orderRepository.findAll().stream().map(this.orderMapper::toOrder).toList();
+    final RetrieveOrdersResponse response = RetrieveOrdersResponse.newBuilder().addAllOrders(orderList).build();
+    responseObserver.onNext(response);
+    responseObserver.onCompleted();
   }
 
   @Override

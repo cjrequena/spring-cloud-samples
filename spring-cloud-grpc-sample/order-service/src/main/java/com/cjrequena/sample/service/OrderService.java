@@ -25,6 +25,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Log4j2
@@ -50,7 +51,7 @@ public class OrderService {
   }
 
   @Transactional(readOnly = true)
-  public OrderDTO retrieveById(Integer id) throws OrderNotFoundException {
+  public OrderDTO retrieveById(UUID id) throws OrderNotFoundException {
     Optional<OrderEntity> optional = this.orderRepository.findById(id);
     if (optional.isEmpty()) {
       throw new OrderNotFoundException("The order :: " + id + " :: was not Found");
@@ -92,7 +93,7 @@ public class OrderService {
     return null;
   }
 
-  public void delete(Integer id) throws OrderNotFoundException {
+  public void delete(UUID id) throws OrderNotFoundException {
     Optional<OrderEntity> optional = this.orderRepository.findById(id);
     if (optional.isEmpty()) {
       throw new OrderNotFoundException("The order :: " + id + " :: was not Found");
