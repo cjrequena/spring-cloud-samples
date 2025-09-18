@@ -2,8 +2,8 @@ package com.cjrequena.sample.service;
 
 import com.cjrequena.sample.dto.DepositAccountDTO;
 import com.cjrequena.sample.dto.WithdrawAccountDTO;
-import com.cjrequena.sample.exception.service.AccountNotFoundRuntimeException;
-import com.cjrequena.sample.exception.service.AccountServiceUnavailableRuntimeException;
+import com.cjrequena.sample.exception.service.AccountNotFoundException;
+import com.cjrequena.sample.exception.service.AccountServiceUnavailableException;
 import com.cjrequena.sample.proto.*;
 import com.cjrequena.sample.proto.AccountServiceGrpc.AccountServiceBlockingStub;
 import com.google.protobuf.Any;
@@ -36,7 +36,7 @@ public class AccountServiceGrpcClient {
   @CircuitBreaker(name = "default", fallbackMethod = "retrieveFallbackMethod")
   @Bulkhead(name = "default")
   @Retry(name = "default")
-  public Account retrieveById(UUID id) throws AccountNotFoundRuntimeException {
+  public Account retrieveById(UUID id) throws AccountNotFoundException {
     try {
       if (log.isTraceEnabled()) {
         log.trace("Entering retrieveById with ID={}", id);
@@ -91,10 +91,10 @@ public class AccountServiceGrpcClient {
 
         if (status.getCode() == Status.Code.NOT_FOUND.value()) {
           log.info("Account not found for ID={}", id);
-          throw new AccountNotFoundRuntimeException("Account not found ID: " + id, ex);
+          throw new AccountNotFoundException("Account not found ID: " + id, ex);
         } else if (status.getCode() == Status.Code.UNAVAILABLE.value()) {
           log.error("Account-service is UNAVAILABLE while retrieving ID={}", id);
-          throw new AccountServiceUnavailableRuntimeException("account-service UNAVAILABLE");
+          throw new AccountServiceUnavailableException("account-service UNAVAILABLE");
         }
       }
 
@@ -167,7 +167,7 @@ public class AccountServiceGrpcClient {
     } catch (Exception ex) {
       log.error("Withdraw failed for accountId={}, amount={}, error={}",
         dto.getAccountId(), dto.getAmount(), ex.getMessage(), ex);
-      throw new AccountServiceUnavailableRuntimeException("Withdraw request failed", ex);
+      throw new AccountServiceUnavailableException("Withdraw request failed", ex);
     }
   }
 

@@ -36,21 +36,21 @@ public class OrderService {
   private final OrderRepository orderRepository;
   private final AccountServiceGrpcClient accountServiceGrpcClient;
 
-  public void create(Order order) throws InsufficientBalanceRuntimeException {
+  public void create(Order order) throws InsufficientBalanceException {
     Account account = this.accountServiceGrpcClient.retrieveById(order.getAccountId());
     BigDecimal accountBalance = new BigDecimal(account.getBalance()).setScale(2, RoundingMode.HALF_UP);
 
     BigDecimal amount = accountBalance.subtract(order.getTotal());
     if (amount.compareTo(BigDecimal.ZERO) < 0) {
       String errorMessage = String.format("The account :: %s :: has insufficient balance", account.getId());
-      throw new InsufficientBalanceRuntimeException(errorMessage);
+      throw new InsufficientBalanceException(errorMessage);
     }
     OrderEntity entity = this.orderMapper.toEntity(order);
     this.orderRepository.create(entity);
   }
 
   @Transactional(readOnly = true)
-  public Order retrieveById(UUID id) throws OrderNotFoundRuntimeException {
+  public Order retrieveById(UUID id) throws OrderNotFoundException {
     return this.orderRepository
       .findById(id)
       .map(this.orderMapper::toOrderDomain)
@@ -59,7 +59,7 @@ public class OrderService {
         if (log.isTraceEnabled()) {
           log.trace(errorMessage);
         }
-        return new OrderNotFoundRuntimeException(errorMessage);
+        return new OrderNotFoundException(errorMessage);
       });
   }
 
@@ -68,7 +68,7 @@ public class OrderService {
     return this.orderRepository.findAll().stream().map(this.orderMapper::toOrderDomain).collect(Collectors.toList());
   }
 
-  public void update(Order order) throws OrderNotFoundRuntimeException, OptimisticConcurrencyRuntimeException {
+  public void update(Order order) throws OrderNotFoundException, OptimisticConcurrencyException {
 
     this.orderRepository
       .findWithLockingById(order.getId())
@@ -81,14 +81,14 @@ public class OrderService {
           if (log.isTraceEnabled()) {
             log.trace(errorMessage);
           }
-          throw new OptimisticConcurrencyRuntimeException(errorMessage);
+          throw new OptimisticConcurrencyException(errorMessage);
         }
       }, () -> {
         String errorMessage = String.format("The order :: %s :: was not found", order.getId());
         if (log.isTraceEnabled()) {
           log.trace(errorMessage);
         }
-        throw new AccountNotFoundRuntimeException(errorMessage);
+        throw new AccountNotFoundException(errorMessage);
       });
   }
 
@@ -100,10 +100,10 @@ public class OrderService {
     return null;
   }
 
-  public void delete(UUID id) throws OrderNotFoundRuntimeException {
+  public void delete(UUID id) throws OrderNotFoundException {
     Optional<OrderEntity> optional = this.orderRepository.findById(id);
     if (optional.isEmpty()) {
-      throw new OrderNotFoundRuntimeException("The order :: " + id + " :: was not Found");
+      throw new OrderNotFoundException("The order :: " + id + " :: was not Found");
     }
     this.orderRepository.deleteById(id);
   }

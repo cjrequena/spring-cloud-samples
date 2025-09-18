@@ -61,11 +61,11 @@ public class OrderController {
       headers.set(CACHE_CONTROL, "no store, private, max-age=0");
       headers.setLocation(resourcePath);
       return ResponseEntity.created(resourcePath).headers(headers).build();
-    } catch (InsufficientBalanceRuntimeException ex) {
+    } catch (InsufficientBalanceException ex) {
       throw new PaymentRequiredException(ex.getMessage());
-    } catch (AccountNotFoundRuntimeException ex) {
+    } catch (AccountNotFoundException ex) {
       throw new NotFoundException(ex.getMessage());
-    } catch (AccountServiceUnavailableRuntimeException ex) {
+    } catch (AccountServiceUnavailableException ex) {
       throw new FailedDependencyException(ex.getMessage());
     }
   }
@@ -81,7 +81,7 @@ public class OrderController {
       Order order = this.orderService.retrieveById(id);
       OrderDTO dto = this.orderMapper.toDTO(order);
       return new ResponseEntity<>(dto, responseHeaders, HttpStatus.OK);
-    } catch (OrderNotFoundRuntimeException ex) {
+    } catch (OrderNotFoundException ex) {
       throw new NotFoundException(ex.getMessage());
     }
   }
@@ -110,9 +110,9 @@ public class OrderController {
       HttpHeaders responseHeaders = new HttpHeaders();
       responseHeaders.set(CACHE_CONTROL, "no store, private, max-age=0");
       return new ResponseEntity<>(responseHeaders, HttpStatus.NO_CONTENT);
-    } catch (OrderNotFoundRuntimeException ex) {
+    } catch (OrderNotFoundException ex) {
       throw new NotFoundException(ex.getMessage());
-    } catch (OptimisticConcurrencyRuntimeException ex) {
+    } catch (OptimisticConcurrencyException ex) {
       throw new BadRequestException(ex.getMessage());
     }
   }
@@ -127,7 +127,7 @@ public class OrderController {
       responseHeaders.set(CACHE_CONTROL, "no store, private, max-age=0");
       this.orderService.delete(id);
       return new ResponseEntity<>(responseHeaders, HttpStatus.NO_CONTENT);
-    } catch (OrderNotFoundRuntimeException ex) {
+    } catch (OrderNotFoundException ex) {
       throw new NotFoundException(ex.getMessage());
     }
   }

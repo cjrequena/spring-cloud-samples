@@ -2,7 +2,12 @@ package com.cjrequena.sample.controller.rest;
 
 import com.cjrequena.sample.common.Constants;
 import com.cjrequena.sample.domain.model.Account;
+import com.cjrequena.sample.domain.model.DepositAccount;
+import com.cjrequena.sample.domain.model.WithdrawAccount;
 import com.cjrequena.sample.dto.AccountDTO;
+import com.cjrequena.sample.dto.DepositAccountDTO;
+import com.cjrequena.sample.dto.WithdrawAccountDTO;
+import com.cjrequena.sample.exception.controller.BadRequestException;
 import com.cjrequena.sample.exception.controller.ConflictException;
 import com.cjrequena.sample.exception.controller.NotFoundException;
 import com.cjrequena.sample.exception.service.AccountNotFoundException;
@@ -115,4 +120,46 @@ public class AccountController {
     }
   }
 
+  //-----------------------
+  // Commands
+  //----------------------
+  @PostMapping(path = "/accounts/deposit", produces = {APPLICATION_JSON_VALUE})
+  public ResponseEntity<Void> deposit(@RequestBody DepositAccountDTO dto, HttpServletRequest request)
+    throws NotFoundException, BadRequestException, ConflictException, NotFoundException, BadRequestException {
+    try {
+      DepositAccount depositAccount = DepositAccount
+        .builder()
+        .accountId(dto.getAccountId())
+        .amount(dto.getAmount())
+        .build();
+      this.accountService.deposit(depositAccount);
+      HttpHeaders responseHeaders = new HttpHeaders();
+      responseHeaders.set(CACHE_CONTROL, "no store, private, max-age=0");
+      return new ResponseEntity<>(responseHeaders, HttpStatus.NO_CONTENT);
+    } catch (AccountNotFoundException ex) {
+      throw new NotFoundException(ex.getMessage());
+    } catch (OptimisticConcurrencyException ex) {
+      throw new BadRequestException(ex.getMessage());
+    }
+  }
+
+  @PostMapping(path = "/accounts/withdraw", produces = {APPLICATION_JSON_VALUE})
+  public ResponseEntity<Void> withdraw(@RequestBody WithdrawAccountDTO dto, HttpServletRequest request)
+    throws NotFoundException, BadRequestException, ConflictException, NotFoundException, BadRequestException {
+    try {
+      WithdrawAccount withdrawAccount = WithdrawAccount
+        .builder()
+        .accountId(dto.getAccountId())
+        .amount(dto.getAmount())
+        .build();
+      this.accountService.withdraw(withdrawAccount);
+      HttpHeaders responseHeaders = new HttpHeaders();
+      responseHeaders.set(CACHE_CONTROL, "no store, private, max-age=0");
+      return new ResponseEntity<>(responseHeaders, HttpStatus.NO_CONTENT);
+    } catch (AccountNotFoundException ex) {
+      throw new NotFoundException(ex.getMessage());
+    } catch (OptimisticConcurrencyException ex) {
+      throw new BadRequestException(ex.getMessage());
+    }
+  }
 }
