@@ -1,12 +1,15 @@
 package com.cjrequena.sample.controller.rest;
 
 import com.cjrequena.sample.common.Constants;
+import com.cjrequena.sample.common.EStatus;
+import com.cjrequena.sample.domain.model.Order;
 import com.cjrequena.sample.dto.OrderDTO;
-import com.cjrequena.sample.exception.api.BadRequestApiException;
-import com.cjrequena.sample.exception.api.FailedDependencyApiException;
-import com.cjrequena.sample.exception.api.NotFoundApiException;
-import com.cjrequena.sample.exception.api.PaymentRequiredApiException;
+import com.cjrequena.sample.exception.controller.BadRequestException;
+import com.cjrequena.sample.exception.controller.FailedDependencyException;
+import com.cjrequena.sample.exception.controller.NotFoundException;
+import com.cjrequena.sample.exception.controller.PaymentRequiredException;
 import com.cjrequena.sample.exception.service.*;
+import com.cjrequena.sample.mapper.OrderMapper;
 import com.cjrequena.sample.service.OrderService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -35,26 +38,35 @@ public class OrderController {
   public static final String ENDPOINT = "/order-service/api/";
   public static final String ACCEPT_VERSION = "Accept-Version=" + Constants.VND_SAMPLE_SERVICE_V1;
   private final OrderService orderService;
+  private final OrderMapper orderMapper;
 
   @PostMapping(
     path = "/orders",
     produces = {APPLICATION_JSON_VALUE}
   )
   public ResponseEntity<Void> create(@Valid @RequestBody OrderDTO dto, HttpServletRequest request, UriComponentsBuilder ucBuilder)
-    throws BadRequestApiException, FailedDependencyApiException, PaymentRequiredApiException, NotFoundApiException {
+    throws BadRequestException, FailedDependencyException, PaymentRequiredException, NotFoundException {
     try {
-      this.orderService.create(dto);
-      URI resourcePath = ucBuilder.path(new StringBuilder().append(request.getServletPath()).append("/{id}").toString()).buildAndExpand(dto.getId()).toUri();
+      Order order = Order
+        .builder()
+        .accountId(dto.getAccountId())
+        .description(dto.getDescription())
+        .status(EStatus.PENDING)
+        .total(dto.getTotal())
+        .build();
+
+      this.orderService.create(order);
+      URI resourcePath = ucBuilder.path(request.getServletPath() + "/{id}").buildAndExpand(dto.getId()).toUri();
       HttpHeaders headers = new HttpHeaders();
       headers.set(CACHE_CONTROL, "no store, private, max-age=0");
       headers.setLocation(resourcePath);
       return ResponseEntity.created(resourcePath).headers(headers).build();
-    } catch (InsufficientBalanceException ex) {
-      throw new PaymentRequiredApiException(ex.getMessage());
-    } catch (AccountNotFoundException ex) {
-      throw new NotFoundApiException(ex.getMessage());
-    } catch (AccountServiceUnavailableException ex) {
-      throw new FailedDependencyApiException(ex.getMessage());
+    } catch (InsufficientBalanceRuntimeException ex) {
+      throw new PaymentRequiredException(ex.getMessage());
+    } catch (AccountNotFoundRuntimeException ex) {
+      throw new NotFoundException(ex.getMessage());
+    } catch (AccountServiceUnavailableRuntimeException ex) {
+      throw new FailedDependencyException(ex.getMessage());
     }
   }
 
@@ -62,14 +74,15 @@ public class OrderController {
     path = "/orders/{id}",
     produces = {APPLICATION_JSON_VALUE}
   )
-  public ResponseEntity<OrderDTO> retrieveById(@PathVariable(value = "id") UUID id) throws NotFoundApiException {
+  public ResponseEntity<OrderDTO> retrieveById(@PathVariable(value = "id") UUID id) throws NotFoundException {
     try {
       HttpHeaders responseHeaders = new HttpHeaders();
       responseHeaders.set(CACHE_CONTROL, "no store, private, max-age=0");
-      OrderDTO dto = this.orderService.retrieveById(id);
+      Order order = this.orderService.retrieveById(id);
+      OrderDTO dto = this.orderMapper.toDTO(order);
       return new ResponseEntity<>(dto, responseHeaders, HttpStatus.OK);
-    } catch (OrderNotFoundException ex) {
-      throw new NotFoundApiException(ex.getMessage());
+    } catch (OrderNotFoundRuntimeException ex) {
+      throw new NotFoundException(ex.getMessage());
     }
   }
 
@@ -79,27 +92,28 @@ public class OrderController {
   )
   public ResponseEntity<List<OrderDTO>> retrieve() {
 
-    List<OrderDTO> dtoList = this.orderService.retrieve();
+    List<Order> orderList = this.orderService.retrieve();
+    List<OrderDTO > orderDTOList = this.orderMapper.toDTOList(orderList);
     HttpHeaders responseHeaders = new HttpHeaders();
     responseHeaders.set(CACHE_CONTROL, "no store, private, max-age=0");
-    return new ResponseEntity<>(dtoList, responseHeaders, HttpStatus.OK);
+    return new ResponseEntity<>(orderDTOList, responseHeaders, HttpStatus.OK);
   }
 
   @PutMapping(
     path = "/orders/{id}",
     produces = {APPLICATION_JSON_VALUE}
   )
-  public ResponseEntity<Void> update(@PathVariable(value = "id") UUID id, @Valid @RequestBody OrderDTO dto) throws NotFoundApiException, BadRequestApiException {
+  public ResponseEntity<Void> update(@PathVariable(value = "id") UUID id, @Valid @RequestBody OrderDTO dto) throws NotFoundException, BadRequestException {
     try {
       dto.setId(id);
-      this.orderService.update(dto);
+      this.orderService.update(this.orderMapper.toOrderDomain(dto));
       HttpHeaders responseHeaders = new HttpHeaders();
       responseHeaders.set(CACHE_CONTROL, "no store, private, max-age=0");
       return new ResponseEntity<>(responseHeaders, HttpStatus.NO_CONTENT);
-    } catch (OrderNotFoundException ex) {
-      throw new NotFoundApiException(ex.getMessage());
-    } catch (OptimisticConcurrencyException ex) {
-      throw new BadRequestApiException(ex.getMessage());
+    } catch (OrderNotFoundRuntimeException ex) {
+      throw new NotFoundException(ex.getMessage());
+    } catch (OptimisticConcurrencyRuntimeException ex) {
+      throw new BadRequestException(ex.getMessage());
     }
   }
 
@@ -107,14 +121,14 @@ public class OrderController {
     path = "/orders/{id}",
     produces = {APPLICATION_JSON_VALUE}
   )
-  public ResponseEntity<Void> delete(@PathVariable(value = "id") UUID id) throws NotFoundApiException {
+  public ResponseEntity<Void> delete(@PathVariable(value = "id") UUID id) throws NotFoundException {
     try {
       HttpHeaders responseHeaders = new HttpHeaders();
       responseHeaders.set(CACHE_CONTROL, "no store, private, max-age=0");
       this.orderService.delete(id);
       return new ResponseEntity<>(responseHeaders, HttpStatus.NO_CONTENT);
-    } catch (OrderNotFoundException ex) {
-      throw new NotFoundApiException(ex.getMessage());
+    } catch (OrderNotFoundRuntimeException ex) {
+      throw new NotFoundException(ex.getMessage());
     }
   }
 

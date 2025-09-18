@@ -56,7 +56,7 @@ public class GrpcExceptionHandler {
     private ErrorContext mapExceptionToErrorContext(Throwable err) {
         return switch (err) {
 
-            case OrderNotFoundException ignored -> ErrorContext.of(
+            case OrderNotFoundRuntimeException ignored -> ErrorContext.of(
               Code.NOT_FOUND,
               HttpStatus.NOT_FOUND,
               LogSeverity.INFO,
@@ -65,7 +65,7 @@ public class GrpcExceptionHandler {
               "The requested oder was not found"
             );
 
-            case AccountServiceUnavailableException ignored -> ErrorContext.of(
+            case AccountServiceUnavailableRuntimeException ignored -> ErrorContext.of(
               Code.UNAVAILABLE,
               HttpStatus.FAILED_DEPENDENCY,
               LogSeverity.INFO,
@@ -74,7 +74,7 @@ public class GrpcExceptionHandler {
               "account-service UNAVAILABLE"
             );
 
-            case AccountNotFoundException ignored -> ErrorContext.of(
+            case AccountNotFoundRuntimeException ignored -> ErrorContext.of(
                 Code.NOT_FOUND,
                 HttpStatus.NOT_FOUND,
                 LogSeverity.INFO,
@@ -83,7 +83,7 @@ public class GrpcExceptionHandler {
                 "The requested account was not found"
             );
 
-            case OptimisticConcurrencyException ignored -> ErrorContext.of(
+            case OptimisticConcurrencyRuntimeException ignored -> ErrorContext.of(
                 Code.ABORTED,
                 HttpStatus.CONFLICT,
                 LogSeverity.WARN,
@@ -92,7 +92,7 @@ public class GrpcExceptionHandler {
                 "The operation was aborted due to a concurrency conflict"
             );
 
-            case InsufficientBalanceException ignored -> ErrorContext.of(
+            case InsufficientBalanceRuntimeException ignored -> ErrorContext.of(
                 Code.FAILED_PRECONDITION,
                 HttpStatus.PAYMENT_REQUIRED,
                 LogSeverity.INFO,

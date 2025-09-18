@@ -1,12 +1,9 @@
 package com.cjrequena.sample.service;
 
 import com.cjrequena.sample.common.EStatus;
-import com.cjrequena.sample.dto.OrderDTO;
+import com.cjrequena.sample.domain.model.Order;
 import com.cjrequena.sample.dto.WithdrawAccountDTO;
-import com.cjrequena.sample.exception.service.InsufficientBalanceException;
-import com.cjrequena.sample.exception.service.OptimisticConcurrencyException;
-import com.cjrequena.sample.exception.service.OrderNotFoundException;
-import com.cjrequena.sample.exception.service.ServiceException;
+import com.cjrequena.sample.exception.service.*;
 import com.cjrequena.sample.mapper.OrderMapper;
 import com.cjrequena.sample.persistence.entity.OrderEntity;
 import com.cjrequena.sample.persistence.repository.OrderRepository;
@@ -16,6 +13,7 @@ import jakarta.json.JsonPatch;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -38,65 +36,74 @@ public class OrderService {
   private final OrderRepository orderRepository;
   private final AccountServiceGrpcClient accountServiceGrpcClient;
 
-  public void create(OrderDTO dto) throws InsufficientBalanceException {
-    Account account = this.accountServiceGrpcClient.retrieveById(dto.getAccountId());
+  public void create(Order order) throws InsufficientBalanceRuntimeException {
+    Account account = this.accountServiceGrpcClient.retrieveById(order.getAccountId());
     BigDecimal accountBalance = new BigDecimal(account.getBalance()).setScale(2, RoundingMode.HALF_UP);
 
-    BigDecimal amount = accountBalance.subtract(dto.getTotal());
+    BigDecimal amount = accountBalance.subtract(order.getTotal());
     if (amount.compareTo(BigDecimal.ZERO) < 0) {
-      throw new InsufficientBalanceException("Insufficient balance on account with id " + account.getId());
+      String errorMessage = String.format("The account :: %s :: has insufficient balance", account.getId());
+      throw new InsufficientBalanceRuntimeException(errorMessage);
     }
-    OrderEntity entity = this.orderMapper.toEntity(dto);
+    OrderEntity entity = this.orderMapper.toEntity(order);
     this.orderRepository.create(entity);
   }
 
   @Transactional(readOnly = true)
-  public OrderDTO retrieveById(UUID id) throws OrderNotFoundException {
-    Optional<OrderEntity> optional = this.orderRepository.findById(id);
-    if (optional.isEmpty()) {
-      throw new OrderNotFoundException("The order :: " + id + " :: was not Found");
-    }
-    return orderMapper.toDTO(optional.get());
+  public Order retrieveById(UUID id) throws OrderNotFoundRuntimeException {
+    return this.orderRepository
+      .findById(id)
+      .map(this.orderMapper::toOrderDomain)
+      .orElseThrow(() -> {
+        String errorMessage = String.format("The order :: %s :: was not found", id);
+        if (log.isTraceEnabled()) {
+          log.trace(errorMessage);
+        }
+        return new OrderNotFoundRuntimeException(errorMessage);
+      });
   }
 
   @Transactional(readOnly = true)
-  public List<OrderDTO> retrieve() {
-    return this.orderRepository.findAll().stream().map(this.orderMapper::toDTO).collect(Collectors.toList());
+  public List<Order> retrieve() {
+    return this.orderRepository.findAll().stream().map(this.orderMapper::toOrderDomain).collect(Collectors.toList());
   }
 
-  public void update(OrderDTO dto) throws OrderNotFoundException, OptimisticConcurrencyException {
-    Optional<OrderEntity> optional = this.orderRepository.findWithLockingById(dto.getId());
-    if (optional.isEmpty()) {
-      throw new OrderNotFoundException("The order :: " + dto.getId() + " :: was not Found");
-    }
-    OrderDTO _dto = this.orderMapper.toDTO(optional.get());
-    if (_dto.getVersion().equals(dto.getVersion())) {
-      OrderEntity entity = this.orderMapper.toEntity(dto);
-      this.orderRepository.save(entity);
-      log.debug("Updated order with id {}", entity.getId());
-    } else {
-      log.trace(
-        "Optimistic concurrency control error in order :: {} :: actual version doesn't match expected version {}",
-        _dto.getId(),
-        _dto.getVersion());
-      throw new OptimisticConcurrencyException(
-        "Optimistic concurrency control error in order :: " + _dto.getId() + " :: actual version doesn't match expected version "
-          + _dto.getVersion());
-    }
+  public void update(Order order) throws OrderNotFoundRuntimeException, OptimisticConcurrencyRuntimeException {
+
+    this.orderRepository
+      .findWithLockingById(order.getId())
+      .ifPresentOrElse(entity -> {
+        try {
+          this.orderMapper.updateEntityFromOrderDomain(order, entity);
+          this.orderRepository.save(entity);
+        } catch (ObjectOptimisticLockingFailureException ex) {
+          String errorMessage = String.format("Optimistic concurrency control error in order :: %s :: actual version doesn't match expected version", order.getId());
+          if (log.isTraceEnabled()) {
+            log.trace(errorMessage);
+          }
+          throw new OptimisticConcurrencyRuntimeException(errorMessage);
+        }
+      }, () -> {
+        String errorMessage = String.format("The order :: %s :: was not found", order.getId());
+        if (log.isTraceEnabled()) {
+          log.trace(errorMessage);
+        }
+        throw new AccountNotFoundRuntimeException(errorMessage);
+      });
   }
 
-  public OrderDTO patch(Integer id, JsonPatch patchDocument) {
+  public Order patch(Integer id, JsonPatch patchDocument) {
     return null;
   }
 
-  public OrderDTO patch(Integer id, JsonMergePatch mergePatchDocument) {
+  public Order patch(Integer id, JsonMergePatch mergePatchDocument) {
     return null;
   }
 
-  public void delete(UUID id) throws OrderNotFoundException {
+  public void delete(UUID id) throws OrderNotFoundRuntimeException {
     Optional<OrderEntity> optional = this.orderRepository.findById(id);
     if (optional.isEmpty()) {
-      throw new OrderNotFoundException("The order :: " + id + " :: was not Found");
+      throw new OrderNotFoundRuntimeException("The order :: " + id + " :: was not Found");
     }
     this.orderRepository.deleteById(id);
   }

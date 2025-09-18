@@ -6,7 +6,7 @@ package com.cjrequena.sample.exception.service;
  * <p></p>
  * @author cjrequena
  */
-public class AccountNotFoundException extends ServiceException {
+public class AccountNotFoundException extends RuntimeServiceException {
   public AccountNotFoundException(String message) {
     super(message);
   }

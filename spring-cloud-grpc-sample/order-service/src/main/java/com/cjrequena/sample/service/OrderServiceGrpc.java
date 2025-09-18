@@ -57,7 +57,7 @@ public class OrderServiceGrpc extends com.cjrequena.sample.proto.OrderServiceGrp
 
       if (newAccountBalance.compareTo(BigDecimal.ZERO) < 0) {
         String errorMessage = String.format("The account :: %s :: has insufficient balance", accountId);
-        StatusRuntimeException ex = this.grpcExceptionHandler.buildErrorResponse(new AccountNotFoundException(errorMessage));
+        StatusRuntimeException ex = this.grpcExceptionHandler.buildErrorResponse(new InsufficientBalanceRuntimeException(errorMessage));
         responseObserver.onError(ex);
       }
 
@@ -71,7 +71,7 @@ public class OrderServiceGrpc extends com.cjrequena.sample.proto.OrderServiceGrp
         .build();
       responseObserver.onNext(response);
       responseObserver.onCompleted();
-    } catch (AccountNotFoundException | AccountServiceUnavailableException ex) {
+    } catch (AccountNotFoundRuntimeException | AccountServiceUnavailableRuntimeException ex) {
       StatusRuntimeException err = this.grpcExceptionHandler.buildErrorResponse(ex);
       responseObserver.onError(err);
     }
@@ -81,7 +81,7 @@ public class OrderServiceGrpc extends com.cjrequena.sample.proto.OrderServiceGrp
   public void retrieveOrderById(RetrieveOrderByIdRequest request, StreamObserver<RetrieveOrderByIdResponse> responseObserver) {
     UUID orderId = UUID.fromString(request.getId());
     this.orderRepository.findById(orderId)
-      .map(this.orderMapper::toOrder)
+      .map(this.orderMapper::toOrderProto)
       .map(order -> RetrieveOrderByIdResponse.newBuilder().setOrder(order).build())
       .ifPresentOrElse(response -> {
           responseObserver.onNext(response);
@@ -89,7 +89,7 @@ public class OrderServiceGrpc extends com.cjrequena.sample.proto.OrderServiceGrp
         },
         () -> {
           String errorMessage = String.format("The order :: %s :: was not found", orderId);
-          final StatusRuntimeException err = this.grpcExceptionHandler.buildErrorResponse(new OrderNotFoundException(errorMessage));
+          final StatusRuntimeException err = this.grpcExceptionHandler.buildErrorResponse(new OrderNotFoundRuntimeException(errorMessage));
           responseObserver.onError(err);
         }
       );
@@ -97,7 +97,7 @@ public class OrderServiceGrpc extends com.cjrequena.sample.proto.OrderServiceGrp
 
   @Override
   public void retrieveOrders(RetrieveOrdersRequest request, StreamObserver<RetrieveOrdersResponse> responseObserver) {
-    final List<Order> orderList = this.orderRepository.findAll().stream().map(this.orderMapper::toOrder).toList();
+    final List<Order> orderList = this.orderRepository.findAll().stream().map(this.orderMapper::toOrderProto).toList();
     final RetrieveOrdersResponse response = RetrieveOrdersResponse.newBuilder().addAllOrders(orderList).build();
     responseObserver.onNext(response);
     responseObserver.onCompleted();
@@ -112,7 +112,7 @@ public class OrderServiceGrpc extends com.cjrequena.sample.proto.OrderServiceGrp
       .ifPresentOrElse(orderEntity -> {
           final long expectedVersion = orderEntity.getVersion();
           try {
-            this.orderMapper.updateEntityFromOrder(order, orderEntity);
+            this.orderMapper.updateEntityFromOrderProto(order, orderEntity);
             this.orderRepository.save(orderEntity);
             UpdateOrderResponse response = UpdateOrderResponse
               .newBuilder()
@@ -127,14 +127,14 @@ public class OrderServiceGrpc extends com.cjrequena.sample.proto.OrderServiceGrp
               orderId, expectedVersion
             );
             log.trace(errorMessage);
-            StatusRuntimeException err = this.grpcExceptionHandler.buildErrorResponse(new OptimisticConcurrencyException(errorMessage));
+            StatusRuntimeException err = this.grpcExceptionHandler.buildErrorResponse(new OptimisticConcurrencyRuntimeException(errorMessage));
             responseObserver.onError(err);
           }
         },
         () -> {
           String errorMessage = String.format("The order :: %s :: was not found", orderId);
           log.trace(errorMessage);
-          StatusRuntimeException err = this.grpcExceptionHandler.buildErrorResponse(new OrderNotFoundException(errorMessage));
+          StatusRuntimeException err = this.grpcExceptionHandler.buildErrorResponse(new OrderNotFoundRuntimeException(errorMessage));
           responseObserver.onError(err);
         }
       );
@@ -149,7 +149,7 @@ public class OrderServiceGrpc extends com.cjrequena.sample.proto.OrderServiceGrp
         this.orderRepository::delete,
         () -> {
           String errorMessage = String.format("The order :: %s :: was not found", orderId);
-          final StatusRuntimeException err = this.grpcExceptionHandler.buildErrorResponse(new OrderNotFoundException(errorMessage));
+          final StatusRuntimeException err = this.grpcExceptionHandler.buildErrorResponse(new OrderNotFoundRuntimeException(errorMessage));
           responseObserver.onError(err);
         }
       );
