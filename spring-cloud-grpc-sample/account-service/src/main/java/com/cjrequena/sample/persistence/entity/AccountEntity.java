@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.convert.threeten.Jsr310JpaConverters;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 /**
@@ -33,12 +33,12 @@ public class AccountEntity {
   private BigDecimal balance;
 
   @Column(name = "created_at", nullable = false, updatable = false, insertable = false)
-  @Convert(converter = Jsr310JpaConverters.LocalDateConverter.class)
-  private LocalDate createdAt;
+  @Convert(converter = Jsr310JpaConverters.LocalDateTimeConverter.class)
+  private LocalDateTime createdAt;
 
   @Column(name = "updated_at", nullable = false, updatable = false, insertable = false)
-  @Convert(converter = Jsr310JpaConverters.LocalDateConverter.class)
-  private LocalDate updatedAt;
+  @Convert(converter = Jsr310JpaConverters.LocalDateTimeConverter.class)
+  private LocalDateTime updatedAt;
 
   @Version
   @Column(name = "version")

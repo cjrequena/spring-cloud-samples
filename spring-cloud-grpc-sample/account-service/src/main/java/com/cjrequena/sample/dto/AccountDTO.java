@@ -1,8 +1,8 @@
 package com.cjrequena.sample.dto;
 
 import com.cjrequena.sample.common.Constants;
-import com.cjrequena.sample.dto.serializer.LocalDateDeserializer;
-import com.cjrequena.sample.dto.serializer.LocalDateSerializer;
+import com.cjrequena.sample.dto.serializer.LocalDateTimeDeserializer;
+import com.cjrequena.sample.dto.serializer.LocalDateTimeSerializer;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -18,7 +18,7 @@ import lombok.extern.jackson.Jacksonized;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static io.swagger.v3.oas.annotations.media.Schema.AccessMode.READ_ONLY;
@@ -59,18 +59,18 @@ public class AccountDTO implements Serializable {
   @JsonProperty(required = true)
   private BigDecimal balance;
 
-  @JsonSerialize(using = LocalDateSerializer.class)
-  @JsonDeserialize(using = LocalDateDeserializer.class)
+  @JsonSerialize(using = LocalDateTimeSerializer.class)
+  @JsonDeserialize(using = LocalDateTimeDeserializer.class)
   @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_FORMAT)
   @Schema(accessMode = READ_ONLY)
-  private LocalDate createdAt;
+  private LocalDateTime createdAt;
 
 
-  @JsonSerialize(using = LocalDateSerializer.class)
-  @JsonDeserialize(using = LocalDateDeserializer.class)
+  @JsonSerialize(using = LocalDateTimeSerializer.class)
+  @JsonDeserialize(using = LocalDateTimeDeserializer.class)
   @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_FORMAT)
   @Schema(accessMode = READ_ONLY)
-  private LocalDate updatedAt;
+  private LocalDateTime updatedAt;
 
   @Schema(accessMode = READ_ONLY)
   private Long version;
