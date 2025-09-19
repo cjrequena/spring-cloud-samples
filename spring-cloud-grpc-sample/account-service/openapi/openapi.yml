@@ -348,7 +348,7 @@ components:
           example: 1000.00
         created_at:
           type: string
-          format: localdate
+          format: date
           readOnly: true
           x-field-extra-annotation: |
             @com.fasterxml.jackson.databind.annotation.JsonSerialize(using = com.cjrequena.sample.dto.serializer.LocalDateSerializer.class)
@@ -357,7 +357,7 @@ components:
             @com.fasterxml.jackson.annotation.JsonFormat(shape = com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
           updated_at:
             type: string
-            format: localdate
+            format: date
             readOnly: true
             x-field-extra-annotation: |
               @com.fasterxml.jackson.databind.annotation.JsonSerialize(using = com.cjrequena.sample.dto.serializer.LocalDateSerializer.class)
@@ -368,6 +368,8 @@ components:
         id: "550e8400-e29b-41d4-a716-446655440000"
         owner: "John Doe"
         balance: 1000.00
+        created_at: "2024-01-15"
+        updated_at: "2024-09-19"
 
     DepositAccountDTO:
       type: object

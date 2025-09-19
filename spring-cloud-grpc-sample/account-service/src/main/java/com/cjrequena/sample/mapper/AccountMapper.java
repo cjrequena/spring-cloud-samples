@@ -43,9 +43,15 @@ public interface AccountMapper {
   // ========================================
   com.cjrequena.sample.domain.model.Account toAccountDomain(AccountDTO dto);
 
-  AccountDTO toDTO(com.cjrequena.sample.domain.model.Account account);
+  com.cjrequena.sample.dto.AccountDTO toDTO(com.cjrequena.sample.domain.model.Account account);
 
-  List<AccountDTO> toDTOList(List<com.cjrequena.sample.domain.model.Account> accounts);
+  List<com.cjrequena.sample.dto.AccountDTO> toDTOList(List<com.cjrequena.sample.domain.model.Account> accounts);
+
+//  com.cjrequena.sample.domain.model.Account toAccountDomain(com.cjrequena.sample.dto.AccountDTO dto);
+//
+//  com.cjrequena.sample.openapi.controller.dto.AccountDTO toDTO(com.cjrequena.sample.domain.model.Account account);
+//
+//  List<com.cjrequena.sample.openapi.controller.dto.AccountDTO> toDTOList(List<com.cjrequena.sample.domain.model.Account> accounts);
 
   // ========================================
   // Update Mappings
