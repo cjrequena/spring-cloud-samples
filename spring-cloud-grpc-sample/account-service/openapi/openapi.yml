@@ -339,10 +339,28 @@ components:
           example: "John Doe"
         balance:
           type: number
-          format: double
+          format: bigdecimal
           description: Current balance of the account
           minimum: 0
           example: 1000.00
+        created_at:
+          type: string
+          format: localdate
+          readOnly: true
+          x-field-extra-annotation: |
+            @com.fasterxml.jackson.databind.annotation.JsonSerialize(using = com.cjrequena.sample.dto.serializer.LocalDateSerializer.class)
+            @com.fasterxml.jackson.databind.annotation.JsonDeserialize(using = com.cjrequena.sample.dto.serializer.LocalDateDeserializer.class)
+            @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)
+            @com.fasterxml.jackson.annotation.JsonFormat(shape = com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
+          updated_at:
+            type: string
+            format: localdate
+            readOnly: true
+            x-field-extra-annotation: |
+              @com.fasterxml.jackson.databind.annotation.JsonSerialize(using = com.cjrequena.sample.dto.serializer.LocalDateSerializer.class)
+              @com.fasterxml.jackson.databind.annotation.JsonDeserialize(using = com.cjrequena.sample.dto.serializer.LocalDateDeserializer.class)
+              @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)
+              @com.fasterxml.jackson.annotation.JsonFormat(shape = com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
       example:
         id: "550e8400-e29b-41d4-a716-446655440000"
         owner: "John Doe"
@@ -361,7 +379,7 @@ components:
           example: "550e8400-e29b-41d4-a716-446655440000"
         amount:
           type: number
-          format: double
+          format: bigdecimal
           description: Amount to deposit
           minimum: 0.01
           example: 500.00
@@ -382,7 +400,7 @@ components:
           example: "550e8400-e29b-41d4-a716-446655440000"
         amount:
           type: number
-          format: double
+          format: bigdecimal
           description: Amount to withdraw
           minimum: 0.01
           example: 200.00

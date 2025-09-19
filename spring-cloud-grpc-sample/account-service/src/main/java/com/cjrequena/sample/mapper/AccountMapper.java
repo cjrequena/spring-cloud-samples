@@ -5,6 +5,9 @@ import com.cjrequena.sample.persistence.entity.AccountEntity;
 import com.cjrequena.sample.proto.Account;
 import org.mapstruct.*;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 
 /**
@@ -50,9 +53,23 @@ public interface AccountMapper {
 
   @Mapping(target = "version", source = "version", ignore = true)
   @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-  void updateEntityFromAccount(Account account, @MappingTarget AccountEntity entity);
+  void updateEntityFromAccount(com.cjrequena.sample.proto.Account account, @MappingTarget AccountEntity entity);
 
   @Mapping(target = "version", source = "version", ignore = true)
   @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
   void updateEntityFromAccount(com.cjrequena.sample.domain.model.Account account, @MappingTarget AccountEntity entity);
+
+  // Custom conversion: long -> LocalDate
+  default LocalDate map(long epochMillis) {
+    return Instant.ofEpochMilli(epochMillis)
+      .atZone(ZoneId.systemDefault())
+      .toLocalDate();
+  }
+
+  // Custom conversion: LocalDate -> long
+  default long map(LocalDate date) {
+    return date.atStartOfDay(ZoneId.systemDefault())
+      .toInstant()
+      .toEpochMilli();
+  }
 }

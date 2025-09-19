@@ -4,8 +4,10 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.jpa.convert.threeten.Jsr310JpaConverters;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.UUID;
 
 /**
@@ -30,13 +32,13 @@ public class AccountEntity {
   @Column(name = "balance")
   private BigDecimal balance;
 
-//  @Column(name = "created_at", nullable = false, updatable = false, insertable = false)
-//  @Convert(converter = Jsr310JpaConverters.LocalDateConverter.class)
-//  private LocalDate createdAt;
-//
-//  @Column(name = "updated_at", nullable = false, updatable = false, insertable = false)
-//  @Convert(converter = Jsr310JpaConverters.LocalDateConverter.class)
-//  private LocalDate updatedAt;
+  @Column(name = "created_at", nullable = false, updatable = false, insertable = false)
+  @Convert(converter = Jsr310JpaConverters.LocalDateConverter.class)
+  private LocalDate createdAt;
+
+  @Column(name = "updated_at", nullable = false, updatable = false, insertable = false)
+  @Convert(converter = Jsr310JpaConverters.LocalDateConverter.class)
+  private LocalDate updatedAt;
 
   @Version
   @Column(name = "version")

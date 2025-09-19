@@ -23,12 +23,12 @@ public class Account implements Serializable {
   private UUID id;
   private String owner;
   private BigDecimal balance;
-  private LocalDate creation_at;
-  private LocalDate updated_at;
+  private LocalDate createdAt;
+  private LocalDate updatedAt;
   private Long version;
 
   @Builder
-  public Account(UUID id, String owner, BigDecimal balance, LocalDate creation_at, LocalDate updated_at, Long version) {
+  public Account(UUID id, String owner, BigDecimal balance, LocalDate createdAt, LocalDate updatedAt, Long version) {
     if (Objects.isNull(id)) {
       this.id = UUID.randomUUID();
     } else {
@@ -36,8 +36,8 @@ public class Account implements Serializable {
     }
     this.owner = owner;
     this.balance = balance;
-    this.creation_at = creation_at;
-    this.updated_at = updated_at;
+    this.createdAt = createdAt;
+    this.updatedAt = updatedAt;
     this.version = version;
   }
 

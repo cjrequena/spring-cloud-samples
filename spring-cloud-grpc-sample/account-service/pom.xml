@@ -268,7 +268,7 @@
                                 <skipDefaultInterface>true</skipDefaultInterface>
                                 <library>spring-boot</library>
                                 <apiPackage>${project.groupId}.openapi.controller.rest</apiPackage>
-                                <modelPackage>${project.groupId}.openapi.dto</modelPackage>
+                                <modelPackage>${project.groupId}.openapi.controller.dto</modelPackage>
                                 <useResponseEntity>false</useResponseEntity>
                             </configOptions>
                         </configuration>
