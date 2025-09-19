@@ -124,8 +124,8 @@ public class AccountController {
   // Commands
   //----------------------
   @PostMapping(path = "/accounts/deposit", produces = {APPLICATION_JSON_VALUE})
-  public ResponseEntity<Void> deposit(@RequestBody DepositAccountDTO dto, HttpServletRequest request)
-    throws NotFoundException, BadRequestException, ConflictException, NotFoundException, BadRequestException {
+  public ResponseEntity<Void> deposit(@RequestBody DepositAccountDTO dto)
+    throws NotFoundException, BadRequestException {
     try {
       DepositAccount depositAccount = DepositAccount
         .builder()
@@ -144,8 +144,7 @@ public class AccountController {
   }
 
   @PostMapping(path = "/accounts/withdraw", produces = {APPLICATION_JSON_VALUE})
-  public ResponseEntity<Void> withdraw(@RequestBody WithdrawAccountDTO dto, HttpServletRequest request)
-    throws NotFoundException, BadRequestException, ConflictException, NotFoundException, BadRequestException {
+  public ResponseEntity<Void> withdraw(@RequestBody WithdrawAccountDTO dto) throws NotFoundException, BadRequestException {
     try {
       WithdrawAccount withdrawAccount = WithdrawAccount
         .builder()

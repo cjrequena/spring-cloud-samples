@@ -17,7 +17,10 @@ paths:
     post:
       summary: Create a new account
       description: Creates a new bank account with the specified owner and initial balance
-      operationId: createAccount
+      operationId: create
+      x-extra-args:
+        - { name: "request", type: "javax.servlet.http.HttpServletRequest" }
+        - { name: "ucBuilder", type: "org.springframework.web.util.UriComponentsBuilder" }
       parameters:
         - name: Accept-Version
           in: header
@@ -65,7 +68,7 @@ paths:
     get:
       summary: Retrieve all accounts
       description: Returns a list of all bank accounts
-      operationId: getAllAccounts
+      operationId: retrieve
       parameters:
         - name: Accept-Version
           in: header
@@ -100,7 +103,7 @@ paths:
     get:
       summary: Retrieve account by ID
       description: Returns a specific bank account by its unique identifier
-      operationId: getAccountById
+      operationId: retrieveById
       parameters:
         - name: id
           in: path
@@ -143,7 +146,7 @@ paths:
     put:
       summary: Update an existing account
       description: Updates an existing bank account with new owner and/or balance information
-      operationId: updateAccount
+      operationId: update
       parameters:
         - name: id
           in: path
@@ -199,7 +202,7 @@ paths:
     delete:
       summary: Delete an account
       description: Deletes a bank account by its unique identifier
-      operationId: deleteAccount
+      operationId: delete
       parameters:
         - name: id
           in: path
@@ -235,7 +238,7 @@ paths:
     post:
       summary: Deposit money to an account
       description: Deposits a specified amount of money to an existing account
-      operationId: depositToAccount
+      operationId: deposit
       parameters:
         - name: Accept-Version
           in: header
@@ -278,7 +281,7 @@ paths:
     post:
       summary: Withdraw money from an account
       description: Withdraws a specified amount of money from an existing account
-      operationId: withdrawFromAccount
+      operationId: withdraw
       parameters:
         - name: Accept-Version
           in: header

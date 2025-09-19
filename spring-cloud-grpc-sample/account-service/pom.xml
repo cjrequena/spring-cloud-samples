@@ -261,15 +261,15 @@
                             <generatorName>spring</generatorName>
                             <generateSupportingFiles>false</generateSupportingFiles>
                             <configOptions>
-                                <reactive>true</reactive>
+                                <reactive>false</reactive>
                                 <openApiNullable>false</openApiNullable>
                                 <interfaceOnly>true</interfaceOnly>
-                                <useSpringBoot3>true</useSpringBoot3>
                                 <skipDefaultInterface>true</skipDefaultInterface>
+                                <useSpringBoot3>true</useSpringBoot3>
                                 <library>spring-boot</library>
                                 <apiPackage>${project.groupId}.openapi.controller.rest</apiPackage>
                                 <modelPackage>${project.groupId}.openapi.controller.dto</modelPackage>
-                                <useResponseEntity>false</useResponseEntity>
+                                <useResponseEntity>true</useResponseEntity>
                             </configOptions>
                         </configuration>
                     </execution>
