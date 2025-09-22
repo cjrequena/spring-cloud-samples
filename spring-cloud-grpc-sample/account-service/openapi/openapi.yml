@@ -253,7 +253,7 @@ paths:
             schema:
               $ref: '#/components/schemas/DepositAccountDTO'
             example:
-              accountId: "550e8400-e29b-41d4-a716-446655440000"
+              account_id: "550e8400-e29b-41d4-a716-446655440000"
               amount: 500.00
       responses:
         '204':
@@ -296,7 +296,7 @@ paths:
             schema:
               $ref: '#/components/schemas/WithdrawAccountDTO'
             example:
-              accountId: "550e8400-e29b-41d4-a716-446655440000"
+              account_id: "550e8400-e29b-41d4-a716-446655440000"
               amount: 200.00
       responses:
         '204':
@@ -374,10 +374,10 @@ components:
     DepositAccountDTO:
       type: object
       required:
-        - accountId
+        - account_id
         - amount
       properties:
-        accountId:
+        account_id:
           type: string
           format: uuid
           description: Unique identifier of the account to deposit to
@@ -389,16 +389,16 @@ components:
           minimum: 0.01
           example: 500.00
       example:
-        accountId: "550e8400-e29b-41d4-a716-446655440000"
+        account_id: "550e8400-e29b-41d4-a716-446655440000"
         amount: 500.00
 
     WithdrawAccountDTO:
       type: object
       required:
-        - accountId
+        - account_id
         - amount
       properties:
-        accountId:
+        account_id:
           type: string
           format: uuid
           description: Unique identifier of the account to withdraw from
@@ -410,7 +410,7 @@ components:
           minimum: 0.01
           example: 200.00
       example:
-        accountId: "550e8400-e29b-41d4-a716-446655440000"
+        account_id: "550e8400-e29b-41d4-a716-446655440000"
         amount: 200.00
 
     ErrorResponse:

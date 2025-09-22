@@ -1,8 +1,6 @@
 package com.cjrequena.sample.mapper;
 
-import com.cjrequena.sample.dto.AccountDTO;
 import com.cjrequena.sample.persistence.entity.AccountEntity;
-import com.cjrequena.sample.proto.Account;
 import org.mapstruct.*;
 
 import java.time.Instant;
@@ -27,9 +25,9 @@ public interface AccountMapper {
   // ========================================
   // Proto <-> Entity Mappings
   // ========================================
-  AccountEntity toEntity(Account account);
+  AccountEntity toEntity(com.cjrequena.sample.proto.Account account);
 
-  Account toAccount(AccountEntity entity);
+  com.cjrequena.sample.proto.Account toAccountProto(AccountEntity entity);
 
   // ========================================
   // Domain <-> Entity Mappings
@@ -41,17 +39,17 @@ public interface AccountMapper {
   // ========================================
   // DTO <-> Domain Mappings
   // ========================================
-  com.cjrequena.sample.domain.model.Account toAccountDomain(AccountDTO dto);
-
-  com.cjrequena.sample.dto.AccountDTO toDTO(com.cjrequena.sample.domain.model.Account account);
-
-  List<com.cjrequena.sample.dto.AccountDTO> toDTOList(List<com.cjrequena.sample.domain.model.Account> accounts);
-
 //  com.cjrequena.sample.domain.model.Account toAccountDomain(com.cjrequena.sample.dto.AccountDTO dto);
 //
-//  com.cjrequena.sample.openapi.controller.dto.AccountDTO toDTO(com.cjrequena.sample.domain.model.Account account);
+//  com.cjrequena.sample.dto.AccountDTO toDTO(com.cjrequena.sample.domain.model.Account account);
 //
-//  List<com.cjrequena.sample.openapi.controller.dto.AccountDTO> toDTOList(List<com.cjrequena.sample.domain.model.Account> accounts);
+//  List<com.cjrequena.sample.dto.AccountDTO> toDTOList(List<com.cjrequena.sample.domain.model.Account> accounts);
+
+  com.cjrequena.sample.domain.model.Account toAccountDomain(com.cjrequena.sample.openapi.controller.dto.AccountDTO dto);
+
+  com.cjrequena.sample.openapi.controller.dto.AccountDTO toDTO(com.cjrequena.sample.domain.model.Account account);
+
+  List<com.cjrequena.sample.openapi.controller.dto.AccountDTO> toDTOList(List<com.cjrequena.sample.domain.model.Account> accounts);
 
   // ========================================
   // Update Mappings

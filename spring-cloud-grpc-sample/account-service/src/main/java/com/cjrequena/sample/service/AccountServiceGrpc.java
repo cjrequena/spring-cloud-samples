@@ -72,7 +72,7 @@ public class AccountServiceGrpc extends com.cjrequena.sample.proto.AccountServic
   public void retrieveAccountById(RetrieveAccountByIdRequest request, StreamObserver<RetrieveAccountByIdResponse> responseObserver) {
     UUID accountId = UUID.fromString(request.getId());
     this.accountRepository.findById(accountId)
-      .map(accountMapper::toAccount)
+      .map(accountMapper::toAccountProto)
       .map(account -> RetrieveAccountByIdResponse.newBuilder().setAccount(account).build())
       .ifPresentOrElse(
         response -> {
@@ -92,7 +92,7 @@ public class AccountServiceGrpc extends com.cjrequena.sample.proto.AccountServic
     log.debug("Retrieving accounts with request: {}", request);
     final List<Account> accounts = this.accountRepository.findAll()
       .stream()
-      .map(accountMapper::toAccount)
+      .map(accountMapper::toAccountProto)
       .toList();
     RetrieveAccountsResponse response = RetrieveAccountsResponse
       .newBuilder()
