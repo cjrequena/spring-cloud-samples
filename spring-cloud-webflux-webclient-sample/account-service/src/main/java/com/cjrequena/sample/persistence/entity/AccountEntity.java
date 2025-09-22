@@ -1,4 +1,4 @@
-package com.cjrequena.sample.db.entity;
+package com.cjrequena.sample.persistence.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -30,8 +30,11 @@ public class AccountEntity {
 
   private BigDecimal balance;
 
-  @Field(value = "creation_date")
-  private LocalDate creationDate;
+  @Field(value = "created_at")
+  private LocalDate createdAt;
+
+  @Field(value = "updated_at")
+  private LocalDate updatedAt;
 
   @Version
   private Long version;

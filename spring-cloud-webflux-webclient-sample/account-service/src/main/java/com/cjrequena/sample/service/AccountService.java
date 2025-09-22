@@ -1,14 +1,14 @@
 package com.cjrequena.sample.service;
 
-import com.cjrequena.sample.db.entity.AccountEntity;
-import com.cjrequena.sample.db.repository.AccountRepository;
-import com.cjrequena.sample.dto.AccountDTO;
+import com.cjrequena.sample.domain.model.Account;
 import com.cjrequena.sample.dto.DepositAccountDTO;
 import com.cjrequena.sample.dto.WithdrawAccountDTO;
 import com.cjrequena.sample.exception.service.AccountNotFoundServiceException;
 import com.cjrequena.sample.exception.service.InsufficientBalanceServiceException;
-import com.cjrequena.sample.exception.service.OptimisticConcurrencyServiceException;
+import com.cjrequena.sample.exception.service.OptimisticConcurrencyException;
 import com.cjrequena.sample.mapper.AccountMapper;
+import com.cjrequena.sample.persistence.entity.AccountEntity;
+import com.cjrequena.sample.persistence.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +17,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
-import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -35,83 +34,94 @@ public class AccountService {
   private final AccountMapper accountMapper;
   private final AccountRepository accountRepository;
 
-  public Mono<AccountDTO> create(AccountDTO dto) {
-    AccountEntity entity = this.accountMapper.toEntity(dto);
-    entity.setId(UUID.randomUUID());
-    Mono<AccountDTO> dto$ = this.accountRepository.save(entity).map(this.accountMapper::toDTO);
-    return dto$;
+  public Mono<Account> create(Account account) {
+    log.info("Creating new account with initial data={}", account);
+    AccountEntity entity = accountMapper.toEntity(account);
+    return accountRepository.save(entity)
+      .map(accountMapper::toAccountDomain)
+      .doOnSuccess(saved -> log.info("Account created successfully with id={}", saved.getId()))
+      .doOnError(error -> log.error("Failed to create account: {}", error.getMessage(), error));
   }
 
-  public Mono<AccountDTO> retrieveById(UUID id) {
-    return accountRepository
-      .findById(id)
-      .switchIfEmpty(Mono.error(new AccountNotFoundServiceException("The account :: " + id + " :: was not Found")))
-      .map(this.accountMapper::toDTO);
+  public Mono<Account> retrieveById(UUID id) {
+    log.debug("Retrieving account by id={}", id);
+    return accountRepository.findById(id)
+      .switchIfEmpty(Mono.error(() -> new AccountNotFoundServiceException("Account not found for id=" + id)))
+      .map(accountMapper::toAccountDomain)
+      .doOnSuccess(account -> log.info("Account retrieved successfully with id={}", id))
+      .doOnError(error -> log.error("Failed to retrieve account with id={}: {}", id, error.getMessage(), error));
   }
 
-  public Flux<AccountDTO> retrieve() {
-    Flux<AccountDTO> dtos$ = this.accountRepository.findAll().map(this.accountMapper::toDTO);
-    return dtos$;
+  public Flux<Account> retrieve() {
+    log.debug("Retrieving all accounts");
+    return accountRepository.findAll()
+      .map(accountMapper::toAccountDomain)
+      .doOnComplete(() -> log.info("Accounts list retrieved successfully"))
+      .doOnError(error -> log.error("Failed to retrieve accounts list: {}", error.getMessage(), error));
   }
 
-  public Mono<AccountEntity> update(AccountDTO dto) {
-    return accountRepository
-      .findById(dto.getId())
-      .switchIfEmpty(Mono.error(new AccountNotFoundServiceException("The account :: " + dto.getId() + " :: was not Found")))
-      .map(Optional::of)
-      .flatMap(optionalAccount -> {
-        if (optionalAccount.isPresent()) {
-          AccountEntity _entity = optionalAccount.get();
-          if (_entity.getVersion().equals(dto.getVersion())) {
-            return accountRepository.save(this.accountMapper.toEntity(dto));
-          } else {
-            log.trace(
-              "Optimistic concurrency control error in account :: {} :: actual version doesn't match expected version {}",
-              _entity.getId(),
-              _entity.getVersion());
-            return Mono.error(new OptimisticConcurrencyServiceException(
-              "Optimistic concurrency control error in account :: " + _entity.getId() + " :: actual version doesn't match expected version "
-                + _entity.getVersion()));
-          }
+  public Mono<AccountEntity> update(Account account) {
+    UUID accountId = account.getId();
+    log.debug("Updating account with id={}", accountId);
 
-        }
-        return Mono.empty();
+    return accountRepository.findById(accountId)
+      .switchIfEmpty(Mono.error(() -> new AccountNotFoundServiceException("Account not found for id=" + accountId)))
+      .flatMap(existingEntity -> {
+        long expectedVersion = existingEntity.getVersion();
+
+        accountMapper.updateEntityFromAccount(account, existingEntity);
+
+        return accountRepository.save(existingEntity)
+          .switchIfEmpty(Mono.error(() -> {
+            String errorMessage = String.format(
+              "Optimistic concurrency control error for account %s: expected version=%s but version mismatch",
+              accountId, expectedVersion
+            );
+            log.warn(errorMessage);
+            return new OptimisticConcurrencyException(errorMessage);
+          }))
+          .doOnSuccess(saved -> log.info("Account {} updated successfully, version {} → {}",
+            accountId, expectedVersion, saved.getVersion()))
+          .doOnError(error -> log.error("Failed to update account with id={}: {}", accountId, error.getMessage(), error));
       });
   }
 
   public Mono<Void> delete(UUID id) {
-    return this.accountRepository
-      .findById(id)
-      .switchIfEmpty(Mono.error(new AccountNotFoundServiceException("The account :: " + id + " :: was not Found")))
-      .flatMap(entity -> this.accountRepository.deleteById(entity.getId()));
+    log.debug("Deleting account with id={}", id);
+    return accountRepository.findById(id)
+      .switchIfEmpty(Mono.error(() -> new AccountNotFoundServiceException("Account not found for id=" + id)))
+      .flatMap(entity -> accountRepository.deleteById(entity.getId()))
+      .doOnSuccess(v -> log.info("Account deleted successfully with id={}", id))
+      .doOnError(error -> log.error("Failed to delete account with id={}: {}", id, error.getMessage(), error));
   }
 
   public Mono<AccountEntity> deposit(DepositAccountDTO depositAccountDTO) {
-    return this.retrieveById(depositAccountDTO.getAccountId())
+    log.info("Depositing amount={} into account id={}", depositAccountDTO.getAmount(), depositAccountDTO.getAccountId());
+    return retrieveById(depositAccountDTO.getAccountId())
       .flatMap(_entity -> {
         _entity.setBalance(_entity.getBalance().add(depositAccountDTO.getAmount()));
-        return this.update(_entity);
-      }).onErrorResume(ex -> {
-        log.error(ex.getMessage());
-        return Mono.error(ex);
-      });
+        return update(_entity);
+      })
+      .doOnSuccess(updated -> log.info("Deposit successful for account id={}, new balance={}", updated.getId(), updated.getBalance()))
+      .doOnError(error -> log.error("Deposit failed for account id={}: {}", depositAccountDTO.getAccountId(), error.getMessage(), error));
   }
 
   public Mono<AccountEntity> withdraw(WithdrawAccountDTO withdrawAccountDTO) {
-    return this.retrieveById(withdrawAccountDTO.getAccountId())
+    log.info("Withdrawing amount={} from account id={}", withdrawAccountDTO.getAmount(), withdrawAccountDTO.getAccountId());
+    return retrieveById(withdrawAccountDTO.getAccountId())
       .flatMap(_entity -> {
-        BigDecimal amount = _entity.getBalance().subtract(withdrawAccountDTO.getAmount());
-        if (amount.compareTo(BigDecimal.ZERO) == -1) {
-          return Mono.error(new InsufficientBalanceServiceException("Insufficient balance on account with id " + withdrawAccountDTO.getAccountId() + " unable to process the withdraw of " + withdrawAccountDTO.getAmount()));
+        BigDecimal remaining = _entity.getBalance().subtract(withdrawAccountDTO.getAmount());
+        if (remaining.compareTo(BigDecimal.ZERO) < 0) {
+          String msg = String.format("Insufficient balance on account id=%s for withdraw amount=%s",
+            withdrawAccountDTO.getAccountId(), withdrawAccountDTO.getAmount());
+          log.warn(msg);
+          return Mono.error(new InsufficientBalanceServiceException(msg));
         } else {
-          _entity.setBalance(amount);
-          return this.update(_entity);
+          _entity.setBalance(remaining);
+          return update(_entity);
         }
       })
-      .onErrorResume(ex -> {
-        log.error(ex.getMessage());
-        return Mono.error(ex);
-      });
+      .doOnSuccess(updated -> log.info("Withdraw successful for account id={}, new balance={}", updated.getId(), updated.getBalance()))
+      .doOnError(error -> log.error("Withdraw failed for account id={}: {}", withdrawAccountDTO.getAccountId(), error.getMessage(), error));
   }
-
 }

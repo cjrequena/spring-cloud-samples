@@ -1,8 +1,11 @@
-package com.cjrequena.sample.web.api;
+package com.cjrequena.sample.controller.rest;
 
 import com.cjrequena.sample.common.Constants;
+import com.cjrequena.sample.domain.model.Account;
 import com.cjrequena.sample.dto.AccountDTO;
-import com.cjrequena.sample.exception.api.NotFoundApiException;
+import com.cjrequena.sample.dto.DepositAccountDTO;
+import com.cjrequena.sample.dto.WithdrawAccountDTO;
+import com.cjrequena.sample.exception.controller.NotFoundException;
 import com.cjrequena.sample.exception.service.AccountNotFoundServiceException;
 import com.cjrequena.sample.mapper.AccountMapper;
 import com.cjrequena.sample.service.AccountService;
@@ -12,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -20,15 +24,15 @@ import reactor.core.publisher.Mono;
 import java.net.URI;
 import java.util.UUID;
 
-import static com.cjrequena.sample.web.api.AccountApi.ACCEPT_VERSION;
+import static com.cjrequena.sample.controller.rest.AccountController.ACCEPT_VERSION;
 import static org.springframework.http.HttpHeaders.CACHE_CONTROL;
 import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
 
 @Slf4j
 @RestController
-@RequestMapping(value = AccountApi.ENDPOINT, headers = {ACCEPT_VERSION})
+@RequestMapping(value = AccountController.ENDPOINT, headers = {ACCEPT_VERSION})
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class AccountApi {
+public class AccountController {
 
   public static final String ENDPOINT = "/account-service/api";
   public static final String ACCEPT_VERSION = "Accept-Version=" + Constants.VND_SAMPLE_SERVICE_V1;
@@ -40,7 +44,8 @@ public class AccountApi {
     produces = {APPLICATION_JSON_VALUE}
   )
   public Mono<ResponseEntity<Object>> create(@Valid @RequestBody AccountDTO dto) {
-    return accountService.create(dto)
+    Account account = Account.createNewWith(dto.getOwner(), dto.getBalance());
+    return accountService.create(account)
       .map(_dto -> {
         HttpHeaders headers = new HttpHeaders();
         headers.set(CACHE_CONTROL, "no store, private, max-age=0");
@@ -50,7 +55,7 @@ public class AccountApi {
         return ResponseEntity.created(location).headers(headers).build();
       }).onErrorMap(ex -> {
         if (ex instanceof AccountNotFoundServiceException) {
-          return new NotFoundApiException();
+          return new NotFoundException();
         }
         return ex;
       });
@@ -63,6 +68,7 @@ public class AccountApi {
   public Mono<ResponseEntity<AccountDTO>> retrieveById(@PathVariable(value = "id") String id) {
     return this.accountService
       .retrieveById(UUID.fromString(id))
+      .map(this.accountMapper::toDTO)
       .map(_dto -> {
         HttpHeaders headers = new HttpHeaders();
         headers.set(CACHE_CONTROL, "no store, private, max-age=0");
@@ -71,7 +77,7 @@ public class AccountApi {
       })
       .onErrorResume(ex -> {
           if (ex instanceof AccountNotFoundServiceException) {
-            return Mono.error(new NotFoundApiException());
+            return Mono.error(new NotFoundException());
           }
           return Mono.error(ex);
         }
@@ -85,7 +91,7 @@ public class AccountApi {
   public Mono<ResponseEntity<Flux<AccountDTO>>> retrieve() {
     HttpHeaders headers = new HttpHeaders();
     headers.set(CACHE_CONTROL, "no store, private, max-age=0");
-    final Flux<AccountDTO> dtos$ = this.accountService.retrieve();
+    final Flux<AccountDTO> dtos$ = this.accountService.retrieve().map(this.accountMapper::toDTO);
     return Mono.just(ResponseEntity.ok().headers(headers).body(dtos$));
   }
 
@@ -93,10 +99,9 @@ public class AccountApi {
     path = "/accounts/{id}",
     produces = {APPLICATION_JSON_VALUE}
   )
-  public Mono<ResponseEntity<Object>> update(@PathVariable(value = "id") UUID id, @Valid @RequestBody AccountDTO dto, @RequestHeader("version") Long version) {
-    dto.setId(id);
-    dto.setVersion(version);
-    return this.accountService.update(dto)
+  public Mono<ResponseEntity<Object>> update(@PathVariable(value = "id") UUID id, @Valid @RequestBody AccountDTO dto) {
+    Account account = Account.createNewWith(id, dto.getOwner(), dto.getBalance());
+    return this.accountService.update(account)
       .map(_entity -> {
         HttpHeaders headers = new HttpHeaders();
         headers.set(CACHE_CONTROL, "no store, private, max-age=0");
@@ -104,7 +109,7 @@ public class AccountApi {
       })
       .onErrorMap(ex -> {
           if (ex instanceof AccountNotFoundServiceException) {
-            return new NotFoundApiException();
+            return new NotFoundException();
           }
           return ex;
         }
@@ -124,11 +129,33 @@ public class AccountApi {
       })
       .onErrorMap(ex -> {
           if (ex instanceof AccountNotFoundServiceException) {
-            return new NotFoundApiException();
+            return new NotFoundException();
           }
           return ex;
         }
       );
+  }
+
+  @PostMapping(path = "/accounts/deposit", produces = {MediaType.APPLICATION_JSON_VALUE})
+  public Mono<ResponseEntity<Void>> deposit(@RequestBody DepositAccountDTO dto) {
+    return this.accountService.deposit(dto)
+      .map(_entity -> {
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.set(CACHE_CONTROL, "no store, private, max-age=0");
+        return new ResponseEntity<>(responseHeaders, HttpStatus.NO_CONTENT);
+      });
+
+  }
+
+  @PostMapping(path = "/accounts/withdraw", produces = {MediaType.APPLICATION_JSON_VALUE})
+  public Mono<ResponseEntity<Void>> withdraw(@RequestBody WithdrawAccountDTO dto) {
+    return this.accountService
+      .withdraw(dto)
+      .map(_entity -> {
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.set(CACHE_CONTROL, "no store, private, max-age=0");
+        return new ResponseEntity<>(responseHeaders, HttpStatus.NO_CONTENT);
+      });
   }
 
 }

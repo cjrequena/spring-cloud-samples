@@ -1,8 +1,8 @@
 package com.cjrequena.sample.exception;
 
-import com.cjrequena.sample.exception.api.ApiException;
+import com.cjrequena.sample.exception.controller.ControllerException;
 import com.cjrequena.sample.exception.service.InsufficientBalanceServiceException;
-import com.cjrequena.sample.exception.service.OptimisticConcurrencyServiceException;
+import com.cjrequena.sample.exception.service.OptimisticConcurrencyException;
 import com.cjrequena.sample.exception.service.ServiceException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.OptimisticLockingFailureException;
@@ -55,9 +55,9 @@ public class CustomExceptionHandler {
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorDTO);
   }
 
-  @ExceptionHandler({ApiException.class})
+  @ExceptionHandler({ControllerException.class})
   @ResponseBody
-  public ResponseEntity<Object> handleApiException(ApiException ex) {
+  public ResponseEntity<Object> handleApiException(ControllerException ex) {
     log.error(EXCEPTION_LOG, ex.getMessage());
     ErrorDTO errorDTO = new ErrorDTO();
     errorDTO.setDate(LocalDateTime.now().format(DateTimeFormatter.ofPattern(DATE_TIME_FORMAT)));
@@ -81,10 +81,10 @@ public class CustomExceptionHandler {
     return ResponseEntity.status(HttpStatus.CONFLICT).body(errorDTO);
   }
 
-  @ExceptionHandler({OptimisticConcurrencyServiceException.class})
+  @ExceptionHandler({OptimisticConcurrencyException.class})
   @ResponseStatus(value = HttpStatus.CONFLICT)
   @ResponseBody
-  public ResponseEntity<Object> handleOptimisticConcurrencyServiceException(OptimisticConcurrencyServiceException ex) {
+  public ResponseEntity<Object> handleOptimisticConcurrencyServiceException(OptimisticConcurrencyException ex) {
     log.error(EXCEPTION_LOG, ex.getMessage());
     ErrorDTO errorDTO = new ErrorDTO();
     errorDTO.setDate(LocalDateTime.now().format(DateTimeFormatter.ofPattern(DATE_TIME_FORMAT)));
