@@ -1,6 +1,6 @@
-package com.cjrequena.sample.db.repository;
+package com.cjrequena.sample.persistence.repository;
 
-import com.cjrequena.sample.db.entity.OrderEntity;
+import com.cjrequena.sample.persistence.entity.OrderEntity;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  *
@@ -21,29 +22,29 @@ import java.util.Optional;
  */
 @Repository
 @Transactional
-public interface OrderRepository extends CrudRepository<OrderEntity, Integer> {
+public interface OrderRepository extends CrudRepository<OrderEntity, UUID> {
+
+  @Modifying
+  @Transactional
+  @Query(value = "INSERT INTO S_ORDER.T_ORDER "
+    + " (ID, ACCOUNT_ID, STATUS, TOTAL, VERSION) "
+    + " VALUES (:#{#entity.id}, :#{#entity.accountId}, :#{#entity.status},:#{#entity.total}, 1)"
+    , nativeQuery = true)
+  void create(@Param("entity") OrderEntity entity);
 
   @Override
   @Transactional(readOnly = true)
-  Optional<OrderEntity> findById(Integer id);
+  Optional<OrderEntity> findById(UUID id);
 
   @Override
   @Transactional(readOnly = true)
   List<OrderEntity> findAll();
 
   @Lock(LockModeType.OPTIMISTIC)
-  Optional<OrderEntity> findWithLockingById(Integer id);
+  Optional<OrderEntity> findWithLockingById(UUID id);
 
-  @Query(value = "SELECT * FROM S_ORDER.T_ORDER WHERE STATUS = :status ORDER BY CREATION_DATE DESC", nativeQuery = true)
+  @Query(value = "SELECT * FROM S_ORDER.T_ORDER WHERE STATUS = :status ORDER BY CREATED_AT DESC", nativeQuery = true)
   List<OrderEntity> retrieveOrdersByStatus(@Param("status") String status);
-
-  @Modifying
-  @Transactional
-  @Query(value = "INSERT INTO S_ORDER.T_ORDER "
-    + " (ACCOUNT_ID, STATUS, TOTAL, VERSION) "
-    + " VALUES (:#{#entity.accountId}, :#{#entity.status},:#{#entity.total}, 1)"
-    , nativeQuery = true)
-  void create(@Param("entity") OrderEntity entity);
 
   @Modifying
   @Transactional

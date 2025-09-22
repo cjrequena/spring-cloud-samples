@@ -6,7 +6,6 @@ import com.cjrequena.sample.dto.DepositAccountDTO;
 import com.cjrequena.sample.dto.WithdrawAccountDTO;
 import com.cjrequena.sample.exception.ErrorDTO;
 import com.cjrequena.sample.exception.service.FeignServiceException;
-import com.cjrequena.sample.service.feign.IAccountServiceFeignClient;
 import feign.FeignException;
 import io.github.resilience4j.bulkhead.annotation.Bulkhead;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
@@ -25,16 +24,15 @@ import java.util.UUID;
 @Slf4j
 @Service("accountServiceFeignClient")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class AccountService implements IAccountServiceFeignClient {
+public class AccountService implements AccountServiceFeignClient {
 
-  private final IAccountServiceFeignClient accountServiceFeignClient;
+  private final AccountServiceFeignClient accountServiceFeignClient;
 
-  @Override
   @CircuitBreaker(name = "default", fallbackMethod = "retrieveFallbackMethod")
   @Bulkhead(name = "default")
   @Retry(name = "default")
-  public AccountDTO retrieve(UUID id) throws FeignServiceException {
-    return this.accountServiceFeignClient.retrieve(id);
+  public AccountDTO retrieveById(UUID id) throws FeignServiceException {
+    return this.accountServiceFeignClient.retrieveById(id);
   }
 
   public AccountDTO retrieveFallbackMethod(UUID id, Throwable ex) throws Throwable {
