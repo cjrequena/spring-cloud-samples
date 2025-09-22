@@ -107,7 +107,7 @@ spring.jpa.properties.hibernate.bytecode.use_reflection_optimizer: false
 spring.jpa.properties.hibernate.default_schema: s_account
 
 
-spring.flyway.enabled: true
+spring.flyway.enabled: false
 spring.flyway.locations: classpath:/db/migration
 spring.flyway.schemas: s_account
 

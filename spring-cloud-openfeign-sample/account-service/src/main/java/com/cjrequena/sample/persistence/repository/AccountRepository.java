@@ -1,6 +1,6 @@
-package com.cjrequena.sample.db.repository;
+package com.cjrequena.sample.persistence.repository;
 
-import com.cjrequena.sample.db.entity.AccountEntity;
+import com.cjrequena.sample.persistence.entity.AccountEntity;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
@@ -44,11 +44,11 @@ public interface AccountRepository extends CrudRepository<AccountEntity, UUID> {
   void create(@Param("entity") AccountEntity entity);
 
   @Modifying
-  @Query(value = "UPDATE S_ACCOUNT.T_ACCOUNT "
-    + " SET OWNER = :#{#entity.owner}, "
-    + " BALANCE = :#{#entity.balance} "
-    + " VERSION= VERSION + 1"
-    + " WHERE ID = :#{#entity.id} AND VERSION = :#{#entity.version}",
+  @Query(value = "UPDATE S_ACCOUNT.T_ACCOUNT " +
+    "SET OWNER = :#{#entity.owner}, " +
+    "    BALANCE = :#{#entity.balance}, " +
+    "    VERSION = VERSION + 1 " +
+    "WHERE ID = :#{#entity.id} AND VERSION = :#{#entity.version}",
     nativeQuery = true)
-  void update(@Param("entity") AccountEntity entity);
+  int update(@Param("entity") AccountEntity entity);
 }

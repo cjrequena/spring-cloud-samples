@@ -1,6 +1,6 @@
 package com.cjrequena.sample.exception;
 
-import com.cjrequena.sample.exception.api.ApiException;
+import com.cjrequena.sample.exception.controller.ControllerException;
 import com.cjrequena.sample.exception.service.ServiceException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -66,9 +66,9 @@ public class CustomExceptionHandler {
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorDTO);
   }
 
-  @ExceptionHandler({ApiException.class})
+  @ExceptionHandler({ControllerException.class})
   @ResponseBody
-  public ResponseEntity<Object> handleApiException(ApiException ex) {
+  public ResponseEntity<Object> handleApiException(ControllerException ex) {
     log.error(EXCEPTION_LOG, ex.getMessage());
     ErrorDTO errorDTO = new ErrorDTO();
     errorDTO.setDate(LocalDateTime.now().format(DateTimeFormatter.ofPattern(DATE_TIME_FORMAT)));

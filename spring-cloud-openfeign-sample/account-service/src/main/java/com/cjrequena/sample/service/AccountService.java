@@ -1,14 +1,14 @@
 package com.cjrequena.sample.service;
 
-import com.cjrequena.sample.db.entity.AccountEntity;
-import com.cjrequena.sample.db.repository.AccountRepository;
-import com.cjrequena.sample.dto.AccountDTO;
-import com.cjrequena.sample.dto.DepositAccountDTO;
-import com.cjrequena.sample.dto.WithdrawAccountDTO;
-import com.cjrequena.sample.exception.service.AccountNotFoundServiceException;
-import com.cjrequena.sample.exception.service.OptimisticConcurrencyServiceException;
+import com.cjrequena.sample.domain.model.Account;
+import com.cjrequena.sample.domain.model.DepositAccount;
+import com.cjrequena.sample.domain.model.WithdrawAccount;
+import com.cjrequena.sample.exception.service.AccountNotFoundException;
+import com.cjrequena.sample.exception.service.OptimisticConcurrencyException;
 import com.cjrequena.sample.exception.service.ServiceException;
 import com.cjrequena.sample.mapper.AccountMapper;
+import com.cjrequena.sample.persistence.entity.AccountEntity;
+import com.cjrequena.sample.persistence.repository.AccountRepository;
 import jakarta.json.JsonMergePatch;
 import jakarta.json.JsonPatch;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +20,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -40,34 +39,38 @@ public class AccountService {
   private final AccountMapper accountMapper;
   private final AccountRepository accountRepository;
 
-  public void create(AccountDTO dto) {
-    dto.setId(UUID.randomUUID());
-    AccountEntity entity = this.accountMapper.toEntity(dto);
+  public void create(Account account) {
+    AccountEntity entity = this.accountMapper.toEntity(account);
     this.accountRepository.create(entity);
   }
 
   @Transactional(readOnly = true)
-  public AccountDTO retrieveById(UUID id) throws AccountNotFoundServiceException {
-    Optional<AccountEntity> optional = this.accountRepository.findById(id);
-    if (optional.isEmpty()) {
-      throw new AccountNotFoundServiceException("The account :: " + id + " :: was not Found");
-    }
-    return accountMapper.toDTO(optional.get());
+  public Account retrieveById(UUID id) throws AccountNotFoundException {
+    return this.accountRepository
+      .findById(id)
+      .map(this.accountMapper::toAccountDomain)
+      .orElseThrow(() -> {
+        String errorMessage = String.format("The account :: %s :: was not found", id);
+        if (log.isTraceEnabled()) {
+          log.trace(errorMessage);
+        }
+        return new AccountNotFoundException(errorMessage);
+      });
   }
 
   @Transactional(readOnly = true)
-  public List<AccountDTO> retrieve() {
-    return this.accountRepository.findAll().stream().map(this.accountMapper::toDTO).collect(Collectors.toList());
+  public List<Account> retrieve() {
+    return this.accountRepository.findAll().stream().map(this.accountMapper::toAccountDomain).collect(Collectors.toList());
   }
 
-  public void update(AccountDTO dto) throws AccountNotFoundServiceException, OptimisticConcurrencyServiceException {
-    UUID accountId = dto.getId();
+  public void update(Account account) throws AccountNotFoundException, OptimisticConcurrencyException {
+    UUID accountId = account.getId();
     this.accountRepository
       .findWithLockingById(accountId)
       .ifPresentOrElse(entity -> {
           final long expectedVersion = entity.getVersion();
           try {
-            this.accountMapper.updateEntityFromAccount(dto, entity);
+            this.accountMapper.updateEntityFromAccount(account, entity);
             this.accountRepository.save(entity);
           } catch (ObjectOptimisticLockingFailureException ex) {
             String errorMessage = String.format(
@@ -75,42 +78,43 @@ public class AccountService {
               accountId, expectedVersion
             );
             log.trace(errorMessage, ex);
-            throw new OptimisticConcurrencyServiceException(errorMessage);
+            throw new OptimisticConcurrencyException(errorMessage);
           }
         },
         () -> {
           String errorMessage = String.format("The account :: %s :: was not found", accountId);
           log.trace(errorMessage);
-          throw new AccountNotFoundServiceException(errorMessage);
+          throw new AccountNotFoundException(errorMessage);
         });
   }
 
-
-  public AccountDTO patch(UUID id, JsonPatch patchDocument) {
+  public Account patch(UUID id, JsonPatch patchDocument) {
     return null;
   }
 
-  public AccountDTO patch(UUID id, JsonMergePatch mergePatchDocument) {
+  public Account patch(UUID id, JsonMergePatch mergePatchDocument) {
     return null;
   }
 
-  public void delete(UUID id) throws AccountNotFoundServiceException {
-    Optional<AccountEntity> optional = this.accountRepository.findById(id);
-    if (optional.isEmpty()) {
-      throw new AccountNotFoundServiceException("The account :: " + id + " :: was not Found");
-    }
-    this.accountRepository.deleteById(id);
+  public void delete(UUID id) throws AccountNotFoundException {
+    this.accountRepository
+      .findById(id)
+      .ifPresentOrElse(this.accountRepository::delete, () -> {
+        String errorMessage = String.format("The account :: %s :: was not found", id);
+        log.trace(errorMessage);
+        throw new AccountNotFoundException(errorMessage);
+      });
   }
 
-  public void deposit(DepositAccountDTO depositAccountDTO) throws AccountNotFoundServiceException, OptimisticConcurrencyServiceException {
-    AccountDTO dto = this.retrieveById(depositAccountDTO.getAccountId());
-    dto.setBalance(dto.getBalance().add(depositAccountDTO.getAmount()));
-    this.update(dto);
+  public void deposit(DepositAccount depositAccount) throws AccountNotFoundException, OptimisticConcurrencyException {
+    Account account = this.retrieveById(depositAccount.getAccountId());
+    account.setBalance(account.getBalance().add(depositAccount.getAmount()));
+    this.update(account);
   }
 
-  public void withdraw(WithdrawAccountDTO withdrawAccountDTO) throws AccountNotFoundServiceException, OptimisticConcurrencyServiceException {
-    AccountDTO dto = this.retrieveById(withdrawAccountDTO.getAccountId());
-    dto.setBalance(dto.getBalance().subtract(withdrawAccountDTO.getAmount()));
-    this.update(dto);
+  public void withdraw(WithdrawAccount withdrawAccount) throws AccountNotFoundException, OptimisticConcurrencyException {
+    Account account = this.retrieveById(withdrawAccount.getAccountId());
+    account.setBalance(account.getBalance().subtract(withdrawAccount.getAmount()));
+    this.update(account);
   }
 }
