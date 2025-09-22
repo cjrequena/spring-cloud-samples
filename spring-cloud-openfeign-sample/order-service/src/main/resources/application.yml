@@ -105,8 +105,9 @@ spring.jpa.properties.hibernate.search.autoregister_listeners: false
 spring.jpa.properties.hibernate.bytecode.use_reflection_optimizer: false
 spring.jpa.properties.hibernate.default_schema: s_order
 
-
+# -----------------------------
 # Flyway
+# -----------------------------
 spring.flyway.enabled: true
 spring.flyway.locations: classpath:/persistence/migration
 spring.flyway.schemas: s_order
@@ -164,8 +165,6 @@ resilience4j.bulkhead:
     account-service:
       baseConfig: default
 
-account-service.url: localhost:8080
-
 # LOGGING
 # https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#appendix.application-properties.core
 #logging.config: classpath:log4j2.xml # Location of the logging configuration file. For instance, `classpath:logback.xml` for Logback.
@@ -183,3 +182,8 @@ logging.pattern:
       TRACE=blue
     }"
   file: "%-5p|%d{ISO8601}{GMT}|application=${spring.application.name}|traceID=%X{traceId},spanID=%X{spanId}|%c{1}|%m%ex%n"
+
+# ------------------------------------
+# Feign Clients
+# ------------------------------------
+account-service.url: localhost:8080
