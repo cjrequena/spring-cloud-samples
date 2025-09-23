@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.ToString;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -19,12 +19,12 @@ public class Order {
   private String description;
   private BigDecimal total;
   private EStatus status = EStatus.PENDING; // Default value
-  private LocalDate createdAt;
-  private LocalDate updatedAt;
+  private OffsetDateTime createdAt;
+  private OffsetDateTime updatedAt;
   private Long version;
 
   @Builder
-  public Order(UUID id, UUID accountId, String description, BigDecimal total, EStatus status,  LocalDate createdAt, LocalDate updatedAt, Long version) {
+  public Order(UUID id, UUID accountId, String description, BigDecimal total, EStatus status,  OffsetDateTime createdAt, OffsetDateTime updatedAt, Long version) {
     if (Objects.isNull(id)) {
       this.id = UUID.randomUUID();
     } else {

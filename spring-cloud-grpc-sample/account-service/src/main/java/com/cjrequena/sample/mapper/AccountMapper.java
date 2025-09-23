@@ -3,9 +3,7 @@ package com.cjrequena.sample.mapper;
 import com.cjrequena.sample.persistence.entity.AccountEntity;
 import org.mapstruct.*;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
+import java.time.*;
 import java.util.List;
 
 /**
@@ -39,17 +37,17 @@ public interface AccountMapper {
   // ========================================
   // DTO <-> Domain Mappings
   // ========================================
-//  com.cjrequena.sample.domain.model.Account toAccountDomain(com.cjrequena.sample.dto.AccountDTO dto);
-//
-//  com.cjrequena.sample.dto.AccountDTO toDTO(com.cjrequena.sample.domain.model.Account account);
-//
-//  List<com.cjrequena.sample.dto.AccountDTO> toDTOList(List<com.cjrequena.sample.domain.model.Account> accounts);
+  com.cjrequena.sample.domain.model.Account toAccountDomain(com.cjrequena.sample.dto.AccountDTO dto);
+
+  com.cjrequena.sample.dto.AccountDTO toDTO(com.cjrequena.sample.domain.model.Account account);
+
+  List<com.cjrequena.sample.dto.AccountDTO> toDTOList(List<com.cjrequena.sample.domain.model.Account> accounts);
 
   com.cjrequena.sample.domain.model.Account toAccountDomain(com.cjrequena.sample.openapi.controller.dto.AccountDTO dto);
 
-  com.cjrequena.sample.openapi.controller.dto.AccountDTO toDTO(com.cjrequena.sample.domain.model.Account account);
+  com.cjrequena.sample.openapi.controller.dto.AccountDTO toOpenApiDTO(com.cjrequena.sample.domain.model.Account account);
 
-  List<com.cjrequena.sample.openapi.controller.dto.AccountDTO> toDTOList(List<com.cjrequena.sample.domain.model.Account> accounts);
+  List<com.cjrequena.sample.openapi.controller.dto.AccountDTO> toOpenApiDTODTOList(List<com.cjrequena.sample.domain.model.Account> accounts);
 
   // ========================================
   // Update Mappings
@@ -63,17 +61,23 @@ public interface AccountMapper {
   @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
   void updateEntityFromAccount(com.cjrequena.sample.domain.model.Account account, @MappingTarget AccountEntity entity);
 
-  // Custom conversion: long -> LocalDate
-  default LocalDate map(long epochMillis) {
+  default LocalDate mapToLocalDate(long epochMillis) {
     return Instant.ofEpochMilli(epochMillis)
       .atZone(ZoneId.systemDefault())
       .toLocalDate();
   }
 
-  // Custom conversion: LocalDate -> long
-  default long map(LocalDate date) {
+  default long mapFromLocalDate(LocalDate date) {
     return date.atStartOfDay(ZoneId.systemDefault())
       .toInstant()
       .toEpochMilli();
+  }
+
+  default OffsetDateTime mapToOffsetDateTime(long value) {
+    return Instant.ofEpochMilli(value).atOffset(ZoneOffset.UTC);
+  }
+
+  default long mapFromOffsetDateTime(OffsetDateTime value) {
+    return value.toInstant().toEpochMilli();
   }
 }

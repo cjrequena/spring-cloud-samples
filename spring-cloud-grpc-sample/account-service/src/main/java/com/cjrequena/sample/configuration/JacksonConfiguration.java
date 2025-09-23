@@ -59,7 +59,7 @@ public class JacksonConfiguration {
         SerializationFeature.WRITE_DATES_AS_TIMESTAMPS,
         MapperFeature.AUTO_DETECT_IS_GETTERS)
       .build()
-      .setDateFormat(new SimpleDateFormat(Constants.DATE_TIME_FORMAT))
+      .setDateFormat(new SimpleDateFormat(Constants.ISO_LOCAL_DATE_TIME))
       .registerModule(new JavaTimeModule());
   }
 }

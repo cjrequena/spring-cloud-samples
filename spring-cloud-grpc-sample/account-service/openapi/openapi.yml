@@ -348,22 +348,22 @@ components:
           example: 1000.00
         created_at:
           type: string
-          format: date
+          format: date-time
           readOnly: true
           x-field-extra-annotation: |
-            @com.fasterxml.jackson.databind.annotation.JsonSerialize(using = com.cjrequena.sample.dto.serializer.LocalDateSerializer.class)
-            @com.fasterxml.jackson.databind.annotation.JsonDeserialize(using = com.cjrequena.sample.dto.serializer.LocalDateDeserializer.class)
+            @com.fasterxml.jackson.databind.annotation.JsonSerialize(using = com.cjrequena.sample.dto.serializer.OffsetDateTimeSerializer.class)
+            @com.fasterxml.jackson.databind.annotation.JsonDeserialize(using = com.cjrequena.sample.dto.serializer.OffsetDateTimeDeserializer.class)
             @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)
-            @com.fasterxml.jackson.annotation.JsonFormat(shape = com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
+            @com.fasterxml.jackson.annotation.JsonFormat(shape = com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXXXX")
           updated_at:
             type: string
-            format: date
+            format: date-time
             readOnly: true
             x-field-extra-annotation: |
-              @com.fasterxml.jackson.databind.annotation.JsonSerialize(using = com.cjrequena.sample.dto.serializer.LocalDateSerializer.class)
-              @com.fasterxml.jackson.databind.annotation.JsonDeserialize(using = com.cjrequena.sample.dto.serializer.LocalDateDeserializer.class)
+              @com.fasterxml.jackson.databind.annotation.JsonSerialize(using = com.cjrequena.sample.dto.serializer.OffsetDateTimeSerializer.class)
+              @com.fasterxml.jackson.databind.annotation.JsonDeserialize(using = com.cjrequena.sample.dto.serializer.OffsetDateTimeDeserializer.class)
               @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)
-              @com.fasterxml.jackson.annotation.JsonFormat(shape = com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
+              @com.fasterxml.jackson.annotation.JsonFormat(shape = com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXXXX")
       example:
         id: "550e8400-e29b-41d4-a716-446655440000"
         owner: "John Doe"
