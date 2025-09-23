@@ -5,6 +5,9 @@ import com.cjrequena.sample.persistence.entity.OrderEntity;
 import com.cjrequena.sample.proto.Order;
 import org.mapstruct.*;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 
 @Mapper(
@@ -59,4 +62,18 @@ public interface OrderMapper {
   @Mapping(target = "version", source = "version", ignore = true)
   @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
   void updateEntityFromOrderDomain(com.cjrequena.sample.domain.model.Order order, @MappingTarget OrderEntity entity);
+
+  // Custom conversion: long -> LocalDate
+  default LocalDate map(long epochMillis) {
+    return Instant.ofEpochMilli(epochMillis)
+      .atZone(ZoneId.systemDefault())
+      .toLocalDate();
+  }
+
+  // Custom conversion: LocalDate -> long
+  default long map(LocalDate date) {
+    return date.atStartOfDay(ZoneId.systemDefault())
+      .toInstant()
+      .toEpochMilli();
+  }
 }
