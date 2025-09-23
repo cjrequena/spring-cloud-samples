@@ -59,9 +59,6 @@ public class OrderService {
       });
   }
 
-
-
-
   public Mono<Order> retrieveById(UUID id) {
     return orderRepository
       .findById(id)
