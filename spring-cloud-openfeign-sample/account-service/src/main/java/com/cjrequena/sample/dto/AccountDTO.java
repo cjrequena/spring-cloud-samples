@@ -1,23 +1,24 @@
 package com.cjrequena.sample.dto;
 
 import com.cjrequena.sample.common.Constants;
-import com.cjrequena.sample.dto.serializer.LocalDateDeserializer;
-import com.cjrequena.sample.dto.serializer.LocalDateSerializer;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.cjrequena.sample.dto.serializer.OffsetDateTimeDeserializer;
+import com.cjrequena.sample.dto.serializer.OffsetDateTimeSerializer;
+import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import lombok.extern.jackson.Jacksonized;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 import static io.swagger.v3.oas.annotations.media.Schema.AccessMode.READ_ONLY;
@@ -29,40 +30,48 @@ import static io.swagger.v3.oas.annotations.media.Schema.AccessMode.READ_ONLY;
  * @author cjrequena
  */
 @Data
+@Builder
 @ToString
 @EqualsAndHashCode(callSuper = false)
+@Jacksonized
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 @JsonPropertyOrder(value = {
   "id",
   "owner",
   "balance",
-  "creation_date",
+  "created_at",
+  "updated_at",
   "version"
 })
 @Schema
 public class AccountDTO implements Serializable {
 
-  @JsonProperty(value = "id")
   @Schema(accessMode = READ_ONLY)
   private UUID id;
 
   @NotNull(message = "owner is a required field")
-  @JsonProperty(value = "owner", required = true)
+  @JsonProperty(required = true)
   private String owner;
 
   @NotNull(message = "balance is a required field")
-  @JsonProperty(value = "balance", required = true)
+  @JsonProperty(required = true)
   private BigDecimal balance;
 
-  @JsonInclude(JsonInclude.Include.NON_NULL)
-  @JsonProperty(value = "creation_date")
-  @JsonSerialize(using = LocalDateSerializer.class)
-  @JsonDeserialize(using = LocalDateDeserializer.class)
-  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_FORMAT)
+  @JsonSerialize(using = OffsetDateTimeSerializer.class)
+  @JsonDeserialize(using = OffsetDateTimeDeserializer.class)
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.ISO_OFFSET_DATE_TIME)
   @Schema(accessMode = READ_ONLY)
-  private LocalDate creationDate;
+  private OffsetDateTime createdAt;
 
-  @JsonInclude(JsonInclude.Include.NON_NULL)
-  @JsonProperty(value = "version")
+
+  @JsonSerialize(using = OffsetDateTimeSerializer.class)
+  @JsonDeserialize(using = OffsetDateTimeDeserializer.class)
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.ISO_OFFSET_DATE_TIME)
+  @Schema(accessMode = READ_ONLY)
+  private OffsetDateTime updatedAt;
+
   @Schema(accessMode = READ_ONLY)
   private Long version;
 

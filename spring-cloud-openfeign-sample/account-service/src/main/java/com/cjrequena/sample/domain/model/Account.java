@@ -6,7 +6,7 @@ import lombok.ToString;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -23,12 +23,12 @@ public class Account implements Serializable {
   private UUID id;
   private String owner;
   private BigDecimal balance;
-  private LocalDate createdAt;
-  private LocalDate updatedAt;
+  private OffsetDateTime createdAt;
+  private OffsetDateTime updatedAt;
   private Long version;
 
   @Builder
-  public Account(UUID id, String owner, BigDecimal balance, LocalDate createdAt, LocalDate updatedAt, Long version) {
+  public Account(UUID id, String owner, BigDecimal balance, OffsetDateTime createdAt, OffsetDateTime updatedAt, Long version) {
     if (Objects.isNull(id)) {
       this.id = UUID.randomUUID();
     } else {

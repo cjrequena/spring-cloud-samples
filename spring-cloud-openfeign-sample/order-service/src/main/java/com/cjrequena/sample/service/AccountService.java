@@ -38,7 +38,7 @@ public class AccountService implements AccountServiceFeignClient {
   public AccountDTO retrieveFallbackMethod(UUID id, Throwable ex) throws Throwable {
     log.debug("retrieveFallbackMethod", ex.getCause());
     ErrorDTO errorDTO = new ErrorDTO();
-    errorDTO.setDate(LocalDateTime.now().format(DateTimeFormatter.ofPattern(Constants.DATE_TIME_FORMAT)));
+    errorDTO.setDate(LocalDateTime.now().format(DateTimeFormatter.ofPattern(Constants.ISO_LOCAL_DATE_TIME)));
     errorDTO.setErrorCode(ex.getClass().getSimpleName());
     errorDTO.setMessage(ex.getMessage());
 

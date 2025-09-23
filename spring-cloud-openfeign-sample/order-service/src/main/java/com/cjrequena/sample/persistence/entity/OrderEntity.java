@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Data
@@ -31,13 +32,13 @@ public class OrderEntity {
   @Column(name = "description")
   String description;
 
-//  @Column(name = "created_at", nullable = false, updatable = false, insertable = false)
-//  @Convert(converter = Jsr310JpaConverters.LocalDateConverter.class)
-//  private LocalDate createdAt;
-//
-//  @Column(name = "updated_at", nullable = false, updatable = false, insertable = false)
-//  @Convert(converter = Jsr310JpaConverters.LocalDateConverter.class)
-//  private LocalDate updatedAt;
+  @Column(name = "created_at", nullable = false, updatable = false, insertable = false)
+  //@Convert(converter = Jsr310JpaConverters.LocalDateTimeConverter.class)
+  private OffsetDateTime createdAt;
+
+  @Column(name = "updated_at", nullable = false, updatable = false, insertable = false)
+  //@Convert(converter = Jsr310JpaConverters.LocalDateTimeConverter.class)
+  private OffsetDateTime updatedAt;
 
   @Version
   @Column(name = "version")

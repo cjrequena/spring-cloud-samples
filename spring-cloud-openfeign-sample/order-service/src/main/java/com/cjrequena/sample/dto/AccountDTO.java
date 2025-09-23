@@ -57,7 +57,7 @@ public class AccountDTO implements Serializable {
   @JsonProperty(value = "creation_date")
   @JsonSerialize(using = LocalDateSerializer.class)
   @JsonDeserialize(using = LocalDateDeserializer.class)
-  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_FORMAT)
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.ISO_OFFSET_DATE_TIME)
   @Schema(accessMode = READ_ONLY)
   private LocalDate creationDate;
 
