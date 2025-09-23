@@ -1,6 +1,6 @@
-package com.cjrequena.sample.db.repository;
+package com.cjrequena.sample.persistence.repository;
 
-import com.cjrequena.sample.db.entity.OrderEntity;
+import com.cjrequena.sample.persistence.entity.OrderEntity;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;

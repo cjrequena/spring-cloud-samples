@@ -3,19 +3,19 @@ package com.cjrequena.sample.exception.service;
 import com.cjrequena.sample.exception.ErrorDTO;
 import org.springframework.lang.Nullable;
 
-public class WebClientServiceException extends ServiceException {
+public class FeignServiceException extends ServiceException {
 
   private ErrorDTO errorDTO;
 
-  public WebClientServiceException(String message) {
+  public FeignServiceException(String message) {
     super(message);
   }
 
-  public WebClientServiceException(String message, @Nullable Throwable cause) {
+  public FeignServiceException(String message, @Nullable Throwable cause) {
     super(message, cause);
   }
 
-  public WebClientServiceException(ErrorDTO errorDTO) {
+  public FeignServiceException(ErrorDTO errorDTO) {
     super(errorDTO.getMessage());
     this.errorDTO = errorDTO;
   }

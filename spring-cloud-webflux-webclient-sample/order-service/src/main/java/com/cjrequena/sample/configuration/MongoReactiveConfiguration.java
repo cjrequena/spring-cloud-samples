@@ -1,6 +1,6 @@
 package com.cjrequena.sample.configuration;
 
-import com.cjrequena.sample.db.codec.OffsetDateTimeCodec;
+import com.cjrequena.sample.persistence.codec.OffsetDateTimeCodec;
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.MongoCompressor;
@@ -23,7 +23,7 @@ import org.springframework.transaction.ReactiveTransactionManager;
 import java.util.List;
 
 @Configuration
-@EnableReactiveMongoRepositories(basePackages = "com.cjrequena.sample.db.repository")
+@EnableReactiveMongoRepositories(basePackages = "com.cjrequena.sample.persistence.repository")
 public class MongoReactiveConfiguration extends AbstractReactiveMongoConfiguration {
     @Autowired
     private MeterRegistry meterRegistry;

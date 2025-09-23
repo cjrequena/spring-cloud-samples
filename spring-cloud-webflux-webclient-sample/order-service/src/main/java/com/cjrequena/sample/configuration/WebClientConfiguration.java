@@ -1,7 +1,7 @@
 package com.cjrequena.sample.configuration;
 
 import com.cjrequena.sample.exception.ErrorDTO;
-import com.cjrequena.sample.exception.service.InsufficientBalanceServiceException;
+import com.cjrequena.sample.exception.service.InsufficientBalanceException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,8 +62,8 @@ public class WebClientConfiguration {
         return clientResponse
           .bodyToMono(ErrorDTO.class)
           .flatMap(errorDTO -> {
-            if (errorDTO.getErrorCode().equals(InsufficientBalanceServiceException.class.getSimpleName())) {
-              return Mono.error(new InsufficientBalanceServiceException(errorDTO.getMessage()));
+            if (errorDTO.getErrorCode().equals(InsufficientBalanceException.class.getSimpleName())) {
+              return Mono.error(new InsufficientBalanceException(errorDTO.getMessage()));
             }else{
               return Mono.just(clientResponse);
             }

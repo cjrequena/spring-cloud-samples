@@ -79,9 +79,9 @@ spring.cloud.gateway.routes:
     #uri: lb://account-service
     uri: http://localhost:8080
     predicates:
-      - Path=/account-service/api/**
+      - Path=/account-service/rest/**
   - id: order-service
     #uri: lb://order-service
     uri: http://localhost:9080
     predicates:
-      - Path=/order-service/api/**
+      - Path=/order-service/rest/**

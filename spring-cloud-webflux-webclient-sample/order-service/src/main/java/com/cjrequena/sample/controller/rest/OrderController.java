@@ -1,9 +1,13 @@
-package com.cjrequena.sample.web.api;
+package com.cjrequena.sample.controller.rest;
 
 import com.cjrequena.sample.common.Constants;
+import com.cjrequena.sample.domain.model.Order;
 import com.cjrequena.sample.dto.OrderDTO;
-import com.cjrequena.sample.exception.api.NotFoundApiException;
-import com.cjrequena.sample.exception.service.OrderNotFoundServiceException;
+import com.cjrequena.sample.exception.controller.FailedDependencyException;
+import com.cjrequena.sample.exception.controller.NotFoundAException;
+import com.cjrequena.sample.exception.service.AccountNotFoundException;
+import com.cjrequena.sample.exception.service.AccountServiceUnavailableException;
+import com.cjrequena.sample.exception.service.OrderNotFoundException;
 import com.cjrequena.sample.mapper.OrderMapper;
 import com.cjrequena.sample.service.OrderService;
 import jakarta.validation.Valid;
@@ -20,15 +24,15 @@ import reactor.core.publisher.Mono;
 import java.net.URI;
 import java.util.UUID;
 
-import static com.cjrequena.sample.web.api.OrderApi.ACCEPT_VERSION;
+import static com.cjrequena.sample.controller.rest.OrderController.ACCEPT_VERSION;
 import static org.springframework.http.HttpHeaders.CACHE_CONTROL;
 import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
 
 @Slf4j
 @RestController
-@RequestMapping(value = OrderApi.ENDPOINT, headers = {ACCEPT_VERSION})
+@RequestMapping(value = OrderController.ENDPOINT, headers = {ACCEPT_VERSION})
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class OrderApi {
+public class OrderController {
 
   public static final String ENDPOINT = "/order-service/api";
   public static final String ACCEPT_VERSION = "Accept-Version=" + Constants.VND_SAMPLE_SERVICE_V1;
@@ -40,21 +44,36 @@ public class OrderApi {
     produces = {APPLICATION_JSON_VALUE}
   )
   public Mono<ResponseEntity<Object>> create(@Valid @RequestBody OrderDTO dto) {
-    return orderService.create(dto)
+    Order order = Order.createNewWith(
+      dto.getAccountId(),
+      dto.getDescription(),
+      dto.getStatus(),
+      dto.getTotal()
+    );
+
+    return orderService.create(order)
       .map(_dto -> {
         HttpHeaders headers = new HttpHeaders();
-        headers.set(CACHE_CONTROL, "no store, private, max-age=0");
+        headers.set(CACHE_CONTROL, "no-store, private, max-age=0");
         headers.set("Accept-Version", ACCEPT_VERSION);
         headers.set("id", _dto.getId().toString());
-        final URI location = URI.create(ENDPOINT.concat("/orders/id/").concat(_dto.getId().toString()));
+
+        URI location = URI.create(ENDPOINT + "/orders/id/" + _dto.getId());
         return ResponseEntity.created(location).headers(headers).build();
-      }).onErrorMap(ex -> {
-        if (ex instanceof OrderNotFoundServiceException) {
-          return new NotFoundApiException();
+      })
+      .onErrorMap(ex -> {
+        if (ex instanceof AccountNotFoundException) {
+          return new NotFoundAException(ex.getMessage());
         }
+        if (ex instanceof AccountServiceUnavailableException) {
+          log.warn("Order creation failed: account service unavailable while processing accountId={}", dto.getAccountId());
+          return new FailedDependencyException(ex.getMessage());
+        }
+        log.error("Unexpected error during order creation for accountId={}: {}", dto.getAccountId(), ex.getMessage(), ex);
         return ex;
       });
   }
+
 
   @GetMapping(
     path = "/orders/{id}",
@@ -63,6 +82,7 @@ public class OrderApi {
   public Mono<ResponseEntity<OrderDTO>> retrieveById(@PathVariable(value = "id") UUID id) {
     return this.orderService
       .retrieveById(id)
+      .map(this.orderMapper::toDTO)
       .map(_dto -> {
         HttpHeaders headers = new HttpHeaders();
         headers.set(CACHE_CONTROL, "no store, private, max-age=0");
@@ -70,8 +90,8 @@ public class OrderApi {
         return ResponseEntity.ok().headers(headers).body(_dto);
       })
       .onErrorResume(ex -> {
-          if (ex instanceof OrderNotFoundServiceException) {
-            return Mono.error(new NotFoundApiException());
+          if (ex instanceof OrderNotFoundException) {
+            return Mono.error(new NotFoundAException());
           }
           return Mono.error(ex);
         }
@@ -85,7 +105,7 @@ public class OrderApi {
   public Mono<ResponseEntity<Flux<OrderDTO>>> retrieve() {
     HttpHeaders headers = new HttpHeaders();
     headers.set(CACHE_CONTROL, "no store, private, max-age=0");
-    final Flux<OrderDTO> dtos$ = this.orderService.retrieve();
+    final Flux<OrderDTO> dtos$ = this.orderService.retrieve().map(this.orderMapper::toDTO);
     return Mono.just(ResponseEntity.ok().headers(headers).body(dtos$));
   }
 
@@ -94,17 +114,16 @@ public class OrderApi {
     produces = {APPLICATION_JSON_VALUE}
   )
   public Mono<ResponseEntity<Object>> update(@PathVariable(value = "id") UUID id, @Valid @RequestBody OrderDTO dto, @RequestHeader("version") Long version) {
-    dto.setId(id);
-    dto.setVersion(version);
-    return this.orderService.update(dto)
+    Order order = Order.createNewWith(dto.getId(), dto.getAccountId(), dto.getDescription(), dto.getStatus(), dto.getTotal());
+    return this.orderService.update(order)
       .map(_entity -> {
         HttpHeaders headers = new HttpHeaders();
         headers.set(CACHE_CONTROL, "no store, private, max-age=0");
         return ResponseEntity.noContent().headers(headers).build();
       })
       .onErrorMap(ex -> {
-          if (ex instanceof OrderNotFoundServiceException) {
-            return new NotFoundApiException();
+          if (ex instanceof OrderNotFoundException) {
+            return new NotFoundAException();
           }
           return ex;
         }
@@ -123,8 +142,8 @@ public class OrderApi {
         return new ResponseEntity<>(responseHeaders, HttpStatus.NO_CONTENT);
       })
       .onErrorMap(ex -> {
-          if (ex instanceof OrderNotFoundServiceException) {
-            return new NotFoundApiException();
+          if (ex instanceof OrderNotFoundException) {
+            return new NotFoundAException();
           }
           return ex;
         }

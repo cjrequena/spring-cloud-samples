@@ -1,4 +1,4 @@
-package com.cjrequena.sample.db.entity;
+package com.cjrequena.sample.persistence.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

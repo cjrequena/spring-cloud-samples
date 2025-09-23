@@ -1,16 +1,13 @@
 package com.cjrequena.sample.service;
 
 import com.cjrequena.sample.common.EStatus;
-import com.cjrequena.sample.db.entity.OrderEntity;
-import com.cjrequena.sample.db.repository.OrderRepository;
+import com.cjrequena.sample.domain.model.Order;
 import com.cjrequena.sample.dto.AccountDTO;
-import com.cjrequena.sample.dto.OrderDTO;
 import com.cjrequena.sample.dto.WithdrawAccountDTO;
-import com.cjrequena.sample.exception.service.InsufficientBalanceServiceException;
-import com.cjrequena.sample.exception.service.OptimisticConcurrencyServiceException;
-import com.cjrequena.sample.exception.service.OrderNotFoundServiceException;
-import com.cjrequena.sample.exception.service.ServiceException;
+import com.cjrequena.sample.exception.service.*;
 import com.cjrequena.sample.mapper.OrderMapper;
+import com.cjrequena.sample.persistence.entity.OrderEntity;
+import com.cjrequena.sample.persistence.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +20,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
-import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -43,63 +39,69 @@ public class OrderService {
   private final OrderRepository orderRepository;
   private final AccountService accountService;
 
-  public Mono<OrderDTO> create(OrderDTO dto) {
-
-    return accountService
-      .retrieve(dto.getAccountId())
-      .doOnNext(log::trace)
+  public Mono<Order> create(Order order) {
+    return accountService.retrieve(order.getAccountId())
       .flatMap(response -> {
         AccountDTO accountDTO = response.getBody();
-        BigDecimal amount = accountDTO.getBalance().subtract(dto.getTotal());
-        if (amount.compareTo(BigDecimal.ZERO) == -1) {
-          return Mono.error(new InsufficientBalanceServiceException("Insufficient balance on account with id " + accountDTO.getId()));
+        if (accountDTO == null) {
+          return Mono.error(new AccountNotFoundException("Account " + order.getAccountId() + " not found"));
         }
-        OrderEntity entity = this.orderMapper.toEntity(dto);
+
+        BigDecimal newBalance = accountDTO.getBalance().subtract(order.getTotal());
+        if (newBalance.signum() < 0) {
+          return Mono.error(new InsufficientBalanceException("Insufficient balance for account " + accountDTO.getId()));
+        }
+
+        OrderEntity entity = orderMapper.toEntity(order);
         entity.setId(UUID.randomUUID());
-        return this.orderRepository.save(entity).map(this.orderMapper::toDTO);
+
+        return orderRepository.save(entity).map(orderMapper::toOrderDomain);
       });
   }
 
-  public Mono<OrderDTO> retrieveById(UUID id) {
+
+
+
+  public Mono<Order> retrieveById(UUID id) {
     return orderRepository
       .findById(id)
-      .switchIfEmpty(Mono.error(new OrderNotFoundServiceException("The account :: " + id + " :: was not Found")))
-      .map(this.orderMapper::toDTO);
+      .switchIfEmpty(Mono.error(new OrderNotFoundException("The order :: " + id + " :: was not Found")))
+      .map(this.orderMapper::toOrderDomain);
   }
 
-  public Flux<OrderDTO> retrieve() {
-    Flux<OrderDTO> dtos$ = this.orderRepository.findAll().map(this.orderMapper::toDTO);
-    return dtos$;
+  public Flux<Order> retrieve() {
+    return this.orderRepository
+      .findAll()
+      .map(this.orderMapper::toOrderDomain);
   }
 
-  public Mono<OrderEntity> update(OrderDTO dto) {
-    return orderRepository
-      .findById(dto.getId())
-      .switchIfEmpty(Mono.error(new OrderNotFoundServiceException("The account :: " + dto.getId() + " :: was not Found")))
-      .map(Optional::of)
-      .flatMap(optionalOrder -> {
-        if (optionalOrder.isPresent()) {
-          OrderEntity _entity = optionalOrder.get();
-          if (_entity.getVersion().equals(dto.getVersion())) {
-            return orderRepository.save(this.orderMapper.toEntity(dto));
-          } else {
-            log.trace(
-              "Optimistic concurrency control error in account :: {} :: actual version doesn't match expected version {}",
-              _entity.getId(),
-              _entity.getVersion());
-            return Mono.error(new OptimisticConcurrencyServiceException(
-              "Optimistic concurrency control error in account :: " + _entity.getId() + " :: actual version doesn't match expected version "
-                + _entity.getVersion()));
-          }
-        }
-        return Mono.empty();
+  public Mono<OrderEntity> update(Order order) {
+    UUID orderId = order.getId();
+    log.debug("Updating order with id={}", orderId);
+    return orderRepository.findById(orderId)
+      .switchIfEmpty(Mono.error(() -> new OrderNotFoundException("The order :: " + orderId + " :: was not Found")))
+      .flatMap(existingEntity -> {
+        long expectedVersion = existingEntity.getVersion();
+        orderMapper.updateEntityFromOrderDomain(order, existingEntity);
+        return orderRepository.save(existingEntity)
+          .switchIfEmpty(Mono.error(() -> {
+            String errorMessage = String.format(
+              "Optimistic concurrency control error for order %s: expected version=%s but version mismatch",
+              orderId, expectedVersion
+            );
+            log.warn(errorMessage);
+            return new OptimisticConcurrencyException(errorMessage);
+          }))
+          .doOnSuccess(saved -> log.info("Order {} updated successfully, version {} → {}",
+            orderId, expectedVersion, saved.getVersion()))
+          .doOnError(error -> log.error("Failed to update order :: {} :: {}", orderId, error.getMessage(), error));
       });
   }
 
   public Mono<Void> delete(UUID id) {
     return this.orderRepository
       .findById(id)
-      .switchIfEmpty(Mono.error(new OrderNotFoundServiceException("The account :: " + id + " :: was not Found")))
+      .switchIfEmpty(Mono.error(new OrderNotFoundException("The order :: " + id + " :: was not Found")))
       .flatMap(entity -> this.orderRepository.deleteById(entity.getId()));
   }
 
@@ -120,17 +122,17 @@ public class OrderService {
           .doOnNext(response -> {
             if (response.getStatusCode().equals(HttpStatus.NO_CONTENT)) {
               orderEntity.setStatus(EStatus.COMPLETED.getValue());
-              this.update(this.orderMapper.toDTO(orderEntity))
+              this.update(this.orderMapper.toOrderDomain(orderEntity))
                 .doOnNext(log::trace)
                 .subscribe();
             }
           })
           .doOnError(ex -> {
             log.error(ex.getMessage());
-            if (ex instanceof InsufficientBalanceServiceException) {
+            if (ex instanceof InsufficientBalanceException) {
               orderEntity.setStatus(EStatus.REJECTED.getValue());
               orderEntity.setDescription(ex.getLocalizedMessage());
-              this.update(this.orderMapper.toDTO(orderEntity))
+              this.update(this.orderMapper.toOrderDomain(orderEntity))
                 .doOnNext(log::trace)
                 .subscribe();
             }

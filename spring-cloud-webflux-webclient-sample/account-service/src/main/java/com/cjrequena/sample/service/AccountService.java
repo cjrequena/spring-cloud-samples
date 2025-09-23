@@ -49,7 +49,7 @@ public class AccountService {
       .switchIfEmpty(Mono.error(() -> new AccountNotFoundServiceException("Account not found for id=" + id)))
       .map(accountMapper::toAccountDomain)
       .doOnSuccess(account -> log.info("Account retrieved successfully with id={}", id))
-      .doOnError(error -> log.error("Failed to retrieve account with id={}: {}", id, error.getMessage(), error));
+      .doOnError(error -> log.warn("Failed to retrieve account with id={}: {}", id, error.getMessage()));
   }
 
   public Flux<Account> retrieve() {

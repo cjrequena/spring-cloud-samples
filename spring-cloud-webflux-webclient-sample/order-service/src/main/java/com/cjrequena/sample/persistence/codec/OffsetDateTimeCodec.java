@@ -1,4 +1,4 @@
-package com.cjrequena.sample.db.codec;
+package com.cjrequena.sample.persistence.codec;
 
 import org.bson.BsonReader;
 import org.bson.BsonWriter;
