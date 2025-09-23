@@ -8,7 +8,7 @@ spring.main.allow-bean-definition-overriding: true # Enable bean override
 spring.cloud.consul:
   host: ${SPRING_CLOUD_CONSUL_HOST:localhost}
   port: ${SPRING_CLOUD_CONSUL_PORT:8500}
-  enabled: ${SPRING_CLOUD_CONSUL_ENABLED:false}
+  enabled: ${SPRING_CLOUD_CONSUL_ENABLED:true}
   discovery:
     # Service name
     serviceName: ${spring.application.name}
@@ -44,7 +44,7 @@ spring.cloud.consul:
 spring.config.import: "optional:configserver:${CONFIG_SERVER:http://localhost:8888}/"
 spring.cloud.config:
   # Flag to say that remote configuration is enabled. (default false).
-  enabled: ${SPRING_CLOUD_CONFIG_ENABLED:false}
+  enabled: ${SPRING_CLOUD_CONFIG_ENABLED:true}
   # Flag to indicate that failure to connect to the server is fatal (default false).
   failFast: ${SPRING_CLOUD_CONFIG_FAIL_FAST:true}
 
@@ -52,15 +52,17 @@ spring.cloud.config:
 # ACTUATOR PROPERTIES
 # ----------------------------------------
 # ENDPOINTS WEB CONFIGURATION
-management.endpoints.web.exposure.include: '*' # Endpoint IDs that should be included or '*' for all.
-management.endpoints.web.exposure.exclude:  # Endpoint IDs that should be excluded or '*' for all.
+management.endpoints.web.exposure.include: health,info,metrics,prometheus # Endpoint IDs that should be included or '*' for all.
+management.endpoints.web.exposure.exclude:  env,configprops,threaddump,heapdump # Endpoint IDs that should be excluded or '*' for all.
 management.endpoints.web.base-path: /management # Base path for Web endpoints. Relative to server.servlet.context-path or management.server.servlet.context-path if management.server.port is configured.
 management.endpoints.web.path-mapping.health: healthcheck
 # HEALTH ENDPOINT
-management.endpoint.health.cache.time-to-live: 0ms # Maximum time that a response can be cached.
-management.endpoint.health.enabled: true # Whether to enable the health endpoint.
+management.endpoint.health.cache.time-to-live: 10s # Maximum time that a response can be cached.
+#management.endpoint.health.enabled: true # Whether to enable the health endpoint.
+management.endpoint.health.show-details:  ALWAYS
+management.endpoint.health.show-components:  ALWAYS
+management.endpoint.health.access: read-only
 management.endpoint.health.roles:  # Roles used to determine whether or not a user is authorized to be shown details. When empty, all authenticated users are authorized.
-management.endpoint.health.show-details: always # When to show full health details.
 management.health.circuitbreakers.enabled: true
 management.health.ratelimiters.enabled: true
 # INFO CONTRIBUTORS (InfoContributorProperties)
@@ -73,15 +75,15 @@ management.info.git.mode: full # Mode to use to expose git information.
 ---
 spring.config.activate.on-profile: local
 
-spring.cloud.gateway.discovery.locator.enabled: false
-spring.cloud.gateway.routes:
+spring.cloud.gateway.server.webflux.discovery.locator.enabled: false
+spring.cloud.gateway.server.webflux.routes:
   - id: account-service
-    #uri: lb://account-service
-    uri: http://localhost:8080
+    uri: lb://account-service
+    #uri: http://localhost:8080
     predicates:
-      - Path=/account-service/rest/**
+      - Path=/account-service/api/**
   - id: order-service
-    #uri: lb://order-service
-    uri: http://localhost:9080
+    uri: lb://order-service
+    #uri: http://localhost:9080
     predicates:
-      - Path=/order-service/rest/**
+      - Path=/order-service/api/**
