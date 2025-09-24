@@ -8,7 +8,7 @@ spring.main.allow-bean-definition-overriding: true # Enable bean override
 spring.cloud.consul:
   host: ${SPRING_CLOUD_CONSUL_HOST:localhost}
   port: ${SPRING_CLOUD_CONSUL_PORT:8500}
-  enabled: ${SPRING_CLOUD_CONSUL_ENABLED:false}
+  enabled: ${SPRING_CLOUD_CONSUL_ENABLED:true}
   discovery:
     # Service name
     serviceName: ${spring.application.name}
@@ -44,7 +44,7 @@ spring.cloud.consul:
 spring.config.import: "optional:configserver:${CONFIG_SERVER:http://localhost:8888}/"
 spring.cloud.config:
   # Flag to say that remote configuration is enabled. (default false).
-  enabled: ${SPRING_CLOUD_CONFIG_ENABLED:false}
+  enabled: ${SPRING_CLOUD_CONFIG_ENABLED:true}
   # Flag to indicate that failure to connect to the server is fatal (default false).
   failFast: ${SPRING_CLOUD_CONFIG_FAIL_FAST:true}
 
