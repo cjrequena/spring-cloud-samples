@@ -35,59 +35,70 @@ management.info.env.enabled: true # Whether to enable environment info.
 management.info.git.enabled: true # Whether to enable git info.
 management.info.git.mode: full # Mode to use to expose git information.
 
-# LOGGING
-logging.config: classpath:log4j2.xml # Location of the logging configuration file. For instance, `classpath:logback.xml` for Logback.
-logging.level: # Log levels severity mapping. For instance, `logging.level.org.springframework: DEBUG`.
-  org.springframework: INFO
-  com.cjrequena.sample: DEBUG
-
+#------------------------------
+# SPRING CLOUD STREAM
+#------------------------------
 # https://docs.spring.io/spring-cloud-stream/docs/current/reference/html/
 #spring.cloud.function.definition: consumer1, consumer2
 spring.cloud.function.definition: consumer1
 spring.cloud.stream:
-  defaultBinder: kafka # The default binder to use, if multiple binders are configured. See Multiple Binders on the Classpath.
+  defaultBinder: my-kafka-binder-01
   default:
     content-type: application/json
-# ----------------------------------------------------------------------------------------------------------------------
-spring.cloud.stream.bindings:
-  consumer1-in-0:
-    binder: kafka
-    destination: spring-cloud-stream-kafka-sample-01
-    group: group-1
-    content-type: application/json
-  consumer2-in-0:
-    binder: kafka
-    destination: spring-cloud-stream-kafka-sample-01
-    group: group-1
-    content-type: application/json
-# ----------------------------------------------------------------------------------------------------------------------
-spring.cloud.stream.kafka:
-  binder:
-    brokers: "localhost:9092"
-    consumer-properties:
-      schema.registry.url: http://localhost:8081
-      id.compatibility.strict: true
-      json.fail.invalid.schema: false
-      json.fail.unknown.properties: false
   bindings:
     consumer1-in-0:
-      consumer:
-        configuration:
-          key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
-          value.deserializer: io.confluent.kafka.serializers.json.KafkaJsonSchemaDeserializer
-          #value.serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      binder: my-kafka-binder-01
+      destination: spring-cloud-stream-kafka-sample-01
+      group: group-1
+      content-type: application/json
     consumer2-in-0:
-      consumer:
-        configuration:
-          key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
-          value.deserializer: io.confluent.kafka.serializers.json.KafkaJsonSchemaDeserializer
-          #value.serializer: org.springframework.kafka.support.serializer.JsonSerializer
-# ----------------------------------------------------------------------------------------------------------------------
+      binder: my-kafka-binder-01
+      destination: spring-cloud-stream-kafka-sample-01
+      group: group-1
+      content-type: application/json
+  binders:
+    my-kafka-binder-01:
+      type: kafka
+      environment:
+        spring.cloud.stream.kafka.binder:
+          brokers: "localhost:9092"
+        spring.cloud.stream.kafka.bindings:
+          consumer1-in-0:
+            consumer:
+              configuration:
+                key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+                value.serializer: org.springframework.kafka.support.serializer.JsonSerializer
+          consumer2-in-0:
+            consumer:
+              configuration:
+                key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+                value.serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    my-kafka-binder-02: # A binder with schema registry configuration
+      type: kafka
+      environment:
+        spring.cloud.stream.kafka.binder:
+          brokers: "localhost:9092"
+          consumer-properties:
+            schema.registry.url: http://localhost:8081
+            id.compatibility.strict: true
+            json.fail.invalid.schema: false
+            json.fail.unknown.properties: false
+        spring.cloud.stream.kafka.bindings:
+          consumer1-in-0:
+            consumer:
+              configuration:
+                key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+                value.deserializer: io.confluent.kafka.serializers.json.KafkaJsonSchemaDeserializer
+          consumer2-in-0:
+            consumer:
+              configuration:
+                key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+                value.deserializer: io.confluent.kafka.serializers.json.KafkaJsonSchemaDeserializer
 spring.cloud.sleuth:
   json:
     enabled: false
 
-# OPENAPI :: SPRINGDOC :: SWAGGER
+# SPRINGDOC :: SWAGGER
 springdoc:
   api-docs:
     groups.enabled: true
@@ -99,8 +110,8 @@ springdoc:
     operations-sorter: alpha
     tags-sorter: alpha
 
-#
-server.compression:
-  enabled: true
-  mime-types: application/json,application/stream+json,application/x-ndjson
-  min-response-size: 1024
+# LOGGING
+logging.config: classpath:log4j2.xml # Location of the logging configuration file. For instance, `classpath:logback.xml` for Logback.
+logging.level: # Log levels severity mapping. For instance, `logging.level.org.springframework: DEBUG`.
+  org.springframework: INFO
+  com.cjrequena.sample: DEBUG

@@ -34,71 +34,75 @@ management.info.env.enabled: true # Whether to enable environment info.
 management.info.git.enabled: true # Whether to enable git info.
 management.info.git.mode: full # Mode to use to expose git information.
 
-# METRICS :: DATADOG
+#-- METRICS :: DATADOG
 management.datadog.metrics.export.enabled: false
 management.datadog.metrics.export.api-key: "YOUR_API_KEY"
 management.datadog.metrics.export.uri: https://api.datadoghq.eu
 management.datadog.metrics.export.step: 30s
-#--
+#-- METRICS :: STATSD
 management.statsd.metrics.export.enabled: false
 management.statsd.metrics.export.host: localhost
 management.statsd.metrics.export.port: 8125
 management.statsd.metrics.export.protocol: udp
 management.statsd.metrics.export.flavor: datadog
-#--
+#-- METRICS :: TAGS
 management.metrics.tags:
   application: ${spring.application.name}
   env: ${spring.profiles.active}
   environment: ${spring.profiles.active}
 
-# LOGGING
-logging.config: classpath:log4j2.xml # Location of the logging configuration file. For instance, `classpath:logback.xml` for Logback.
-logging.level: # Log levels severity mapping. For instance, `logging.level.org.springframework: DEBUG`.
-  org.springframework: INFO
-  org.springframework.cloud.sleuth: TRACE
-  org.flywaydb: INFO
-  com.cjrequena.sample: DEBUG
-
+#------------------------------
+# SPRING CLOUD STREAM
+#------------------------------
 # https://docs.spring.io/spring-cloud-stream/docs/current/reference/html/
 spring.cloud.stream:
-  defaultBinder: kafka # The default binder to use, if multiple binders are configured. See Multiple Binders on the Classpath.
+  defaultBinder: my-kafka-binder-01
   default:
     content-type: application/json
-# ----------------------------------------------------------------------------------------------------------------------
-spring.cloud.stream.bindings:
-  producer-out-0:
-    binder: kafka # The binder used by this binding. See Multiple Binders on the Classpath for details.
-    destination: spring-cloud-stream-kafka-sample-01 # The target destination of a channel on the bound middleware (e.g., the RabbitMQ exchange or Kafka topic).
-    content-type: application/json # The content type of the channel.
-    producer:
-      headerMode: headers
-      useNativeEncoding: true
-# ----------------------------------------------------------------------------------------------------------------------
-spring.cloud.stream.kafka:
-  binder:
-    brokers: "localhost:9092" # A list of brokers to which the Kafka binder will connect.
-#    producer-properties:
-#      schema.registry.url: http://localhost:8081
-#      auto.register.schemas: false
-    headers: # The list of custom headers that will be transported by the binder. Default: empty.
-      - x-test-header
   bindings:
     producer-out-0:
+      binder: my-kafka-binder-01
+      destination: spring-cloud-stream-kafka-sample-01
+      content-type: application/json
       producer:
-        configuration:
-          schema.registry.url: http://localhost:8081
-          key.serializer: org.apache.kafka.common.serialization.StringSerializer
-          value.serializer: io.confluent.kafka.serializers.json.KafkaJsonSchemaSerializer
-          auto.register.schemas: false
-          use.latest.version: false
-          use.schema.id: 1
-
-# ----------------------------------------------------------------------------------------------------------------------
+        headerMode: headers
+        useNativeEncoding: true
+  binders:
+    my-kafka-binder-01:
+      type: kafka
+      environment:
+        spring.cloud.stream.kafka.binder:
+          brokers: "localhost:9092"
+          headers:
+            - x-test-header
+        spring.cloud.stream.kafka.bindings:
+          producer-out-0:
+            producer:
+              configuration:
+                key.serializer: org.apache.kafka.common.serialization.StringSerializer
+                value.serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    my-kafka-binder-02: # A binder with schema registry configuration
+      type: kafka
+      environment:
+        spring.cloud.stream.kafka.binder:
+          brokers: "localhost:9092"
+          headers:
+            - x-test-header
+        spring.cloud.stream.kafka.bindings:
+          producer-out-0:
+            producer:
+              configuration:
+                key.serializer: org.apache.kafka.common.serialization.StringSerializer
+                value.serializer: io.confluent.kafka.serializers.json.KafkaJsonSchemaSerializer
+                schema.registry.url: http://localhost:8081
+                auto.register.schemas: false
+                use.latest.version: false
+                use.schema.id: 1
 spring.cloud.sleuth:
   json:
     enabled: false
 
-# OPENAPI :: SPRINGDOC :: SWAGGER
+# SPRINGDOC :: SWAGGER
 springdoc:
   api-docs:
     groups.enabled: true
@@ -110,9 +114,10 @@ springdoc:
     operations-sorter: alpha
     tags-sorter: alpha
 
-#
-server.compression:
-  enabled: true
-  mime-types: application/json,application/stream+json,application/x-ndjson
-  min-response-size: 1024
-
+# LOGGING
+logging.config: classpath:log4j2.xml # Location of the logging configuration file. For instance, `classpath:logback.xml` for Logback.
+logging.level: # Log levels severity mapping. For instance, `logging.level.org.springframework: DEBUG`.
+  org.springframework: INFO
+  org.springframework.cloud.sleuth: TRACE
+  org.flywaydb: INFO
+  com.cjrequena.sample: DEBUG
