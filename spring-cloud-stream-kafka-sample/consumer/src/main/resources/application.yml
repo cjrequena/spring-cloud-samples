@@ -40,7 +40,7 @@ management.info.git.mode: full # Mode to use to expose git information.
 #------------------------------
 # https://docs.spring.io/spring-cloud-stream/docs/current/reference/html/
 #spring.cloud.function.definition: consumer1, consumer2
-spring.cloud.function.definition: consumer1
+spring.cloud.function.definition: consumer2
 spring.cloud.stream:
   defaultBinder: my-kafka-binder-01
   default:
@@ -52,6 +52,11 @@ spring.cloud.stream:
       group: group-1
       content-type: application/json
     consumer2-in-0:
+      binder: my-kafka-binder-01
+      destination: spring-cloud-stream-kafka-sample-01
+      group: group-1
+      content-type: application/json
+    consumer3-in-0:
       binder: my-kafka-binder-01
       destination: spring-cloud-stream-kafka-sample-01
       group: group-1
