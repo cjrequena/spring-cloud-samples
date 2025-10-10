@@ -41,64 +41,64 @@ logging.level: # Log levels severity mapping. For instance, `logging.level.org.s
   org.springframework: INFO
   com.cjrequena.sample: DEBUG
 
+#------------------------------
+# SPRING CLOUD STREAM
+#------------------------------
 # https://docs.spring.io/spring-cloud-stream/docs/current/reference/html/
+#spring.cloud.function.definition: consumer1, consumer2
 spring.cloud.function.definition: consumer1; consumer2; consumer3; consumer4
 spring.cloud.stream:
-  defaultBinder: kafka # The default binder to use, if multiple binders are configured. See Multiple Binders on the Classpath.
+  defaultBinder: my-kafka-binder-01
   default:
     content-type: application/json
-# ----------------------------------------------------------------------------------------------------------------------
-spring.cloud.stream.bindings:
-  consumer1-in-0:
-    binder: kafka
-    destination: spring-cloud-stream-kafka-sample-01
-    group: group-1
-    content-type: application/json
-  consumer2-in-0:
-    binder: kafka
-    destination: spring-cloud-stream-kafka-sample-01
-    group: group-2
-    content-type: application/json
-  consumer3-in-0:
-    binder: kafka
-    destination: spring-cloud-stream-kafka-sample-01
-    group: group-3
-    content-type: application/json
-  consumer4-in-0:
-    binder: kafka
-    destination: spring-cloud-stream-kafka-sample-01
-    group: group-4
-    content-type: application/json
-# ----------------------------------------------------------------------------------------------------------------------
-spring.cloud.stream.kafka:
-  binder:
-    brokers: localhost:9092
   bindings:
     consumer1-in-0:
-      consumer:
-        configuration:
-          key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
-          value.serializer: org.springframework.kafka.support.serializer.JsonSerializer
-          #value.deserializer: io.confluent.kafka.serializers.json.KafkaJsonSchemaDeserializer
+      binder: my-kafka-binder-01
+      destination: spring-cloud-stream-kafka-sample-01
+      group: group-1
+      content-type: application/json
     consumer2-in-0:
-      consumer:
-        configuration:
-          key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
-          value.serializer: org.springframework.kafka.support.serializer.JsonSerializer
-          #value.deserializer: io.confluent.kafka.serializers.json.KafkaJsonSchemaDeserializer
+      binder: my-kafka-binder-01
+      destination: spring-cloud-stream-kafka-sample-01
+      group: group-2
+      content-type: application/json
     consumer3-in-0:
-      consumer:
-        configuration:
-          key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
-          value.serializer: org.springframework.kafka.support.serializer.JsonSerializer
-          #value.deserializer: io.confluent.kafka.serializers.json.KafkaJsonSchemaDeserializer
+      binder: my-kafka-binder-01
+      destination: spring-cloud-stream-kafka-sample-01
+      group: group-3
+      content-type: application/json
     consumer4-in-0:
-      consumer:
-        configuration:
-          key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
-          value.serializer: org.springframework.kafka.support.serializer.StringSerializer
-          #value.deserializer: io.confluent.kafka.serializers.json.KafkaJsonSchemaDeserializer
-# ----------------------------------------------------------------------------------------------------------------------
+      binder: my-kafka-binder-01
+      destination: spring-cloud-stream-kafka-sample-01
+      group: group-4
+      content-type: application/json
+  binders:
+    my-kafka-binder-01:
+      type: kafka
+      environment:
+        spring.cloud.stream.kafka.binder:
+          brokers: "localhost:9092"
+        spring.cloud.stream.kafka.bindings:
+          consumer1-in-0:
+            consumer:
+              configuration:
+                key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+                value.serializer: org.springframework.kafka.support.serializer.JsonSerializer
+          consumer2-in-0:
+            consumer:
+              configuration:
+                key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+                value.serializer: org.springframework.kafka.support.serializer.JsonSerializer
+          consumer3-in-0:
+            consumer:
+              configuration:
+                key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+                value.serializer: org.springframework.kafka.support.serializer.JsonSerializer
+          consumer4-in-0:
+            consumer:
+              configuration:
+                key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+                value.serializer: org.springframework.kafka.support.serializer.StringSerializer
 spring.cloud.sleuth:
   json:
     enabled: false

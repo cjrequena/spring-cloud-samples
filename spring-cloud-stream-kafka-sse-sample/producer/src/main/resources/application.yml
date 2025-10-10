@@ -59,33 +59,40 @@ logging.level: # Log levels severity mapping. For instance, `logging.level.org.s
   org.flywaydb: INFO
   com.cjrequena.sample: DEBUG
 
+#------------------------------
+# SPRING CLOUD STREAM
+#------------------------------
 # https://docs.spring.io/spring-cloud-stream/docs/current/reference/html/
 spring.cloud.stream:
-  defaultBinder: kafka # The default binder to use, if multiple binders are configured. See Multiple Binders on the Classpath.
+  defaultBinder: my-kafka-binder-01
   default:
     content-type: application/json
-# ----------------------------------------------------------------------------------------------------------------------
-spring.cloud.stream.bindings:
-  producer-out-0:
-    binder: kafka # The binder used by this binding. See Multiple Binders on the Classpath for details.
-    destination: spring-cloud-stream-kafka-sample-01 # The target destination of a channel on the bound middleware (e.g., the RabbitMQ exchange or Kafka topic).
-    content-type: application/json # The content type of the channel.
-    producer:
-      headerMode: headers
-      useNativeEncoding: true
-# ----------------------------------------------------------------------------------------------------------------------
-spring.cloud.stream.kafka:
-  binder:
-    brokers: "localhost:9092" # A list of brokers to which the Kafka binder will connect.
-    producer-properties:
-      key.serializer: org.apache.kafka.common.serialization.StringSerializer
-      value.serializer: org.springframework.kafka.support.serializer.JsonSerializer
-    headers: # The list of custom headers that will be transported by the binder. Default: empty.
-      - x-test-header
-# ----------------------------------------------------------------------------------------------------------------------
+  bindings:
+    producer-out-0:
+      binder: my-kafka-binder-01 # The binder used by this binding. See Multiple Binders on the Classpath for details.
+      destination: spring-cloud-stream-kafka-sample-01 # The target destination of a channel on the bound middleware (e.g., the RabbitMQ exchange or Kafka topic).
+      content-type: application/json # The content type of the channel.
+      producer:
+        headerMode: headers
+        useNativeEncoding: true
+  binders:
+    my-kafka-binder-01:
+      type: kafka
+      environment:
+        spring.cloud.stream.kafka.binder:
+          brokers: "localhost:9092"
+          headers:
+            - x-test-header
+        spring.cloud.stream.kafka.bindings:
+          producer-out-0:
+            producer:
+              configuration:
+                key.serializer: org.apache.kafka.common.serialization.StringSerializer
+                value.serializer: org.springframework.kafka.support.serializer.JsonSerializer
 spring.cloud.sleuth:
   json:
     enabled: false
+
 # OPENAPI :: SPRINGDOC :: SWAGGER
 springdoc:
   api-docs:

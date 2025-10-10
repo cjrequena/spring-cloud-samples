@@ -1,6 +1,8 @@
 package com.cjrequena.sample.api;
 
 import com.cjrequena.sample.event.FooEvent;
+import com.cjrequena.sample.service.ConsumerService1;
+import com.cjrequena.sample.service.ConsumerService2;
 import com.cjrequena.sample.service.ConsumerService3;
 import com.cjrequena.sample.service.ConsumerService4;
 import lombok.RequiredArgsConstructor;
@@ -27,8 +29,8 @@ public class SseAPI {
     public static final String ACCEPT_VERSION_V2 = "Accept-Version=" + VND_SAMPLE_SERVICE_V2;
     public static final String ACCEPT_VERSION_V3 = "Accept-Version=" + VND_SAMPLE_SERVICE_V3;
     public static final String ACCEPT_VERSION_V4 = "Accept-Version=" + VND_SAMPLE_SERVICE_V4;
-    private final ConsumerService3 consumerService1;
-    private final ConsumerService3 consumerService2;
+    private final ConsumerService1 consumerService1;
+    private final ConsumerService2 consumerService2;
     private final ConsumerService3 consumerService3;
     private final ConsumerService4 consumerService4;
 

@@ -35,8 +35,8 @@
         <jakarta.json-api.version>2.1.3</jakarta.json-api.version>
     </properties>
     <modules>
-        <module>spring-cloud-openfeign-sample</module>
-<!--        <module>spring-cloud-stream-kafka-sse-sample</module>-->
+<!--        <module>spring-cloud-openfeign-sample</module>-->
+        <module>spring-cloud-stream-kafka-sse-sample</module>
 <!--        <module>spring-cloud-grpc-sample</module>-->
 <!--        <module>spring-cloud-webflux-webclient-sample</module>-->
 <!--        <module>spring-cloud-stream-kafka-sample</module>-->

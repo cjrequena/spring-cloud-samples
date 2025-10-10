@@ -41,7 +41,8 @@ public class ConsumerService4 extends EventConsumer<FooEvent> {
   @Override
   protected Mono<Void> processDeserializedMessage(Message<FooEvent> message) throws JsonProcessingException {
     log.info("New event notification: {}", message.getPayload());
-    var sink = this.getSink(message.getPayload().getData().getName());
+    String subscriptionKey = message.getPayload().getData().getName();
+    var sink = this.getSink(subscriptionKey);
     sink.tryEmitNext(message.getPayload());
     return Mono.empty();
   }
@@ -52,13 +53,13 @@ public class ConsumerService4 extends EventConsumer<FooEvent> {
     return MessageBuilder.withPayload(fooEvent).copyHeaders(message.getHeaders()).build();
   }
 
-  public Flux<FooEvent> subscribe(String key) {
-    var sink = this.getSink(key);
+  public Flux<FooEvent> subscribe(String subscriptionKey) {
+    var sink = this.getSink(subscriptionKey);
     return sink.asFlux();
   }
 
-  public Flux<ServerSentEvent<String>> subscribeV2(String key) {
-    var sink = this.getSink(key);
+  public Flux<ServerSentEvent<String>> subscribeV2(String subscriptionKey) {
+    var sink = this.getSink(subscriptionKey);
     return Flux.merge(
       getWelcomeEvent(),
       sink
