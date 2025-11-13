@@ -65,9 +65,13 @@ management.info.git.mode: full # Mode to use to expose git information.
 spring.config.activate.on-profile: local
 
 # CONFIG SERVER
-spring.cloud.config.server.git.uri: https://github.com/cjrequena/config-repo # The URI of the Git Repository where the configuration is stored
-#spring.cloud.config.server.git.username: gitusername
-#spring.cloud.config.server.git.password: gitpassword
+spring.cloud.config.server.git.uri: ${GIT_REPO_URI:https://github.com/cjrequena/config-repo} # The URI of the Git Repository where the configuration is stored
+#spring.cloud.config.server.git.username: ${GIT_USERNAME}
+#spring.cloud.config.server.git.password: ${GIT_PASSWORD}
 #spring.cloud.config.server.git.basedir: target/config
+spring.cloud.config.server.git.default-label: ${ENVIRONMENT:master}
+spring.cloud.config.server.git.clone-on-start: true
+spring.cloud.config.server.git.force-pull: true
+spring.cloud.config.server.git.refresh-rate: 60
 spring.cloud.config.server.bootstrap: true # Whether the Spring Cloud Config Server should configure itself with the loaded configuration.
 spring.cloud.config.server.health.enabled: false # Turn on/off  health indicator on config server
