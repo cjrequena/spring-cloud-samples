@@ -17,8 +17,12 @@ public class ConsumerService2 implements Consumer<Flux<Message<FooEvent>>> {
   private final Sinks.Many<FooEvent> sink = Sinks.many().multicast().onBackpressureBuffer();
 
   public Mono<Void> execute(Message<FooEvent> message) {
-    log.info("New event notification: {}", (FooEvent) message.getPayload());
-    sink.tryEmitNext(message.getPayload());
+    log.info("New event notification: {}", message);
+    final FooEvent payload = message.getPayload();
+    Sinks.EmitResult result = sink.tryEmitNext(payload);
+    if (result.isFailure()) {
+      log.error("Failed to emit FooEvent: {}", result);
+    }
     return Mono.empty();
   }
 

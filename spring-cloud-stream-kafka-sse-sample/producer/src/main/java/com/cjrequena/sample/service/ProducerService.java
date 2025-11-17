@@ -28,14 +28,14 @@ public class ProducerService {
 
   @Counted
   @Timed
-  public void produce(FooDTO dto) {
+  public void produce(FooDTO dto, String subscriptionKey) {
     FooEvent event = new FooEvent();
     event.setId(String.valueOf(UUID.randomUUID()));
     event.setData(dto);
     Map<String, String> headers = new HashMap<>();
     headers.put(KafkaHeaders.KEY, event.getId());
     headers.put(MessageHeaders.CONTENT_TYPE, MimeTypeUtils.APPLICATION_JSON.toString());
-    headers.put("x-test-header", "header-test-001");
+    headers.put("Subscription-Key", subscriptionKey);
     Message<FooEvent> message = MessageBuilder.withPayload(event).copyHeaders(headers).build();
     streamBridge.send("producer-out-0", message);
     log.info("Event emitted {}", event);

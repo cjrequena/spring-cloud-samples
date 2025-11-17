@@ -22,7 +22,10 @@ public class ConsumerService1 {
   public Consumer<FooEvent> consumer() {
     return event -> {
       log.info("New event notification: {}", event);
-      sink.tryEmitNext(event);
+      Sinks.EmitResult result = sink.tryEmitNext(event);
+      if (result.isFailure()) {
+        log.error("Failed to emit FooEvent: {}", result);
+      }
     };
   }
 

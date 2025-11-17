@@ -4,8 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.stream.config.BindingServiceProperties;
-import org.springframework.context.ApplicationContext;
 import org.springframework.messaging.Message;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -16,9 +14,6 @@ import java.util.function.Function;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public abstract class EventConsumer<T> implements Function<Flux<Message<String>>, Mono<Void>> {
   private static final String LOG_PROCESSING_ERROR = "Error processing event: {}. Error: ";
-
-  private final BindingServiceProperties bindingServiceProperties;
-  private final ApplicationContext context;
 
   public Mono<Void> apply(Flux<Message<String>> eventFlux) {
     return eventFlux

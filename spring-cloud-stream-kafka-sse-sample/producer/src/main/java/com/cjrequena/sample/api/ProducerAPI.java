@@ -3,7 +3,6 @@ package com.cjrequena.sample.api;
 import com.cjrequena.sample.dto.FooDTO;
 import com.cjrequena.sample.service.ProducerService;
 import io.swagger.v3.oas.annotations.Parameter;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -11,12 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.UUID;
@@ -49,9 +43,9 @@ public class ProducerAPI {
     produces = {APPLICATION_JSON_VALUE}
   )
   @SneakyThrows
-  public ResponseEntity<Void> produce(@Parameter @Valid @RequestBody FooDTO dto, BindingResult bindingResult, HttpServletRequest request, UriComponentsBuilder ucBuilder) {
+  public ResponseEntity<Void> produce(@Parameter @Valid @RequestBody FooDTO dto, @RequestHeader(value = "Subscription-Key", required = false) String subscriptionKey) {
     dto.setId(UUID.randomUUID());
-    this.producerService.produce(dto);
+    this.producerService.produce(dto, subscriptionKey);
     // Headers
     HttpHeaders headers = new HttpHeaders();
     return new ResponseEntity<>(headers, HttpStatus.ACCEPTED);
