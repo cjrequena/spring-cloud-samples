@@ -1,6 +1,6 @@
 package com.cjrequena.sample.service;
 
-import com.cjrequena.sample.event.FooEvent;
+import com.cjrequena.sample.domain.model.event.FooEvent;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -69,8 +69,9 @@ public class ConsumerService6 extends EventConsumer<FooEvent> {
   private ServerSentEvent<String> buildServerSentEvent(FooEvent event) {
     try {
       return ServerSentEvent.<String>builder()
-        .id(UUID.randomUUID().toString())
+        .id(event.getId())
         .event(event.getType())
+        .comment("source: " + event.getSource())
         .data(objectMapper.writeValueAsString(event.getData()))
         .build();
     } catch (Exception e) {

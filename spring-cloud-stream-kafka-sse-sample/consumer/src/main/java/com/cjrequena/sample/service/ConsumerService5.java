@@ -1,7 +1,7 @@
 package com.cjrequena.sample.service;
 
-import com.cjrequena.sample.common.JsonUtil;
-import com.cjrequena.sample.event.FooEvent;
+import com.cjrequena.sample.domain.model.event.FooEvent;
+import com.cjrequena.sample.shared.common.util.JsonUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
