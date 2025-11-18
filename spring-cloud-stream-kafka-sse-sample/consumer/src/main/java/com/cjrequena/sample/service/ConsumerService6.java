@@ -72,7 +72,7 @@ public class ConsumerService6 extends EventConsumer<FooEvent> {
         .id(event.getId())
         .event(event.getType())
         .comment("source: " + event.getSource())
-        .data(objectMapper.writeValueAsString(event.getData()))
+        .data(objectMapper.writeValueAsString(event))
         .build();
     } catch (Exception e) {
       log.error("Error serializing data", e);

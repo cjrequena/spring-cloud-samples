@@ -78,9 +78,10 @@ public class ConsumerService5 implements Function<Flux<Message<String>>, Mono<Vo
   private ServerSentEvent<String> buildServerSentEvent(FooEvent event) {
     try {
       return ServerSentEvent.<String>builder()
-        .id(UUID.randomUUID().toString())
+        .id(event.getId())
         .event(event.getType())
-        .data(objectMapper.writeValueAsString(event.getData()))
+        .comment("source: " + event.getSource())
+        .data(objectMapper.writeValueAsString(event))
         .build();
     } catch (Exception e) {
       log.error("Error serializing data", e);
