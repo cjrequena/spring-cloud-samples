@@ -1,20 +1,20 @@
 package com.cjrequena.sample.controller.rest;
 
-import com.cjrequena.sample.common.Constants;
+import com.cjrequena.sample.controller.exception.BadRequestException;
+import com.cjrequena.sample.controller.exception.ConflictException;
+import com.cjrequena.sample.controller.exception.NotFoundException;
+import com.cjrequena.sample.domain.exception.AccountNotFoundException;
+import com.cjrequena.sample.domain.exception.OptimisticConcurrencyException;
+import com.cjrequena.sample.domain.mapper.AccountMapper;
 import com.cjrequena.sample.domain.model.Account;
 import com.cjrequena.sample.domain.model.DepositAccount;
 import com.cjrequena.sample.domain.model.WithdrawAccount;
-import com.cjrequena.sample.exception.controller.BadRequestException;
-import com.cjrequena.sample.exception.controller.ConflictException;
-import com.cjrequena.sample.exception.controller.NotFoundException;
-import com.cjrequena.sample.exception.service.AccountNotFoundException;
-import com.cjrequena.sample.exception.service.OptimisticConcurrencyException;
-import com.cjrequena.sample.mapper.AccountMapper;
 import com.cjrequena.sample.openapi.controller.dto.AccountDTO;
 import com.cjrequena.sample.openapi.controller.dto.DepositAccountDTO;
 import com.cjrequena.sample.openapi.controller.dto.WithdrawAccountDTO;
 import com.cjrequena.sample.openapi.controller.rest.AccountsApi;
 import com.cjrequena.sample.service.AccountService;
+import com.cjrequena.sample.shared.common.Constant;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +39,7 @@ import static org.springframework.http.HttpHeaders.CACHE_CONTROL;
 public class OpenApiAccountController implements AccountsApi {
 
   public static final String ENDPOINT = "/account-service/api/";
-  public static final String ACCEPT_VERSION = "Accept-Version=" + Constants.VND_SAMPLE_SERVICE_V1;
+  public static final String ACCEPT_VERSION = "Accept-Version=" + Constant.VND_SAMPLE_SERVICE_V1;
   private final AccountService accountService;
   private final AccountMapper accountMapper;
 

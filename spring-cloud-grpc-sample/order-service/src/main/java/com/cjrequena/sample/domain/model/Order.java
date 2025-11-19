@@ -1,6 +1,5 @@
 package com.cjrequena.sample.domain.model;
 
-import com.cjrequena.sample.common.EStatus;
 import lombok.Builder;
 import lombok.Data;
 import lombok.ToString;

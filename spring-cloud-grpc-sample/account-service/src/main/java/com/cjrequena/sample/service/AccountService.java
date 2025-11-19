@@ -1,12 +1,12 @@
 package com.cjrequena.sample.service;
 
+import com.cjrequena.sample.domain.exception.AccountNotFoundException;
+import com.cjrequena.sample.domain.exception.DomainException;
+import com.cjrequena.sample.domain.exception.OptimisticConcurrencyException;
+import com.cjrequena.sample.domain.mapper.AccountMapper;
 import com.cjrequena.sample.domain.model.Account;
 import com.cjrequena.sample.domain.model.DepositAccount;
 import com.cjrequena.sample.domain.model.WithdrawAccount;
-import com.cjrequena.sample.exception.service.AccountNotFoundException;
-import com.cjrequena.sample.exception.service.OptimisticConcurrencyException;
-import com.cjrequena.sample.exception.service.ServiceException;
-import com.cjrequena.sample.mapper.AccountMapper;
 import com.cjrequena.sample.persistence.entity.AccountEntity;
 import com.cjrequena.sample.persistence.repository.AccountRepository;
 import jakarta.json.JsonMergePatch;
@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
  */
 @Log4j2
 @Service
-@Transactional(propagation = Propagation.REQUIRED, rollbackFor = ServiceException.class)
+@Transactional(propagation = Propagation.REQUIRED, rollbackFor = DomainException.class)
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class AccountService {
 

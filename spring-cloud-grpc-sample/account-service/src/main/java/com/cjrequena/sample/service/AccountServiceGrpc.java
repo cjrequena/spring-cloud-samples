@@ -1,10 +1,10 @@
 package com.cjrequena.sample.service;
 
-import com.cjrequena.sample.exception.GrpcExceptionHandler;
-import com.cjrequena.sample.exception.service.AccountNotFoundException;
-import com.cjrequena.sample.exception.service.OptimisticConcurrencyException;
-import com.cjrequena.sample.exception.service.ServiceException;
-import com.cjrequena.sample.mapper.AccountMapper;
+import com.cjrequena.sample.controller.exception.GrpcExceptionHandler;
+import com.cjrequena.sample.domain.exception.AccountNotFoundException;
+import com.cjrequena.sample.domain.exception.DomainException;
+import com.cjrequena.sample.domain.exception.OptimisticConcurrencyException;
+import com.cjrequena.sample.domain.mapper.AccountMapper;
 import com.cjrequena.sample.persistence.entity.AccountEntity;
 import com.cjrequena.sample.persistence.repository.AccountRepository;
 import com.cjrequena.sample.proto.*;
@@ -37,7 +37,7 @@ import java.util.UUID;
 @Log4j2
 @GrpcService
 @Service
-@Transactional(propagation = Propagation.REQUIRED, rollbackFor = ServiceException.class)
+@Transactional(propagation = Propagation.REQUIRED, rollbackFor = DomainException.class)
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class AccountServiceGrpc extends com.cjrequena.sample.proto.AccountServiceGrpc.AccountServiceImplBase {
 

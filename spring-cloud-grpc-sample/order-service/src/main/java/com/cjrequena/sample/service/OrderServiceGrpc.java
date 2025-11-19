@@ -1,9 +1,9 @@
 package com.cjrequena.sample.service;
 
-import com.cjrequena.sample.common.EStatus;
-import com.cjrequena.sample.exception.GrpcExceptionHandler;
-import com.cjrequena.sample.exception.service.*;
-import com.cjrequena.sample.mapper.OrderMapper;
+import com.cjrequena.sample.controller.exception.GrpcExceptionHandler;
+import com.cjrequena.sample.domain.exception.*;
+import com.cjrequena.sample.domain.mapper.OrderMapper;
+import com.cjrequena.sample.domain.model.EStatus;
 import com.cjrequena.sample.persistence.entity.OrderEntity;
 import com.cjrequena.sample.persistence.repository.OrderRepository;
 import com.cjrequena.sample.proto.*;
@@ -27,7 +27,7 @@ import java.util.UUID;
 @Log4j2
 @GrpcService
 @Service
-@Transactional(propagation = Propagation.REQUIRED, rollbackFor = ServiceException.class)
+@Transactional(propagation = Propagation.REQUIRED, rollbackFor = DomainException.class)
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class OrderServiceGrpc extends com.cjrequena.sample.proto.OrderServiceGrpc.OrderServiceImplBase {
 

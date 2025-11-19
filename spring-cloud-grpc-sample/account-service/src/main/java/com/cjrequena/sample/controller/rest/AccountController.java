@@ -7,11 +7,11 @@
 //import com.cjrequena.sample.dto.AccountDTO;
 //import com.cjrequena.sample.dto.DepositAccountDTO;
 //import com.cjrequena.sample.dto.WithdrawAccountDTO;
-//import com.cjrequena.sample.exception.controller.BadRequestException;
-//import com.cjrequena.sample.exception.controller.ConflictException;
-//import com.cjrequena.sample.exception.controller.NotFoundException;
-//import com.cjrequena.sample.exception.service.AccountNotFoundException;
-//import com.cjrequena.sample.exception.service.OptimisticConcurrencyException;
+//import com.cjrequena.sample.controller.exception.BadRequestException;
+//import com.cjrequena.sample.controller.exception.ConflictException;
+//import com.cjrequena.sample.controller.exception.NotFoundException;
+//import com.cjrequena.sample.domain.exception.AccountNotFoundException;
+//import com.cjrequena.sample.domain.exception.OptimisticConcurrencyException;
 //import com.cjrequena.sample.mapper.AccountMapper;
 //import com.cjrequena.sample.service.AccountService;
 //import jakarta.servlet.http.HttpServletRequest;

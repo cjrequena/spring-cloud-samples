@@ -351,8 +351,8 @@ components:
           format: date-time
           readOnly: true
           x-field-extra-annotation: |
-            @com.fasterxml.jackson.databind.annotation.JsonSerialize(using = com.cjrequena.sample.dto.serializer.OffsetDateTimeSerializer.class)
-            @com.fasterxml.jackson.databind.annotation.JsonDeserialize(using = com.cjrequena.sample.dto.serializer.OffsetDateTimeDeserializer.class)
+            @com.fasterxml.jackson.databind.annotation.JsonSerialize(using = com.cjrequena.sample.shared.common.util.serializer.OffsetDateTimeSerializer.class)
+            @com.fasterxml.jackson.databind.annotation.JsonDeserialize(using = com.cjrequena.sample.shared.common.util.serializer.OffsetDateTimeDeserializer.class)
             @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)
             @com.fasterxml.jackson.annotation.JsonFormat(shape = com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXXXX")
         updated_at:
@@ -360,8 +360,8 @@ components:
           format: date-time
           readOnly: true
           x-field-extra-annotation: |
-            @com.fasterxml.jackson.databind.annotation.JsonSerialize(using = com.cjrequena.sample.dto.serializer.OffsetDateTimeSerializer.class)
-            @com.fasterxml.jackson.databind.annotation.JsonDeserialize(using = com.cjrequena.sample.dto.serializer.OffsetDateTimeDeserializer.class)
+            @com.fasterxml.jackson.databind.annotation.JsonSerialize(using = com.cjrequena.sample.shared.common.util.serializer.OffsetDateTimeSerializer.class)
+            @com.fasterxml.jackson.databind.annotation.JsonDeserialize(using = com.cjrequena.sample.shared.common.util.serializer.OffsetDateTimeDeserializer.class)
             @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)
             @com.fasterxml.jackson.annotation.JsonFormat(shape = com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXXXX")
         version:

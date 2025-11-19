@@ -1,9 +1,9 @@
 package com.cjrequena.sample.service;
 
-import com.cjrequena.sample.dto.DepositAccountDTO;
-import com.cjrequena.sample.dto.WithdrawAccountDTO;
-import com.cjrequena.sample.exception.service.AccountNotFoundException;
-import com.cjrequena.sample.exception.service.AccountServiceUnavailableException;
+import com.cjrequena.sample.controller.dto.DepositAccountDTO;
+import com.cjrequena.sample.controller.dto.WithdrawAccountDTO;
+import com.cjrequena.sample.domain.exception.AccountNotFoundException;
+import com.cjrequena.sample.domain.exception.AccountServiceUnavailableException;
 import com.cjrequena.sample.proto.*;
 import com.cjrequena.sample.proto.AccountServiceGrpc.AccountServiceBlockingStub;
 import com.google.protobuf.Any;

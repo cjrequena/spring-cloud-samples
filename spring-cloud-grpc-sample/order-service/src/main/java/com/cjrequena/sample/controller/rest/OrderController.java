@@ -1,16 +1,16 @@
 package com.cjrequena.sample.controller.rest;
 
-import com.cjrequena.sample.common.Constants;
-import com.cjrequena.sample.common.EStatus;
+import com.cjrequena.sample.controller.dto.OrderDTO;
+import com.cjrequena.sample.controller.exception.BadRequestException;
+import com.cjrequena.sample.controller.exception.FailedDependencyException;
+import com.cjrequena.sample.controller.exception.NotFoundException;
+import com.cjrequena.sample.controller.exception.PaymentRequiredException;
+import com.cjrequena.sample.domain.exception.*;
+import com.cjrequena.sample.domain.mapper.OrderMapper;
+import com.cjrequena.sample.domain.model.EStatus;
 import com.cjrequena.sample.domain.model.Order;
-import com.cjrequena.sample.dto.OrderDTO;
-import com.cjrequena.sample.exception.controller.BadRequestException;
-import com.cjrequena.sample.exception.controller.FailedDependencyException;
-import com.cjrequena.sample.exception.controller.NotFoundException;
-import com.cjrequena.sample.exception.controller.PaymentRequiredException;
-import com.cjrequena.sample.exception.service.*;
-import com.cjrequena.sample.mapper.OrderMapper;
 import com.cjrequena.sample.service.OrderService;
+import com.cjrequena.sample.shaerd.common.Constant;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +36,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class OrderController {
 
   public static final String ENDPOINT = "/order-service/api/";
-  public static final String ACCEPT_VERSION = "Accept-Version=" + Constants.VND_SAMPLE_SERVICE_V1;
+  public static final String ACCEPT_VERSION = "Accept-Version=" + Constant.VND_SAMPLE_SERVICE_V1;
   private final OrderService orderService;
   private final OrderMapper orderMapper;
 
