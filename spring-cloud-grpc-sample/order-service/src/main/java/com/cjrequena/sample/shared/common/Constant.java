@@ -1,4 +1,4 @@
-package com.cjrequena.sample.shaerd.common;
+package com.cjrequena.sample.shared.common;
 
 /**
  * <p>

@@ -1,4 +1,4 @@
-package com.cjrequena.sample.shaerd.common.util;
+package com.cjrequena.sample.shared.common.util;
 
 import lombok.Getter;
 import org.springframework.context.ApplicationContext;

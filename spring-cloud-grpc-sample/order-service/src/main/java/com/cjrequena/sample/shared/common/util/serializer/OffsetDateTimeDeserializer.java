@@ -1,4 +1,4 @@
-package com.cjrequena.sample.shaerd.common.util.serializer;
+package com.cjrequena.sample.shared.common.util.serializer;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import lombok.extern.log4j.Log4j2;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 /**
  * <p>
@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
  *
  */
 @Log4j2
-public class LocalDateTimeDeserializer extends JsonDeserializer<LocalDateTime> {
+public class OffsetDateTimeDeserializer extends JsonDeserializer<OffsetDateTime> {
 
   /**
    *
@@ -30,9 +30,9 @@ public class LocalDateTimeDeserializer extends JsonDeserializer<LocalDateTime> {
    * @throws IOException
    */
   @Override
-  public LocalDateTime deserialize(JsonParser parser, DeserializationContext context) throws IOException {
+  public OffsetDateTime deserialize(JsonParser parser, DeserializationContext context) throws IOException {
     try {
-      return LocalDateTime.parse(parser.readValueAs(String.class));
+      return OffsetDateTime.parse(parser.readValueAs(String.class));
     } catch (Exception ex) {
       log.error("{}", ex.getMessage() + " - Invalid Date Format");
       throw ex;

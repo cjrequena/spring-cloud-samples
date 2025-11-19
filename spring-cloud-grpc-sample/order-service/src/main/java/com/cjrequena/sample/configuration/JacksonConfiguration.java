@@ -1,6 +1,6 @@
 package com.cjrequena.sample.configuration;
 
-import com.cjrequena.sample.shaerd.common.Constant;
+import com.cjrequena.sample.shared.common.Constant;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;

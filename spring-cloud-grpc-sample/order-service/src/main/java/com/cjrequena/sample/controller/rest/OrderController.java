@@ -10,7 +10,7 @@ import com.cjrequena.sample.domain.mapper.OrderMapper;
 import com.cjrequena.sample.domain.model.EStatus;
 import com.cjrequena.sample.domain.model.Order;
 import com.cjrequena.sample.service.OrderService;
-import com.cjrequena.sample.shaerd.common.Constant;
+import com.cjrequena.sample.shared.common.Constant;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

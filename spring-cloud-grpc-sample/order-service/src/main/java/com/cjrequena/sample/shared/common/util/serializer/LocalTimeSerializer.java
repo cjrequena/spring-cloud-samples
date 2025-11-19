@@ -1,4 +1,4 @@
-package com.cjrequena.sample.shaerd.common.util.serializer;
+package com.cjrequena.sample.shared.common.util.serializer;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;

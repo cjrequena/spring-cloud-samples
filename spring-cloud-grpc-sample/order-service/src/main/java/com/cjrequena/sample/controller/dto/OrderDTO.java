@@ -1,9 +1,9 @@
 package com.cjrequena.sample.controller.dto;
 
 import com.cjrequena.sample.domain.model.EStatus;
-import com.cjrequena.sample.shaerd.common.Constant;
-import com.cjrequena.sample.shaerd.common.util.serializer.OffsetDateTimeDeserializer;
-import com.cjrequena.sample.shaerd.common.util.serializer.OffsetDateTimeSerializer;
+import com.cjrequena.sample.shared.common.Constant;
+import com.cjrequena.sample.shared.common.util.serializer.OffsetDateTimeDeserializer;
+import com.cjrequena.sample.shared.common.util.serializer.OffsetDateTimeSerializer;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;

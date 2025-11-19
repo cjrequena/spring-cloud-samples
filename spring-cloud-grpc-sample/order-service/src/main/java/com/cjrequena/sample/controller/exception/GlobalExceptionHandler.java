@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static com.cjrequena.sample.shaerd.common.Constant.ISO_LOCAL_DATE_TIME;
+import static com.cjrequena.sample.shared.common.Constant.ISO_LOCAL_DATE_TIME;
 
 @RestControllerAdvice
 @Slf4j
