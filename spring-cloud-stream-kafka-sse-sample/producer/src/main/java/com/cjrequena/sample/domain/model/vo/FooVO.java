@@ -1,4 +1,4 @@
-package com.cjrequena.sample.domain.model;
+package com.cjrequena.sample.domain.model.vo;
 
 import java.io.Serializable;
 import java.util.UUID;

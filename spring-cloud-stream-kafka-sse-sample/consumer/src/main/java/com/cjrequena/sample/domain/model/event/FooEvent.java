@@ -1,6 +1,6 @@
 package com.cjrequena.sample.domain.model.event;
 
-import com.cjrequena.sample.domain.model.FooVO;
+import com.cjrequena.sample.domain.model.vo.FooVO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;

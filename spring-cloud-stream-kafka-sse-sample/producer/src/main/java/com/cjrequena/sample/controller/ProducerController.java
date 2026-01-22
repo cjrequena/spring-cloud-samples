@@ -2,6 +2,7 @@ package com.cjrequena.sample.controller;
 
 import com.cjrequena.sample.controller.dto.FooDTO;
 import com.cjrequena.sample.domain.mapper.FooMapper;
+import com.cjrequena.sample.domain.model.event.FooEvent;
 import com.cjrequena.sample.service.ProducerService;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 import static com.cjrequena.sample.controller.ProducerController.ACCEPT_VERSION;
@@ -47,7 +49,16 @@ public class ProducerController {
   @SneakyThrows
   public ResponseEntity<Void> produce(@Parameter @Valid @RequestBody FooDTO dto, @RequestHeader(value = "Subscription-Key", required = false) String subscriptionKey) {
     dto.setId(UUID.randomUUID());
-    this.producerService.produce(fooMapper.toFooVO(dto), subscriptionKey);
+    FooEvent event = FooEvent
+      .builder()
+      .id(UUID.randomUUID())
+      .time(OffsetDateTime.now())
+      .type("com.cjrequena.sample.sse.v1")
+      .source("sse-producer")
+      .data(fooMapper.toFooVO(dto))
+      .build();
+
+    this.producerService.produce(event, subscriptionKey);
     // Headers
     HttpHeaders headers = new HttpHeaders();
     return new ResponseEntity<>(headers, HttpStatus.ACCEPTED);
