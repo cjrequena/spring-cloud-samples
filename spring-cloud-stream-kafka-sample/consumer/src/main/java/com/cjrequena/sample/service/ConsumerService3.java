@@ -1,8 +1,7 @@
 package com.cjrequena.sample.service;
 
-import com.cjrequena.sample.dto.FooDTO;
-import com.cjrequena.sample.event.FooEvent;
-import com.cjrequena.sample.mapper.FooMapper;
+import com.cjrequena.sample.domain.mapper.FooMapper;
+import com.cjrequena.sample.domain.model.event.FooEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +35,6 @@ public class ConsumerService3 implements Function<Flux<Message<String>>, Mono<Vo
     log.info("Received from topic={}, partition={}, offset={}, key={}, payload={}", topic, partition, offset, kafkaKey, payload);
 
     FooEvent event = this.fooMapper.mapToFooEventFromJsonString(payload);
-    FooDTO fooDTO = event.getData();
     return Mono.empty();
   }
 

@@ -55,12 +55,20 @@ management.metrics.tags:
 # SPRING CLOUD STREAM
 #------------------------------
 # https://docs.spring.io/spring-cloud-stream/docs/current/reference/html/
+spring.cloud.function.definition: producer2;
 spring.cloud.stream:
   defaultBinder: my-kafka-binder-01
   default:
     content-type: application/json
   bindings:
-    producer-out-0:
+    producer1-out-0:
+      binder: my-kafka-binder-01
+      destination: spring-cloud-stream-kafka-sample-01
+      content-type: application/json
+      producer:
+        headerMode: headers
+        useNativeEncoding: true
+    producer2-out-0:
       binder: my-kafka-binder-01
       destination: spring-cloud-stream-kafka-sample-01
       content-type: application/json
@@ -76,7 +84,12 @@ spring.cloud.stream:
           headers:
             - x-test-header
         spring.cloud.stream.kafka.bindings:
-          producer-out-0:
+          producer1-out-0:
+            producer:
+              configuration:
+                key.serializer: org.apache.kafka.common.serialization.StringSerializer
+                value.serializer: org.springframework.kafka.support.serializer.JsonSerializer
+          producer2-out-0:
             producer:
               configuration:
                 key.serializer: org.apache.kafka.common.serialization.StringSerializer
@@ -89,7 +102,7 @@ spring.cloud.stream:
           headers:
             - x-test-header
         spring.cloud.stream.kafka.bindings:
-          producer-out-0:
+          producer1-out-0:
             producer:
               configuration:
                 key.serializer: org.apache.kafka.common.serialization.StringSerializer
